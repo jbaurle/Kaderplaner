@@ -39,10 +39,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /*
-   * Zweiter Riegel gegen das eingebaute Ziehen zum Neuladen. Das
-   * `preventDefault` in `pull-to-refresh.ts` kommt erst mit der ersten
-   * Bewegung; hier sagt die Seite schon vorher, dass sie die Geste behält.
-   * Sonst lädt Safari das ganze Dokument statt nur die Daten.
+   * Riegel gegen das eingebaute Ziehen zum Neuladen: ein Wisch nach unten am
+   * oberen Rand soll die Seite nicht neu laden. Zum Laden gibt es den Knopf.
    */
   overscroll-behavior-y: contain;
 }

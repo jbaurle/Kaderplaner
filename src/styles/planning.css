@@ -455,33 +455,6 @@
   display: inline;
 }
 
-/* ---------- Ziehen zum Laden ---------- */
-
-/*
- * Hängt oben ausserhalb des Bildes und wird von der Geste hereingezogen.
- * `pointer-events: none`, damit die Anzeige den Wisch nicht abfängt.
- */
-.pull-hint {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  z-index: 40;
-  translate: -50% -100%;
-  padding: 6px 14px;
-  border-radius: 0 0 999px 999px;
-  background: var(--card);
-  box-shadow: var(--shadow-card);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.pull-hint--offen {
-  color: var(--text-strong);
-}
-
 /* ---------- Umschalter der Szenariospalte ---------- */
 
 /* Seitliches Polster wie in der Kopfkarte (14 px): so beginnt S1 auf derselben
@@ -1102,24 +1075,43 @@
   color: var(--text-strong);
 }
 
+/* Sieht aus wie `.icon-btn` im Kopf und trifft genauso: 30 px sichtbar, mit
+   dem Kragen darum 44 px, die Untergrenze für einen Finger auf iOS. */
 .dialog-close {
+  position: relative;
   flex: none;
-  width: 28px;
-  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   padding: 0;
-  border: 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: transparent;
+  background: var(--card);
   color: var(--text-muted);
   font-family: inherit;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
 
-.dialog-close:hover {
-  background: var(--bg);
-  color: var(--text);
+.dialog-close::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+@media (hover: hover) {
+  .dialog-close:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+}
+
+.dialog-close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
 }
 
 .dialog-body {

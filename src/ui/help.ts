@@ -96,7 +96,6 @@ export const FEATURES_HELP_BODY = `
     <li><strong>Laden</strong> holt Kontostand, Kader und Markt neu. Der
       Score-Lauf hängt sich von selbst dahinter, die Tabelle steht schon
       vorher.</li>
-    <li>Auf dem Handy geht es auch mit Ziehen von oben nach unten.</li>
     <li>Auf schmalen Geräten zeigt die Tabelle eine Szenariospalte, der
       Umschalter darüber wechselt sie. Ab Tablet stehen alle vier
       nebeneinander.</li>
@@ -144,17 +143,19 @@ export const SCORE_HELP_BODY = `
 
     <dt>Form 30 %</dt>
     <dd>
-      Die letzten fünf Spieltage, abklingend gewichtet: der jüngste zählt voll,
-      danach 70 %, 49 % und so weiter. Das Ergebnis wird 70/30 mit dem
-      Saisonschnitt gemischt. 50 Punkte ergeben 0 %, 170 Punkte ergeben 100 %.
-      Spieltage ohne Einsatz zählen nicht mit.
+      Die letzten Spieltage, die Kickbase zum Spieler mitliefert, abklingend
+      gewichtet: der jüngste zählt voll, danach 70 %, 49 % und so weiter. Das
+      Ergebnis wird 70/30 mit dem Saisonschnitt gemischt. 50 Punkte ergeben
+      0 %, 170 Punkte ergeben 100 %. Spieltage ohne Einsatz zählen nicht mit.
     </dd>
 
     <dt>Gegner 15 %</dt>
     <dd>
       Der Tabellenplatz des nächsten Gegners, umgedreht: schwacher Gegner heißt
-      hoher Wert. Solange die Tabelle weniger als drei Spieltage kennt, steht
-      dieser Anteil für alle neutral auf 50 %.
+      hoher Wert. Die Ansetzung dafür steht im Spielerdetail, nicht im
+      Spielplan, aus dem die Gegner-Spalte kommt. Fehlt sie dort, oder hat noch
+      kein Verein drei Spiele gespielt, steht dieser Anteil neutral auf 50 %,
+      auch wenn in der Spalte längst ein Wappen steht.
     </dd>
 
     <dt>Sockel 10 %</dt>
@@ -164,7 +165,9 @@ export const SCORE_HELP_BODY = `
     <dd>
       Kein Summand, sondern ein Faktor auf das Ganze. Fit zählt voll, ein
       Ausfall setzt den Score auf 0. Deshalb heißt <strong>0 %</strong> immer
-      „fällt aus“, und ein fitter Spieler kommt nie unter 10 %.
+      „fällt aus“, und ein fitter Spieler kommt nie unter 10 %. Kickbase führt
+      dazwischen noch einen Status, der 30 % abzieht; in echten Daten ist er
+      bisher nicht aufgetaucht.
     </dd>
   </dl>
 
@@ -172,9 +175,11 @@ export const SCORE_HELP_BODY = `
   <p>
     Das sind nicht einfach die elf höchsten Werte. Der Optimizer probiert alle
     zehn gültigen Formationen durch und wählt die beste Elf, bei der der Verkauf
-    aller übrigen Spieler den Kontostand ins Plus bringt. Dazu kommen
-    Paar-Effekte: zwei eigene Spieler aus demselben Verein verstärken sich
-    leicht, zwei eigene Spieler, die gegeneinander spielen, ziehen sich runter.
+    aller übrigen Spieler den Kontostand ins Plus bringt. Schafft das keine
+    Formation, kommt trotzdem die beste Elf, und die Fußzeile sagt dazu, dass
+    das Konto im Minus bleibt. Dazu kommen Paar-Effekte: zwei eigene Spieler
+    aus demselben Verein verstärken sich leicht, zwei eigene Spieler, die
+    gegeneinander spielen, ziehen sich runter.
   </p>
 
   <h3>Was der Score nicht sagt</h3>
@@ -192,8 +197,8 @@ export const SCORE_HELP_BODY = `
     Zwischen den Saisons steht die Tabelle auf null und es gibt keinen nächsten
     Gegner, der Gegner-Anteil liegt also bei allen auf 50 %. Die Form kommt noch
     aus den letzten Spieltagen der Vorsaison. Übrig bleibt praktisch die
-    Startelf-Wahrscheinlichkeit. Ab dem dritten Spieltag greifen Tabelle und
-    Gegner wieder.
+    Startelf-Wahrscheinlichkeit. Sobald ein Verein drei Spiele gespielt hat,
+    greifen Tabelle und Gegner wieder.
   </p>
 `;
 

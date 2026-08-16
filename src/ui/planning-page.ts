@@ -48,7 +48,6 @@ import {
   type DesktopScoresProp,
   type TransferRow,
 } from './planning-desktop.js';
-import { mountPullToRefresh } from './pull-to-refresh.js';
 import { positionLabel, type PositionLabel } from '../compute/optimizer.js';
 import type { ResolvedScenarioSlot } from '../compute/planning.js';
 
@@ -128,10 +127,6 @@ export class PlanningPage {
   start(): void {
     this.render();
     void this.fetch();
-    mountPullToRefresh({
-      onRefresh: () => void this.fetch(),
-      isBusy: () => this.state.isLoading || this.state.isScoring || this.state.modal !== null,
-    });
     // Drehen ändert die Breite, ohne dass neu gerendert wird.
     window.addEventListener('resize', () => this.fitAmounts());
   }
