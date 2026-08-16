@@ -51,8 +51,11 @@ export const FEATURES_HELP_BODY = `
     <dt>Kader mit Score</dt>
     <dd>
       Jede Zeile ist ein Spieler: Marktwert, Gewinn und Verlust seit dem Kauf,
-      Score in Prozent und der nächste Gegner. Die grün markierten Zellen sind
-      die beste Elf, die ein Optimizer über alle zehn Formationen sucht.
+      Score in Prozent und der nächste Gegner. <strong>Fett</strong> gesetzte
+      Namen stehen gerade in deiner Aufstellung bei Kickbase, deiner Elf also.
+      Die grün markierten Zellen sind etwas anderes: die beste Elf nach Score,
+      die ein Optimizer über alle zehn Formationen sucht. Wo beides
+      auseinanderfällt, lohnt der Blick.
     </dd>
 
     <dt>Vier Szenariospalten</dt>

@@ -61,12 +61,22 @@ button {
 
 /* ---------- Auth shell (login + league picker + planning placeholder) ---------- */
 
+/*
+ * Senkrecht mittig, aber optisch: unten bleibt mehr Luft als oben, sonst sitzt
+ * die Karte gefühlt zu tief. Zentriert wird über `margin-block: auto` am Kind
+ * statt über `align-items`. Beides zentriert gleich, nur schneidet die
+ * Auto-Variante nichts ab, wenn der Inhalt höher wird als das Fenster: dann
+ * beginnt er oben, statt oben aus dem Bild zu laufen.
+ */
 .auth-shell {
   min-height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 24px 24px 88px;
+}
+
+.auth-shell > * {
+  margin-block: auto;
 }
 
 .auth-card {
