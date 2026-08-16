@@ -2,12 +2,13 @@ import { execSync } from 'node:child_process';
 import { defineConfig } from 'vitest/config';
 
 /**
- * Commit des Builds. Auf Cloudflare Pages liefert die Umgebung
- * `CF_PAGES_COMMIT_SHA`; lokal fragen wir git. Ist beides nicht da (etwa in
+ * Commit des Builds. In Workers Builds liefert die Umgebung
+ * `WORKERS_CI_COMMIT_SHA`, auf dem alten Cloudflare Pages war es
+ * `CF_PAGES_COMMIT_SHA`; lokal fragen wir git. Ist nichts davon da (etwa in
  * einem Tarball ohne .git), bleibt es bei "dev".
  */
 function buildCommit(): string {
-  const fromCi = process.env['CF_PAGES_COMMIT_SHA'];
+  const fromCi = process.env['WORKERS_CI_COMMIT_SHA'] ?? process.env['CF_PAGES_COMMIT_SHA'];
   if (fromCi) return fromCi.slice(0, 7);
   try {
     return execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
