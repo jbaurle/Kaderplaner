@@ -11,6 +11,9 @@
  * Form-Fenster 50..170 und Matchup ohne Positionsabhängigkeit weichen
  * bewusst ab. Gleiche Eingaben liefern in beiden Implementierungen deshalb
  * verschiedene Scores.
+ *
+ * Zwei Sätze Gewichte: {@link DISPLAY_WEIGHTS} für die Zahl in der Tabelle,
+ * {@link SELECTION_WEIGHTS} für die Elf. Der Unterschied ist der Gegner.
  */
 
 import type {
@@ -62,9 +65,10 @@ export interface ScoreDetail {
 export interface ScoredPlayer extends OptimizerPlayer {
   score: number;
   /**
-   * Score, mit dem ausgewählt wird. Ohne `selectionWeights` identisch mit
-   * {@link score}. v3 legt hier den gedeckelten Gegner-Bonus drauf: angezeigt
-   * wird ohne Gegner, entschieden wird bei fast gleichem Stand mit ihm.
+   * Score, mit dem ausgewählt wird: derselbe Wert plus Gegner-Anteil.
+   * Angezeigt wird ohne Gegner, entschieden wird bei fast gleichem Stand mit
+   * ihm. Nur wenn Anzeige- und Auswahlgewichte identisch sind, sind auch die
+   * beiden Zahlen gleich.
    */
   selScore: number;
   scoreDetail: ScoreDetail;
@@ -99,7 +103,25 @@ export interface OptimizerWeights {
   availability: number;
 }
 
-const DEFAULT_WEIGHTS: OptimizerWeights = {
+/**
+ * Anzeigegewichte, ohne Gegner. Der Score sagt, wie gut der Spieler selbst
+ * gerade ist. Wer sein nächster Gegner ist, steht daneben in der eigenen
+ * Spalte. Sonst schwankte die Zahl mit der Tabelle, ohne dass sich am Spieler
+ * etwas geändert hätte, und zwei gleich starke Spieler wären nur wegen ihrer
+ * Ansetzung verschieden hoch.
+ */
+export const DISPLAY_WEIGHTS: OptimizerWeights = {
+  form: 0.35,
+  startProb: 0.55,
+  matchup: 0,
+  availability: 0.10,
+};
+
+/**
+ * Auswahlgewichte, mit Gegner. Wer in die Elf kommt, entscheidet er bei fast
+ * gleichem Stand mit; die angezeigte Zahl verschiebt er nicht.
+ */
+export const SELECTION_WEIGHTS: OptimizerWeights = {
   form: 0.30,
   startProb: 0.45,
   matchup: 0.15,
@@ -152,13 +174,14 @@ export class LineupOptimizer {
     players: OptimizerPlayer[],
     competitionTable: CompetitionTable | null,
     budget: number,
-    weights: OptimizerWeights = DEFAULT_WEIGHTS,
+    weights: OptimizerWeights = DISPLAY_WEIGHTS,
     pairEffects = true,
     /**
-     * Gewichte für die Auswahl, falls sie von der Anzeige abweichen sollen.
-     * Standard ist derselbe Satz, dann rechnet alles wie bisher.
+     * Gewichte für die Auswahl. Standard ist der Satz mit Gegner, die Anzeige
+     * bleibt ohne. Wer beides gleich haben will, gibt hier dieselben Gewichte
+     * mit wie oben.
      */
-    selectionWeights: OptimizerWeights = weights,
+    selectionWeights: OptimizerWeights = SELECTION_WEIGHTS,
   ) {
     this.players = players;
     this.budget = budget;

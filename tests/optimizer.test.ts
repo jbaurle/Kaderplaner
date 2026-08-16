@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { CompetitionTable, PositionCode } from '../src/api/types.js';
 import {
   LineupOptimizer,
+  SELECTION_WEIGHTS,
   VALID_FORMATIONS,
   _internal,
   positionLabel,
@@ -283,16 +284,16 @@ describe('scorePlayer', () => {
     const limited = makePlayer({ status: 1, averagePoints: 110, probability: 1 });
     const opt = new LineupOptimizer([fit, limited], null, 0);
 
-    // form 0.5, startProb 1.0, matchup 0.5 (keine Tabelle)
-    // fit = 0.30*0.5 + 0.45*1 + 0.15*0.5 + 0.10 = 0.775
+    // form 0.5, startProb 1.0, Anzeige ohne Gegner
+    // fit = 0.35*0.5 + 0.55*1 + 0.10 = 0.825
     const fitDetail = _internal.scorePlayer(opt, fit);
     const limitedDetail = _internal.scorePlayer(opt, limited);
-    expect(fitDetail.score).toBeCloseTo(0.775);
+    expect(fitDetail.score).toBeCloseTo(0.825);
     expect(limitedDetail.availability).toBe(0.7);
-    expect(limitedDetail.score).toBeCloseTo(0.775 * 0.7);
+    expect(limitedDetail.score).toBeCloseTo(0.825 * 0.7);
   });
 
-  it('combines form, startProb, matchup, availability with the default weights', () => {
+  it('lässt den Gegner aus der Anzeige raus und rechnet ihn nur bei der Auswahl mit', () => {
     const p = makePlayer({
       teamId: 'tA',
       averagePoints: 110,                       // form = 0.5 in 50..170 range
@@ -313,12 +314,15 @@ describe('scorePlayer', () => {
     const opt = new LineupOptimizer([p], table, 0);
     const detail = _internal.scorePlayer(opt, p);
     // matchup: nächster Gegner tB ist Letzter (overall 0) → 1
-    // score = (0.30*0.5 + 0.45*1 + 0.15*1 + 0.10) * 1 = 0.85
-    expect(detail.score).toBeCloseTo(0.85);
+    // Anzeige = (0.35*0.5 + 0.55*1 + 0.10) * 1 = 0.825, ohne den Gegner
+    expect(detail.score).toBeCloseTo(0.825);
     expect(detail.form).toBeCloseTo(0.5);
     expect(detail.startProb).toBe(1);
     expect(detail.matchup).toBe(1);
     expect(detail.availability).toBe(1);
+
+    // Auswahl = (0.30*0.5 + 0.45*1 + 0.15*1 + 0.10) * 1 = 0.85
+    expect(opt.scorePlayer(p, SELECTION_WEIGHTS).score).toBeCloseTo(0.85);
   });
 
   it('stays neutral on matchup while the table has fewer than 3 matchdays', () => {

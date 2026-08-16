@@ -143,7 +143,7 @@ const ALL_SLOTS: readonly ResolvedScenarioSlot[] = ['S1', 'S2', 'S3', 'S5'];
  * ("Was ist der Score?"), die Aufschlüsselung je Spieler im Tooltip der Zelle.
  */
 const SCORE_HINT =
-  'Was der Spieler am nächsten Spieltag bringt, 0 bis 100 %. Aus Form, Startelf-Prognose, Gegner und Verfügbarkeit.';
+  'Was der Spieler am nächsten Spieltag bringt, 0 bis 100 %. Aus Form, Startelf-Prognose und Verfügbarkeit. Der Gegner steht in der Spalte daneben.';
 
 const SLOT_LABEL: Record<ResolvedScenarioSlot, string> = {
   S1: 'S1',
@@ -789,11 +789,15 @@ function renderScoreCell(
   return `<td class="${cls}" title="${escapeHtml(tooltip)}"><span class="${valueCls}">${escapeHtml(value)}</span></td>`;
 }
 
+/**
+ * Aufschlüsselung der Zelle. Der Gegner steht nicht mehr drin: er zählt für
+ * die Zahl nicht mehr mit, sondern nur noch bei der Auswahl der Elf. Sein
+ * Platz ist die Gegner-Spalte.
+ */
 function formatScoreTooltip(d: ScoreDetail): string {
   return [
     `S11: ${Math.round(d.startProb * 100)} %`,
     `Form: ${Math.round(d.form * 100)} % (${Math.round(d.formRaw)} Punkte)`,
-    `Gegner: ${Math.round(d.matchup * 100)} %`,
     `Verfügbarkeit: ${Math.round(d.availability * 100)} %`,
   ].join('\n');
 }
