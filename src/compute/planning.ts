@@ -56,6 +56,13 @@ export interface PositionCounts {
 
 export interface ScenarioSummary {
   /** Σ marketValue of players sold in this scenario. */
+  salesSum: number;
+  /**
+   * Σ der offenen Gebote, immer negativ oder 0. Steht in jeder Spalte gleich:
+   * den Kauf entscheidet kein Szenario.
+   */
+  bidsSum: number;
+  /** `salesSum + bidsSum`, also die Summe unterm Strich. */
   transactionSum: number;
   /** budget + transactionSum. */
   newBalance: number;
@@ -104,12 +111,14 @@ export interface PlanningView {
 export interface PlanningTransfer {
   id: PlayerId;
   positionLabel: PositionLabel;
-  /**
-   * Höhe des Gebots. Sie zählt in beide Richtungen: als Preis beim Kauf und
-   * als Erlös, wenn er in einem Szenario wieder weg soll. Ein angehaktes
-   * Gebot ist damit unterm Strich neutral.
-   */
+  /** Höhe des Gebots, also der Preis beim Kauf. */
   amount: number;
+  /**
+   * Marktwert, also was der Verkauf bringt. Nicht das Gebot: Kickbase zahlt
+   * beim Verkauf den Marktwert, und wer über Marktwert bietet, verliert die
+   * Differenz.
+   */
+  marketValue: number;
   /** In welchen Szenarien er wieder verkauft wird. */
   flags: ScenarioFlags;
 }
@@ -206,13 +215,15 @@ function buildRow(player: SquadPlayer, scenarios: ScenarioState): PlanningRow {
 }
 
 /**
- * Eine Szenariospalte durchrechnen. `transactionSum` ist die Summe unterm
- * Strich: Verkäufe plus, Gebote minus.
+ * Eine Szenariospalte durchrechnen. Verkäufe und Gebote bleiben getrennt,
+ * `transactionSum` ist die Summe unterm Strich. Getrennt, weil die Gebote in
+ * keiner Spalte der Tabelle stehen: stünden sie mit in einer Summe, ließe sich
+ * die Zeile mit den sichtbaren Beträgen nicht nachrechnen.
  *
  * Ein Zugang gilt als bekommen. Sein Gebot geht in jeder Spalte ab, auch in
  * FIX, denn den Kauf entscheidet kein Szenario. Danach ist er ein Kaderspieler
  * wie jeder andere: ohne Häkchen bleibt er und zählt bei der Formation mit,
- * mit Häkchen geht er wieder weg und bringt das Gebot zurück. In FIX steht
+ * mit Häkchen geht er wieder weg und bringt seinen Marktwert. In FIX steht
  * kein Häkchen, die Spalte zeigt den Bestand, wie er ist.
  */
 function summarize(
@@ -222,25 +233,29 @@ function summarize(
   budget: number,
 ): ScenarioSummary {
   const posCounts: PositionCounts = { TW: 0, ABW: 0, MF: 0, ANG: 0 };
-  let transactionSum = 0;
+  let salesSum = 0;
+  let bidsSum = 0;
   for (const row of rows) {
     if (row.flags[slot]) {
-      transactionSum += row.marketValue;
+      salesSum += row.marketValue;
     } else {
       posCounts[row.positionLabel]++;
     }
   }
   for (const transfer of transfers) {
-    transactionSum -= transfer.amount;
+    bidsSum -= transfer.amount;
     if (slot !== 'S5' && transfer.flags[slot]) {
-      transactionSum += transfer.amount;
+      salesSum += transfer.marketValue;
     } else {
       posCounts[transfer.positionLabel]++;
     }
   }
+  const transactionSum = salesSum + bidsSum;
   const totalKept = posCounts.TW + posCounts.ABW + posCounts.MF + posCounts.ANG;
   const formationIssues = getFormationIssues(posCounts, totalKept);
   return {
+    salesSum,
+    bidsSum,
     transactionSum,
     newBalance: budget + transactionSum,
     posCounts,

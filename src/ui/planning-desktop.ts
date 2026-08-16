@@ -165,9 +165,16 @@ export function renderPlanningDesktop(
     ${renderSlotSwitch(activeSlot)}
     <table class="planning-table">
       <thead>
+        ${/* Von oben nach unten eine Rechnung: Start, ab, dazu, Ergebnis. */ ''}
         ${renderActualBalanceRow(view.budget, activeSlot, widest)}
+        ${
+          // Ohne offene Gebote wäre die Zeile in jeder Spalte 0 €.
+          bids.length > 0
+            ? renderScenarioSummaryRow('Gebote', view.summaries, 'bidsSum', activeSlot, widest)
+            : ''
+        }
+        ${renderScenarioSummaryRow('Verkäufe', view.summaries, 'salesSum', activeSlot, widest)}
         ${renderScenarioSummaryRow('Kontostand (neu)', view.summaries, 'newBalance', activeSlot, widest)}
-        ${renderScenarioSummaryRow('Transaktionen', view.summaries, 'transactionSum', activeSlot, widest)}
         <tr class="planning-headrow">
           <th class="col-name">Spieler</th>
           <th class="col-pos">Pos</th>
@@ -189,7 +196,7 @@ export function renderPlanningDesktop(
         ${view.rows.map((row) => renderPlayerRow(row, scores, activeSlot)).join('')}
       </tbody>
       <tfoot>
-        ${renderFooterRow(view, bids, activeSlot)}
+        ${renderFooterRow(view, activeSlot)}
         ${renderFormationIssuesRow(view, activeSlot)}
         ${renderTransferLabelRow(activeSlot)}
         ${renderTransferHeadRow(activeSlot, scores)}
@@ -351,7 +358,7 @@ function renderActualBalanceRow(
 function renderScenarioSummaryRow(
   label: string,
   summaries: ScenarioSummaries,
-  key: keyof Pick<ScenarioSummary, 'newBalance' | 'transactionSum'>,
+  key: keyof Pick<ScenarioSummary, 'newBalance' | 'salesSum' | 'bidsSum'>,
   activeSlot: ResolvedScenarioSlot,
   widest: number,
 ): string {
@@ -418,19 +425,15 @@ function renderFormationIssueBadges(issues: string[]): string {
  * Summenzeile: Kadergröße, Summe der Marktwerte, je Szenario die Zahl der
  * angehakten Spieler, Summe G/V. Score und Gegner bleiben leer, beides lässt
  * sich nicht sinnvoll addieren.
+ *
+ * Gezählt wird nur der Kader. Zugänge stehen im eigenen Block darunter und
+ * haben dort ihre eigene Summenzeile.
  */
-function renderFooterRow(
-  view: PlanningView,
-  bids: readonly TransferRow[],
-  activeSlot: ResolvedScenarioSlot,
-): string {
+function renderFooterRow(view: PlanningView, activeSlot: ResolvedScenarioSlot): string {
   const totalMv = view.rows.reduce((sum, row) => sum + row.marketValue, 0);
   const scenCells = ALL_SLOTS.map((slot) => {
-    const soldSquad = view.rows.filter((row) => row.flags[slot]).length;
-    // Zugänge zählen mit: ein Häkchen bedeutet dort dasselbe.
-    const soldBids =
-      slot === 'S5' ? 0 : bids.filter((row) => row.flags[slot]).length;
-    return `<td class="${scenClass(slot, activeSlot, 'scen-count')}">${soldSquad + soldBids}</td>`;
+    const sold = view.rows.filter((row) => row.flags[slot]).length;
+    return `<td class="${scenClass(slot, activeSlot, 'scen-count')}">${sold}</td>`;
   }).join('');
   return `
     <tr class="planning-footer">
@@ -490,7 +493,7 @@ function renderPlayerRow(
 
 /**
  * Überschrift des Transferblocks, in derselben Schreibweise wie die
- * Beschriftungen über der Tabelle ("Transaktionen"). Sie steht über der
+ * Beschriftungen über der Tabelle ("Verkäufe"). Sie steht über der
  * Spaltenzeile, damit klar ist, dass die Spalten darunter etwas anderes zählen
  * als die des Kaders.
  */
@@ -611,11 +614,12 @@ function renderTransferRow(
     ]
       .filter(Boolean)
       .join(' ');
-    // Das Gebot, nicht der Marktwert: mit Häkchen fällt der Kauf weg, und
-    // damit geht genau der gebotene Betrag zurück.
+    // Der Marktwert, nicht das Gebot: ein Häkchen heißt hier dasselbe wie im
+    // Kader, nämlich verkaufen, und Kickbase zahlt dafür den Marktwert. Das
+    // Gebot steht daneben in der eigenen Spalte und geht in jeder Spalte ab.
     return `
       <td class="${classes}" data-player-id="${escapeHtml(bid.id)}" data-slot="${slot}">
-        <span class="scen-amount">${money(amount)}</span>
+        <span class="scen-amount">${money(bid.marketValue)}</span>
       </td>
     `;
   }).join('');
@@ -638,8 +642,8 @@ function renderTransferRow(
 
 /**
  * Summenzeile des Transferblocks, gebaut wie die des Kaders: links die Anzahl,
- * dann die Summen unter ihren Spalten. Die Szenariospalten zählen, wie viele
- * Zugänge dort wieder weg sollen.
+ * dann die Summen unter ihren Spalten. Auch die Szenariospalten summieren,
+ * nicht zählen: nur so lässt sich die Zeile "Verkäufe" oben nachrechnen.
  */
 function renderTransferFooterRow(
   bids: readonly TransferRow[],
@@ -653,8 +657,10 @@ function renderTransferFooterRow(
     if (slot === 'S5') {
       return `<td class="${scenClass(slot, activeSlot, 'num')}">${money(totalMv)}</td>`;
     }
-    const sold = bids.filter((row) => row.flags[slot]).length;
-    return `<td class="${scenClass(slot, activeSlot, 'scen-count')}">${sold}</td>`;
+    const sold = bids
+      .filter((row) => row.flags[slot])
+      .reduce((sum, row) => sum + row.player.marketValue, 0);
+    return `<td class="${scenClass(slot, activeSlot, 'num')}">${money(sold)}</td>`;
   }).join('');
 
   return `

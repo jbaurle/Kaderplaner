@@ -15,7 +15,7 @@ Browser an und legt nichts ab außer in deinem `localStorage`.
 - **Score je Spieler**, 0 bis 100 %. Aus Form, Startelf-Prognose, Gegner und
   Verfügbarkeit. Die beste Elf sucht ein Optimizer über alle zehn Formationen.
 - **Vier Szenariospalten.** S1 bis S3 hakst du selbst an, FIX ist die Bank, wie
-  sie gerade steht. Kontostand und Transaktionen rechnen live mit.
+  sie gerade steht. Kontostand, Verkäufe und Gebote rechnen live mit.
 - **Gegner am nächsten Spieltag** als Wappen mit Tendenzpfeil, aus dem
   Spielplan des Wettbewerbs.
 - **Transferblock** mit deinen offenen Geboten, auch denen aus der

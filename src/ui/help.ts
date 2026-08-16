@@ -58,9 +58,9 @@ export const FEATURES_HELP_BODY = `
     <dt>Vier Szenariospalten</dt>
     <dd>
       In S1 bis S3 hakst du an, wen du verkaufen würdest. FIX ist keine
-      Auswahl, sondern deine Bank, wie sie gerade steht. Unter jeder Spalte
-      rechnen <strong>Kontostand (neu)</strong> und
-      <strong>Transaktionen</strong> live mit, dazu steht dort, ob mit den
+      Auswahl, sondern deine Bank, wie sie gerade steht. Über der Tabelle
+      rechnen <strong>Kontostand (neu)</strong>, <strong>Verkäufe</strong> und
+      <strong>Gebote</strong> live mit, dazu steht in der Spalte, ob mit den
       übrigen Spielern noch eine gültige Formation zustande kommt.
     </dd>
 
@@ -74,9 +74,10 @@ export const FEATURES_HELP_BODY = `
     <dt>Transferblock</dt>
     <dd>
       Unter dem Kader stehen deine offenen Gebote, auch die aus der
-      Kickbase-App. Jedes Gebot geht vom Kontostand ab, der Spieler zählt zum
-      Kader. Ein Häkchen heißt auch hier verkaufen, ein angehaktes Gebot ist
-      damit unterm Strich neutral.
+      Kickbase-App. Jedes Gebot geht in jeder Spalte vom Kontostand ab, der
+      Spieler zählt zum Kader. Ein Häkchen heißt auch hier verkaufen und bringt
+      den Marktwert zurück, nicht das Gebot: wer über Marktwert bietet, sieht
+      hier genau diese Differenz.
     </dd>
 
     <dt>Aufstellung</dt>

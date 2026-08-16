@@ -32,6 +32,8 @@ describe('computePlanning', () => {
     expect(view.budget).toBe(1000);
     expect(view.totalMvgl).toBe(0);
     expect(view.summaries.S1).toEqual({
+      salesSum: 0,
+      bidsSum: 0,
       transactionSum: 0,
       newBalance: 1000,
       posCounts: { TW: 0, ABW: 0, MF: 0, ANG: 0 },
@@ -311,6 +313,60 @@ describe('computePlanning', () => {
       expect(view.formation).toBe('2-3-2');
       expect(view.lineupCount).toBe(8);
       expect(view.totalPlayers).toBe(9);
+    });
+  });
+
+  describe('Zugänge (offene Gebote)', () => {
+    // Über Marktwert geboten: 2.500 gezahlt, 2.000 bekommen.
+    const transfer = {
+      id: 't1',
+      positionLabel: 'TW' as const,
+      amount: 2_500,
+      marketValue: 2_000,
+      flags: { S1: true, S2: false, S3: false },
+    };
+
+    it('zieht das Gebot in jeder Spalte ab, auch in FIX', () => {
+      const view = computePlanning({
+        budget: 0,
+        squad: [],
+        scenarios: NO_SCENARIOS,
+        transfers: [transfer],
+      });
+      for (const slot of ['S1', 'S2', 'S3', 'S5'] as const) {
+        expect(view.summaries[slot].bidsSum).toBe(-2_500);
+      }
+    });
+
+    it('bringt beim Verkauf den Marktwert zurück, nicht das Gebot', () => {
+      const view = computePlanning({
+        budget: 0,
+        squad: [],
+        scenarios: NO_SCENARIOS,
+        transfers: [transfer],
+      });
+      expect(view.summaries.S1.salesSum).toBe(2_000);
+      expect(view.summaries.S1.transactionSum).toBe(-500);
+      expect(view.summaries.S1.newBalance).toBe(-500);
+      // Ohne Häkchen bleibt er im Kader und zählt bei der Formation mit.
+      expect(view.summaries.S2.salesSum).toBe(0);
+      expect(view.summaries.S2.transactionSum).toBe(-2_500);
+      expect(view.summaries.S2.posCounts.TW).toBe(1);
+      expect(view.summaries.S1.posCounts.TW).toBe(0);
+    });
+
+    it('trennt Verkäufe und Gebote, transactionSum bleibt die Summe', () => {
+      const view = computePlanning({
+        budget: 10_000,
+        squad: [player({ id: 'a', marketValue: 800, isInLineup: false })],
+        scenarios: NO_SCENARIOS,
+        transfers: [transfer],
+      });
+      const fix = view.summaries.S5;
+      expect(fix.salesSum).toBe(800);
+      expect(fix.bidsSum).toBe(-2_500);
+      expect(fix.transactionSum).toBe(-1_700);
+      expect(fix.newBalance).toBe(8_300);
     });
   });
 });

@@ -353,6 +353,7 @@ export class PlanningPage {
         id: row.player.id,
         positionLabel: positionLabel(row.player.position),
         amount: row.player.myOffer?.amount ?? 0,
+        marketValue: row.player.marketValue,
         flags: row.flags,
       })),
     });
