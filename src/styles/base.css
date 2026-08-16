@@ -148,6 +148,86 @@ button {
   flex-wrap: wrap;
 }
 
+/* ---------- Login: Kennzeichnung, Belege, Rechtsfußzeile ---------- */
+
+/* Trägt Karte und Fußzeile, damit die Fußzeile die Breite der Karte hat. */
+.auth-stack {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-kicker {
+  /* Zieht die Zeile dicht unter den Titel, gegen die 16px Lücke der Karte. */
+  margin: -10px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.auth-kicker b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.auth-rule {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2px 0 0;
+}
+
+.auth-proof {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.auth-proof li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.auth-proof .tick {
+  color: var(--success);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.auth-proof a {
+  color: var(--text);
+}
+
+.auth-small {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.auth-legal {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.auth-legal a {
+  color: var(--text-muted);
+}
+
+.auth-legal span {
+  color: var(--border-strong);
+}
+
 /* ---------- Form fields ---------- */
 
 .field {

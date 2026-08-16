@@ -10,6 +10,9 @@
 import { KickbaseError } from '../api/kickbase.js';
 import { escapeHtml } from './format.js';
 
+/** Repo hinter „Der Code liegt offen". Der Link trägt erst, wenn es öffentlich ist. */
+const REPO_URL = 'https://github.com/jbaurle/Kaderplaner';
+
 export interface LoginViewProps {
   prefilledEmail: string | null;
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -18,21 +21,47 @@ export interface LoginViewProps {
 export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
   host.innerHTML = `
     <main class="auth-shell">
-      <form class="auth-card" id="login-form" novalidate>
-        <h1 class="auth-title">Kickbase Kaderplaner</h1>
-        <label class="field">
-          <span class="field-label">E-Mail</span>
-          <input type="email" name="email" class="field-input" required autocomplete="username" autofocus
-                 value="${escapeHtml(props.prefilledEmail ?? '')}">
-        </label>
-        <label class="field">
-          <span class="field-label">Passwort</span>
-          <input type="password" name="password" class="field-input" required autocomplete="current-password">
-        </label>
-        <button type="submit" class="auth-submit">Anmelden</button>
-        <p class="auth-error" id="login-error" role="alert"></p>
-        <p class="auth-hint">Deine Zugangsdaten bleiben in deinem Browser. Das Passwort wird nicht gespeichert.</p>
-      </form>
+      <div class="auth-stack">
+        <form class="auth-card" id="login-form" novalidate>
+          <h1 class="auth-title">Kickbase Kaderplaner</h1>
+          <p class="auth-kicker"><b>Inoffizielles Fan-Tool.</b> Kein Angebot von Kickbase.</p>
+          <label class="field">
+            <span class="field-label">E-Mail</span>
+            <input type="email" name="email" class="field-input" required autocomplete="username" autofocus
+                   value="${escapeHtml(props.prefilledEmail ?? '')}">
+          </label>
+          <label class="field">
+            <span class="field-label">Passwort</span>
+            <input type="password" name="password" class="field-input" required autocomplete="current-password">
+          </label>
+          <button type="submit" class="auth-submit">Anmelden</button>
+          <p class="auth-error" id="login-error" role="alert"></p>
+          <hr class="auth-rule">
+          <ul class="auth-proof">
+            <li>
+              <span class="tick" aria-hidden="true">✓</span>
+              <span>Dein Passwort geht direkt an Kickbase. Wir haben keinen Server, der es sehen könnte.</span>
+            </li>
+            <li>
+              <span class="tick" aria-hidden="true">✓</span>
+              <span>Der Code liegt offen auf <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub</a>.
+                Du kannst nachlesen, dass das stimmt.</span>
+            </li>
+            <li>
+              <span class="tick" aria-hidden="true">✓</span>
+              <span>Kein Tracking, keine Cookies, keine Werbung.</span>
+            </li>
+          </ul>
+          <p class="auth-small">Kaderplaner steht in keiner Verbindung zu Kickbase.
+            Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
+        </form>
+        <p class="auth-legal">
+          <a href="/impressum.html">Impressum</a><span aria-hidden="true">·</span>
+          <a href="/datenschutz.html">Datenschutz</a><span aria-hidden="true">·</span>
+          <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a><span aria-hidden="true">·</span>
+          <a href="${REPO_URL}" target="_blank" rel="noopener">Quellcode</a>
+        </p>
+      </div>
     </main>
   `;
 
