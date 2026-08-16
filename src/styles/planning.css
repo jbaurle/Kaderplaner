@@ -1,0 +1,1343 @@
+/* ---------- Shell ---------- */
+
+/*
+ * Bezugsgröße der Breitenleiter weiter unten. Der Fuss lässt die letzte
+ * Zeile über den Bildschirmrand hochscrollen, statt sie dort kleben zu lassen.
+ */
+/*
+ * 1040 statt 1400: die Tabelle braucht von sich aus rund 830 px, alles
+ * darüber schlägt die Spieler-Spalte auf, weil sie als einzige mitwächst.
+ * Bei 1400 war sie 640 px breit für Namen von 80 px. Der Rest Luft bleibt
+ * bewusst, damit lange Namen und große Beträge nicht gequetscht werden.
+ */
+.planning-shell {
+  container-type: inline-size;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px 12px calc(48px + env(safe-area-inset-bottom, 0px));
+}
+
+/*
+ * Raster statt Flex: Überschrift und Konto teilen sich die erste Zeile,
+ * Untertitel und Knopfzeile laufen darunter über die volle Breite. Mit Flex
+ * rutschte das Konto bei langen Untertiteln in eine dritte Zeile.
+ */
+.planning-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.planning-header h1 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.planning-account {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.planning-subtitle,
+.planning-actions-row {
+  grid-column: 1 / -1;
+}
+
+.planning-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.formation-chip {
+  display: inline-block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Der Chip im Kopf ist der Weg zur Aufstellung. Er erbt Schrift und Größe
+   der Untertitelzeile, nur der Zeiger verraet, dass er etwas oeffnet. */
+.formation-chip--link {
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.formation-chip--link:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* Liganame als Einstieg in den Ligawechsel. Erbt Größe und Farbe der
+   Untertitelzeile, das Caret signalisiert das Overlay. */
+.league-link {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/*
+ * Die Zeile ist 16 px hoch, ein Finger braucht 44. Das Feld wächst über ein
+ * Pseudoelement statt über Polster, damit die Untertitelzeile nicht
+ * auseinandergezogen wird.
+ */
+.league-link::after,
+.help-link::after {
+  content: '';
+  position: absolute;
+  inset: -14px -8px;
+}
+
+@media (hover: hover) {
+  .league-link:hover {
+    color: var(--text-strong);
+  }
+}
+
+.league-caret {
+  margin-left: 2px;
+  font-size: 9px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.planning-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.planning-account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Lieber die Adresse kürzen als den Knopf aus der Zeile drängen. */
+.user-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Gleiche Höhe wie Laden und Score. Das Trefferfeld wächst darunter über
+   ein Pseudoelement weiter, damit der Finger nicht daneben trifft. */
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .icon-btn:hover {
+    color: var(--error);
+    border-color: var(--border-strong);
+  }
+}
+
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  border: 0;
+}
+
+.btn--primary {
+  background: var(--primary);
+  color: #fff;
+  padding: 6px 16px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--link {
+  background: transparent;
+  color: var(--text-muted);
+  text-decoration: underline;
+  padding: 4px 6px;
+}
+
+.btn--link:hover {
+  color: var(--text);
+}
+
+/*
+ * Flex, damit Text und Knöpfe im Banner echt vertikal mittig sitzen statt
+ * über die Inline-Baseline ausgerichtet zu werden. Der Abstand nach unten
+ * trennt das Banner von der Tabelle.
+ */
+.planning-shell .banner {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.banner-action {
+  margin-left: 12px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Breitenleiter ----------
+ *
+ * Eine Tabelle für jede Breite. Der Renderer gibt immer alle Spalten aus,
+ * hier fällt weg was nicht passt. Gemessen wird die Breite der Shell, nicht
+ * die des Fensters, darum Container-Queries.
+ *
+ * Die Grenzen sind Containerbreiten, also 24 px unter der Gerätebreite: so
+ * viel nimmt das Polster der Shell weg. In Klammern das Gerät dahinter.
+ *
+ *   Grundzustand  Spieler · Pos · aktives Szenario · Score · Gegner
+ *   ab 336 (360)  + Marktwert, G/V zweizeilig darunter
+ *                                       Galaxy S22 / S23 / A-Reihe
+ *   ab 388 (412)  G/V als eigene Spalte, 12 px Schrift
+ *                                       Galaxy Note / Pixel, iPhone Pro Max
+ *   ab 720 (744)  + FIX, volle Beträge  iPad mini, Galaxy Tab hochkant
+ *   ab 796 (820)  alle vier Szenarien   iPad Air hochkant, iPad Pro 11
+ *   ab 900 (924)  mehr Zellenpolster    iPad quer, Desktop
+ *
+ * Beträge stehen bis 720 in Millionen, die Einheit dazu in der Legende.
+ *
+ * Unter etwa 320 px reicht auch das nicht mehr, dann scrollt die Tabelle
+ * seitwärts. Das betrifft nur den zugeklappten Galaxy Fold (280 px).
+ */
+
+/*
+ * Alle Regeln hier hängen an `.planning-shell`, damit sie die Grundwerte im
+ * Abschnitt "Table" schlagen. Innerhalb dieses Blocks entscheidet dann die
+ * Reihenfolge, deshalb steht jede Stufe hinter der vorigen.
+ */
+.planning-table-host {
+  overflow-x: auto;
+}
+
+.planning-shell .planning-table {
+  font-size: 11px;
+}
+
+.planning-shell .planning-table th,
+.planning-shell .planning-table td {
+  padding: 6px 5px;
+}
+
+/*
+ * Alle Szenariospalten hängen am Betrag und sind dadurch gleich breit. Die
+ * Knöpfe im Kopf zählen nicht mit, siehe `.slot-actions`.
+ */
+.planning-shell .planning-table .col-scen {
+  width: 1%;
+  min-width: 0;
+}
+
+/*
+ * Der Name wird gekürzt statt die Zahlen zu verdrängen. Ohne Deckel frisst
+ * ein langer Name den Platz, den die vollen Beträge brauchen, und die
+ * Tabelle kippt eine Stufe tiefer. Am Desktop ist der Deckel weit genug, dass
+ * praktisch nie gekürzt wird.
+ */
+.planning-shell .name-text {
+  display: block;
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planning-shell .col-mv,
+.planning-shell .col-pl,
+.planning-shell .col-scen {
+  display: none;
+}
+
+
+.planning-shell .col-scen--active {
+  display: table-cell;
+}
+
+.planning-shell .label-wide {
+  display: none;
+}
+
+/*
+ * Volle Beträge sind die Vorgabe, auf jeder Breite. Ob sie passen,
+ * entscheidet `fitAmounts()` nach dem Rendern, nicht eine Pixelgrenze: auf
+ * dem iPhone 13 reichen 353 von 366 px, das hätte keine Stufe erraten.
+ */
+.planning-shell .amount-narrow,
+.planning-shell .amount-hint {
+  display: none;
+}
+
+/*
+ * G/V als zweite Zeile unter dem Marktwert, solange die eigene Spalte nicht
+ * passt. Gedämpft, damit der Marktwert die Hauptzahl bleibt: die Deckkraft
+ * blasst Grün, Rot und Grau gleichermassen ab, ohne dafür eigene Farben zu
+ * brauchen.
+ */
+.planning-shell .mv-gv,
+.planning-shell .mv-gv-label {
+  display: block;
+  font-size: 0.9em;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+@container (min-width: 336px) {
+  .planning-shell .col-mv {
+    display: table-cell;
+  }
+}
+
+@container (min-width: 388px) {
+  .planning-shell .col-pl {
+    display: table-cell;
+  }
+  /* Ab hier hat G/V eine eigene Spalte, die zweite Zeile fällt weg. */
+  .planning-shell .mv-gv,
+  .planning-shell .mv-gv-label {
+    display: none;
+  }
+  .planning-shell .planning-table {
+    font-size: 12px;
+  }
+  .planning-shell .planning-table th,
+  .planning-shell .planning-table td {
+    padding: 6px 7px;
+  }
+  /*
+   * Ab hier ist Platz für das Vereinswappen. Darunter bleibt es aus: es
+   * kostet zwar keine Spaltenbreite, würde auf dem Handy aber den ohnehin
+   * schon gekürzten Namen überdecken.
+   */
+  .planning-shell .team-logo {
+    display: block;
+  }
+  /*
+   * Der 12-Zeichen-Deckel bleibt, greift jetzt aber nur, solange die Zelle
+   * breit genug ist. Wird sie schmaler, kürzt der Name früher, statt unter
+   * das Wappen zu laufen. `min()` statt eines festen Werts, damit das an
+   * jeder Stufe von selbst passt.
+   */
+  .planning-shell .name-text {
+    max-width: min(12ch, calc(100% - 26px));
+  }
+}
+
+/*
+ * Tablet hochkant: FIX als Vergleich neben der gewählten Spalte, lange
+ * Spaltentitel, volle Beträge.
+ */
+@container (min-width: 720px) {
+  .planning-shell .col-scen--fix {
+    display: table-cell;
+  }
+  /* FIX steht jetzt als eigene Spalte da, im Umschalter wäre es doppelt. */
+  .planning-shell .scen-switch-fix {
+    display: none;
+  }
+  /* Ab hier stehen mehrere Szenariospalten nebeneinander und teilen sich den
+     Platz von selbst gleichmaessig, die feste Breite von oben stoert nur. */
+  .planning-shell .planning-table .col-scen {
+    width: 1%;
+    min-width: 0;
+  }
+  .planning-shell .label-wide {
+    display: inline;
+  }
+  .planning-shell .label-narrow {
+    display: none;
+  }
+  .planning-shell .planning-table {
+    font-size: 13px;
+  }
+  /*
+   * 8 statt 10 Polster: mit 10 braucht die volle Schreibweise 810 px, und auf
+   * dem iPad Air hochkant (796) fällt die Score-Spalte heraus. Gemessen mit
+   * vier Szenariospalten und neunstelligen Beträgen.
+   */
+  .planning-shell .planning-table th,
+  .planning-shell .planning-table td {
+    padding: 4px 8px;
+  }
+}
+
+@container (min-width: 796px) {
+  .planning-shell .scen-switch {
+    display: none;
+  }
+  .planning-shell .col-scen {
+    display: table-cell;
+  }
+}
+
+/* Ab hier ist Luft für weitere Zellenpolster. */
+@container (min-width: 900px) {
+  .planning-shell .planning-table th,
+  .planning-shell .planning-table td {
+    padding: 4px 10px;
+  }
+}
+
+/*
+ * Notbremse aus `fitAmounts()`: passt die volle Schreibweise doch nicht,
+ * wird zurück auf Millionen geschaltet. Steht bewusst hinter allen Stufen,
+ * damit sie jede von ihnen überstimmt.
+ */
+.planning-shell.is-compact-amounts .amount-wide {
+  display: none;
+}
+
+.planning-shell.is-compact-amounts .amount-narrow,
+.planning-shell.is-compact-amounts .amount-hint {
+  display: inline;
+}
+
+/* ---------- Ziehen zum Laden ---------- */
+
+/*
+ * Hängt oben ausserhalb des Bildes und wird von der Geste hereingezogen.
+ * `pointer-events: none`, damit die Anzeige den Wisch nicht abfängt.
+ */
+.pull-hint {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 40;
+  translate: -50% -100%;
+  padding: 6px 14px;
+  border-radius: 0 0 999px 999px;
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.pull-hint--offen {
+  color: var(--text-strong);
+}
+
+/* ---------- Umschalter der Szenariospalte ---------- */
+
+/* Seitliches Polster wie in der Kopfkarte (14 px): so beginnt S1 auf derselben
+   Kante wie "Laden" darueber, und FIX endet auf der Kante rechts. */
+.scen-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px 14px;
+  margin-bottom: 8px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.scen-switch button {
+  flex: 1;
+  padding: 8px 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.scen-switch button[aria-pressed='true'] {
+  background: var(--primary);
+  color: #fff;
+}
+
+.scen-switch button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+/* ---------- Table ---------- */
+
+/*
+ * Kein `overflow: hidden` hier. Passt die Tabelle einmal nicht, soll sie im
+ * Host scrollen statt die letzte Spalte abzuschneiden: abgeschnitten sieht
+ * aus wie "es gibt keinen Score", gescrollt sieht man, dass da noch etwas ist.
+ */
+.planning-table {
+  width: 100%;
+  min-width: min-content;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  font-size: 13px;
+  line-height: 1.25;
+  table-layout: auto;
+}
+
+.planning-table th,
+.planning-table td {
+  padding: 4px 10px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* Numeric / fixed columns hug their content (width:1% + nowrap idiom). */
+.planning-table .col-pos,
+.planning-table .col-mv,
+.planning-table .col-pl {
+  width: 1%;
+}
+
+/* Spieler column: takes remaining space, never narrower than longest name. */
+.planning-table .col-name {
+  width: auto;
+}
+
+.planning-table thead th,
+.planning-table thead td {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--card);
+}
+
+.planning-table th.col-name,
+.planning-table td.col-name {
+  text-align: left;
+}
+
+/* Anker für das Vereinswappen. */
+.planning-table td.col-name {
+  position: relative;
+}
+
+/*
+ * Vereinswappen an der rechten Kante der Namensspalte. Absolut, damit es die
+ * Spalte nicht verbreitert: die Tabelle ist bis 280 px durchgerechnet, ein
+ * Wappen im Textfluss würde jede Stufe verschieben. Die feste rechte Kante
+ * der Spalte stellt die Wappen von selbst in eine Linie.
+ *
+ * Eingeblendet wird es erst ab Container 388 px, siehe Breitenleiter.
+ */
+.team-logo {
+  display: none;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.planning-table th.col-pos,
+.planning-table td.col-pos {
+  text-align: center;
+}
+
+/* "FIX" column header is centered (no action icons to right-align). */
+.planning-table thead th.col-scen--fix {
+  text-align: center;
+}
+
+.planning-summary {
+  background: #f7f8fa;
+}
+
+/* Higher specificity — wins over `.planning-table thead td` (which
+   would otherwise force these cells to 11 px uppercase letterspaced). */
+.planning-table thead .planning-summary th.summary-label,
+.planning-table thead .planning-summary td {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: #f7f8fa;
+}
+
+.planning-table thead .planning-summary th.summary-label {
+  text-align: left;
+}
+
+/* Bring back green/red for Kontostand (neu) — these need to outrank
+   the .planning-summary `color: var(--text)` rule above. */
+.planning-table thead .planning-summary td.num--pos {
+  color: var(--success);
+}
+
+.planning-table thead .planning-summary td.num--neg {
+  color: var(--error);
+}
+
+.planning-headrow th {
+  background: var(--card);
+}
+
+/*
+ * Der Transferblock hat Überschrift und Spaltenzeile im Fuss. Die
+ * `thead`-Regeln greifen dort nicht, deshalb steht das Aussehen hier noch
+ * einmal.
+ */
+.planning-table tfoot .planning-summary th.summary-label,
+.planning-table tfoot .planning-summary td {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: #f7f8fa;
+  border-bottom: 1px solid var(--border);
+}
+
+.planning-table tfoot .planning-summary th.summary-label {
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.planning-transfers-empty td {
+  color: var(--text-muted);
+  text-align: left;
+}
+
+
+/* Linie und Luft trennen den Block von der Summenzeile darüber. Die leichte
+   Linie, nicht `--border-strong`: sie soll gliedern, nicht abschneiden. */
+/* Mit `.planning-shell` davor, sonst gewinnt die Kurzform `padding` aus der
+   Breitenleiter und setzt `padding-top` wieder zurueck. */
+.planning-shell .planning-table .planning-transfers-label th,
+.planning-shell .planning-table .planning-transfers-label td {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.planning-table tfoot .planning-headrow th {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.planning-table tbody tr:nth-child(even),
+.planning-table tfoot tr.is-alt {
+  background: #f9fafc;
+}
+
+.planning-table tbody tr:hover {
+  background: #eef2f7;
+}
+
+/* ---------- Footer (totals + player count) ---------- */
+
+.planning-table tfoot .planning-footer td {
+  background: #f7f8fa;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Kadergröße und die Anzahl je Szenario sind Stückzahlen, keine Summen:
+   kleiner und gedaempft, damit sie den Betraegen daneben nicht das Gewicht
+   nehmen. */
+.planning-table tfoot .planning-footer td.col-name,
+.planning-table tfoot .planning-footer td.scen-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.planning-table tfoot .planning-footer-formation td {
+  border-top: 1px solid var(--border);
+}
+
+.formation-status-cell {
+  white-space: nowrap;
+  line-height: 1.25;
+  text-align: center;
+  vertical-align: top;
+}
+
+.planning-table tfoot .formation-status-cell--invalid {
+  background: #fee2e2;
+  color: var(--error);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.formation-issue-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  width: 100%;
+}
+
+.formation-issue-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: var(--text-strong);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.formation-issue-chip--count {
+  background: #fee2e2;
+  color: var(--error);
+  box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25);
+}
+
+/* Outrank the footer's `color: var(--text)` so totals stay green/red. */
+.planning-table tfoot .planning-footer td.num--pos {
+  color: var(--success);
+}
+
+.planning-table tfoot .planning-footer td.num--neg {
+  color: var(--error);
+}
+
+
+.col-name--lineup {
+  font-weight: 700;
+}
+
+/* ---------- Numbers + chips ---------- */
+
+.num {
+  text-align: right;
+}
+
+.num--pos {
+  color: var(--success);
+}
+
+.num--neg {
+  color: var(--error);
+}
+
+.num--neutral {
+  color: var(--text);
+}
+
+.chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.chip--pos1 {
+  background: #fde68a;
+}
+.chip--pos2 {
+  background: #bfdbfe;
+}
+.chip--pos3 {
+  background: #d1fae5;
+}
+.chip--pos4 {
+  background: #fecaca;
+}
+
+/* ---------- Scenario cells ---------- */
+
+/*
+ * Kopf der Szenariospalten: die beiden Knöpfe liegen über der Zelle statt
+ * in ihr. Im Fluss bräuchten sie mehr Platz als der Betrag darunter und
+ * machten S1 bis S3 breiter als FIX, dessen Kopf nur das Wort trägt.
+ */
+.planning-table thead th.col-scen {
+  position: relative;
+}
+
+.slot-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding-right: 5px;
+}
+
+.slot-copy,
+.slot-clear {
+  padding: 2px 3px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .slot-copy:hover {
+    color: var(--primary);
+  }
+
+  .slot-clear:hover {
+    color: var(--error);
+  }
+}
+
+.slot-copy:focus-visible,
+.slot-clear:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.scen-cell {
+  cursor: default;
+  user-select: none;
+}
+
+.scen-cell--clickable {
+  cursor: pointer;
+}
+
+/*
+ * Der Betrag belegt seinen Platz auch ungesetzt, nur unsichtbar. Damit steht
+ * die Spaltenbreite von Anfang an fest und die Tabelle wackelt beim Setzen
+ * eines Häkchens nicht. `visibility` statt `display`, sonst fällt der Platz
+ * wieder weg; Vorlesewerkzeuge überspringen den Text so ebenfalls.
+ */
+.scen-cell:not(.scen-cell--checked) .scen-amount {
+  visibility: hidden;
+}
+
+/*
+ * Platzhalter in den Summenzeilen: nimmt Breite ein, aber keine Höhe, und
+ * hält die Spalte auf dem größtmöglichen Betrag.
+ */
+.amount-gauge {
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+
+/*
+ * Dasselbe für die Formationsfehler: hält die Spalte auf dem breitesten
+ * Chip, damit sie nicht springt, wenn die Fehlerzeile kommt oder geht.
+ */
+.formation-gauge {
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+
+.scen-cell--checked {
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+/* S5 (fix) — auto-derived. Show the value but no highlight. */
+.scen-cell--auto.scen-cell--checked {
+  background: transparent;
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* ---------- Score column ---------- */
+
+/* Hängt am Inhalt. Breiteste Angabe ist die Überschrift, nicht der Wert,
+   und die aendert sich nie: damit steht die Breite fest. */
+.planning-table .col-score {
+  width: 1%;
+  text-align: right;
+}
+
+.planning-table thead .col-score {
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Die Anzahl in der Summenzeile steht mittig: rechtsbündig hängt eine
+   einzelne Ziffer weit weg von der Spalte, zu der sie gehoert. */
+.planning-table .scen-count {
+  text-align: center;
+}
+
+/* ---------- Gegner column ----------
+ *
+ * Rechts vom Score: die nächsten Ansetzungen als Wappen, daneben ein Pfeil
+ * für die Tendenz. Die Breite hängt am Raster, nicht am Inhalt, damit die
+ * Wappen aller Zeilen in einer Linie stehen.
+ */
+
+.planning-table .col-opp {
+  width: 1%;
+  text-align: center;
+}
+
+.planning-table thead .col-opp {
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Ohne die Nullzeile legt die Grundlinie des Wappens auf die Textzeile drauf
+   und die Zeile wird hoeher als ohne die Spalte. */
+.planning-table td.col-opp {
+  line-height: 0;
+}
+
+/* Festes Raster: gleich viele Felder in jeder Zeile. Die Spaltenzahl setzt
+   der Renderer, damit CSS sie schmal auf eine herunterdrehen kann. */
+.opp-slots {
+  display: inline-grid;
+  grid-template-columns: repeat(var(--opp-cols, 1), 31px);
+  align-items: center;
+  height: 21px;
+  vertical-align: middle;
+}
+
+.opp-slot {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  height: 20px;
+}
+
+/* Gleiche Größe wie das Wappen neben dem Spielernamen. */
+.opp-crest {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Platzhalter für den fehlenden Pfeil: hält das Wappen an seinem Platz. */
+.opp-arrow {
+  width: 9px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.opp-trend {
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.opp-trend--up {
+  color: var(--success);
+}
+
+.opp-trend--down {
+  color: var(--error);
+}
+
+/* ---------- Help entry points (footline + banner) ---------- */
+
+.help-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.help-dot:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.help-dot--banner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  border-color: var(--warning-text);
+  color: var(--warning-text);
+  font-size: 11px;
+}
+
+.help-dot--banner:hover {
+  background: rgba(120, 53, 15, 0.08);
+  color: var(--warning-text);
+}
+
+/* ---------- Help modal ---------- */
+
+/*
+ * Oben angesetzt statt vertikal zentriert: so gehen Score-Erklärung und
+ * Ligawechsel an derselben Stelle auf, obwohl der eine Text lang und der
+ * andere kurz ist. Zentriert wäre die Kopfzeile jedes Mal woanders.
+ */
+.dialog-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(12px, 6vh, 56px) clamp(8px, 3vw, 16px) clamp(12px, 4vh, 32px);
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.dialog-shade:focus {
+  outline: none;
+}
+
+/* Der Dialog bleibt im Viewport: Kopf fix, Body scrollt bei langem Text. */
+.dialog-box {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 620px;
+  max-height: 100%;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.dialog-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.dialog-close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px 20px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.dialog-body p {
+  margin: 0 0 12px;
+}
+
+.dialog-body h3 {
+  margin: 20px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.help-formula {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.help-list {
+  margin: 0 0 12px;
+}
+
+.help-list dt {
+  margin-top: 12px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.help-list dd {
+  margin: 2px 0 0;
+}
+
+.help-list-plain {
+  margin: 0 0 12px;
+  padding-left: 18px;
+}
+
+.help-list-plain li {
+  margin-bottom: 4px;
+}
+
+.help-note {
+  color: var(--text-muted);
+}
+
+/* ---------- Ligaauswahl im Overlay ---------- */
+
+.league-choice {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.league-choice button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.league-choice button:hover {
+  border-color: var(--border-strong);
+  background: var(--bg);
+}
+
+.league-choice strong {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+/* Die offene Liga ist hervorgehoben und schliesst beim Antippen. */
+.league-choice .is-current,
+.league-choice .is-current:hover {
+  border-color: var(--primary);
+  background: var(--bg);
+}
+
+.league-current-tag {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Setzt sich von der Liste ab: kleiner und mit Luft nach oben. */
+.dialog-body .league-note {
+  margin: 16px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* ---------- Footline: Legende links, Build-Stempel rechts ---------- */
+
+/*
+ * Zwei Gruppen: links die Legende, rechts Einheit und Build. Passt beides in
+ * eine Zeile, sitzt die rechte Gruppe rechts. Bricht es um, rutscht sie als
+ * Block in die zweite Zeile und beginnt dort links, statt dass Einheit und
+ * Build an gegenüberliegende Ränder springen.
+ */
+.table-footline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin: 16px 2px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.footline-legend,
+.footline-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+}
+
+.legend-sample {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Nur die Formation trägt das Grün der Score-Spalte und ist damit
+   gleichzeitig die Farbprobe fuer die markierten Zellen. */
+.table-footline .formation-chip {
+  padding: 0 6px;
+  font-size: 10px;
+  background: #d9ead3;
+  border-color: #b6d4a5;
+}
+
+/* Solange nichts gerechnet ist, gibt es keine grünen Zellen: dann bleibt
+   auch der Chip grau. Gelb passt zum Banner, das den Grund erklaert. */
+.table-footline .formation-chip--pending {
+  background: var(--bg);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.table-footline .formation-chip--invalid {
+  background: var(--warning-bg);
+  border-color: #e0c583;
+  color: var(--warning-text);
+}
+
+.legend-sep {
+  color: var(--border-strong);
+}
+
+.help-link {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .help-link:hover {
+    color: var(--text);
+  }
+}
+
+.footline-build {
+  font-variant-numeric: tabular-nums;
+}
+
+.score-cell {
+  text-align: right;
+  padding: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-cell--top11 {
+  background: #d9ead3;
+}
+
+/* Während der Lauf noch draussen hängt, bleibt die Spalte nicht leer: ein
+   blasser Punkt haelt die Zeile ruhig, bis der Wert steht. */
+.is-scoring .score-cell:empty::after {
+  content: '·';
+  color: var(--text-muted);
+}
+
+.score-value--lineup-top11 {
+  font-weight: 700;
+}
+

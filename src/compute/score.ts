@@ -1,0 +1,383 @@
+/**
+ * Score orchestrator: combines a fresh `squad` snapshot with the per-league
+ * optimizer cache and runs the optimizer.
+ *
+ * Fetches only what's needed:
+ *   - Always: competitionTable (1 request, liefert den Spieltagsstand `mc`).
+ *   - Dazu die Player-Details jedes Kaderspielers, dessen Cache-Eintrag fehlt
+ *     oder älter als `mc` ist (parallel).
+ *
+ * Returns a {@link ScoreResult} that the page renders directly. Persists the
+ * updated cache on success; das Ergebnis selbst wird nicht gecacht.
+ */
+
+import type { KickbaseClient } from '../api/kickbase.js';
+import type {
+  CompetitionMatchdays,
+  CompetitionTable,
+  LeagueId,
+  MarketPlayer,
+  PlayerId,
+  SquadPlayer,
+} from '../api/types.js';
+import {
+  LineupOptimizer,
+  positionLabel,
+  type OptimizerPlayer,
+  type OptimizerResult,
+  type ScoreDetail,
+} from './optimizer.js';
+import {
+  emptyOptimizerCache,
+  loadOptimizerCache,
+  saveOptimizerCache,
+} from '../state/optimizer.js';
+
+// ---------- Gegner-Spalte ----------
+
+/** Grenzen für die Pfeile: obere und untere Drittel der Tabelle. */
+const ARROW_UP = 0.67;
+const ARROW_DOWN = 0.33;
+
+export type Trend = 'up' | 'flat' | 'down';
+
+/** Eine kommende Ansetzung, gelesen aus `matchSummary`. */
+export interface Fixture {
+  opponentId: string;
+  home: boolean;
+  /** Spieltag, nur für den Tooltip. */
+  day: number;
+}
+
+/** Was die Gegner-Spalte über einen Verein wissen muss. */
+export interface TeamInfo {
+  name: string;
+  /** Tabellenplatz 1 bis 18. */
+  position: number;
+}
+
+/** Alles, was die Gegner-Spalte braucht. */
+export interface OpponentsView {
+  fixtures: Record<string, Fixture[]>;
+  teams: Record<string, TeamInfo>;
+  /**
+   * Wie viele Wappen nebeneinander stehen. Gilt für die ganze Spalte, damit
+   * die Wappen untereinander stehen, auch wenn einem Verein eine Ansetzung
+   * fehlt. 0 heisst: keine einzige bekannt, die Spalte bleibt leer.
+   */
+  columns: number;
+  /** Vereine in der Tabelle, für die Umrechnung Platz in Pfeil. */
+  teamCount: number;
+  /**
+   * Spieltag der nächsten Ansetzung, für den Spaltentitel. Der kleinste
+   * über alle Vereine: bei einem nachgeholten Spiel steht sonst je nach
+   * Kader eine andere Zahl im Kopf. 0 heisst unbekannt.
+   */
+  nextDay: number;
+}
+
+const EMPTY_SCHEDULE: CompetitionMatchdays = { currentDay: 0, matches: [] };
+
+export const EMPTY_OPPONENTS: OpponentsView = {
+  fixtures: {},
+  teams: {},
+  columns: 0,
+  teamCount: 0,
+  nextDay: 0,
+};
+
+/**
+ * Kommende Ansetzungen je Verein, höchstens `max`, aufsteigend nach Spieltag.
+ *
+ * Quelle ist der Spielplan des Wettbewerbs, nicht `mdsum` aus dem Spielerdetail.
+ * `mdsum` führt nur ein Fenster von drei Spieltagen, hängt am Detail-Cache
+ * und war zwischen zwei Saisons wochenlang leer: der Spieltagsstand bleibt
+ * dabei auf 0 stehen, damit gilt jeder Cache-Eintrag als aktuell und wird nie
+ * erneuert (gesehen 16.08.2026, keine einzige Ansetzung in der Spalte).
+ */
+export function buildFixtures(
+  schedule: CompetitionMatchdays,
+  max = 3,
+): Record<string, Fixture[]> {
+  const out: Record<string, Fixture[]> = {};
+  const open = schedule.matches
+    .filter((m) => m.state === 0 && m.day >= schedule.currentDay)
+    .sort((a, b) => a.day - b.day || a.kickoff.localeCompare(b.kickoff));
+
+  for (const match of open) {
+    for (const home of [true, false]) {
+      const teamId = home ? match.team1Id : match.team2Id;
+      const list = (out[teamId] ??= []);
+      if (list.length >= max) continue;
+      list.push({
+        opponentId: home ? match.team2Id : match.team1Id,
+        home,
+        day: match.day,
+      });
+    }
+  }
+  return out;
+}
+
+/** Tabellenplatz und Name je Verein, aus der Wettbewerbstabelle. */
+export function buildTeamInfo(table: CompetitionTable): Record<string, TeamInfo> {
+  const out: Record<string, TeamInfo> = {};
+  for (const t of table.teams) out[t.id] = { name: t.name, position: t.position };
+  return out;
+}
+
+/**
+ * Tendenz allein aus dem Tabellenplatz. Dieselbe Rechnung wie im Optimizer
+ * (`computeMatchup`), damit Pfeil und Score nicht auseinanderlaufen.
+ */
+export function trendOfPosition(position: number, teamCount: number): Trend {
+  if (!position || teamCount < 2) return 'flat';
+  const matchup = (position - 1) / (teamCount - 1);
+  if (matchup >= ARROW_UP) return 'up';
+  if (matchup <= ARROW_DOWN) return 'down';
+  return 'flat';
+}
+
+export function buildOpponents(
+  schedule: CompetitionMatchdays,
+  table: CompetitionTable,
+  max = 3,
+): OpponentsView {
+  const fixtures = buildFixtures(schedule, max);
+  const lists = Object.values(fixtures);
+  const firstDays = lists.map((f) => f[0]?.day ?? 0).filter((day) => day > 0);
+  return {
+    fixtures,
+    teams: buildTeamInfo(table),
+    columns: lists.length === 0 ? 0 : Math.min(max, Math.max(...lists.map((f) => f.length))),
+    teamCount: table.teams.length,
+    nextDay: firstDays.length === 0 ? 0 : Math.min(...firstDays),
+  };
+}
+
+/** Fields that change daily and should NOT be cached — pulled from squad. */
+export interface SquadFreshFields {
+  averagePoints: number;
+  status: number;
+  probability: number;
+  teamId: string;
+}
+
+export interface ScoreResult {
+  takenAt: number;
+  formation: string;
+  totalScore: number;
+  byPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
+  top11Ids: PlayerId[];
+  /** True when no formation was viable (not enough available players). */
+  formationFallback: boolean;
+  /**
+   * False heisst: der Verkauf aller übrigen Spieler bringt den Kontostand
+   * nicht ins Plus, und zwar bei keiner der zehn Formationen. Der Optimizer
+   * liefert dann trotzdem die beste Elf, die Fusszeile sagt es dazu.
+   */
+  budgetPlusOk: boolean;
+  /** Die nächsten Ansetzungen je Verein, für die Gegner-Spalte. */
+  opponents: OpponentsView;
+  /**
+   * Scores der übergebenen Marktspieler, auf derselben Skala wie der Kader.
+   * Sie zählen nicht in die Elf: die Formation bleibt der bestehende Kader,
+   * der Wert sagt nur, was der Zugang wert wäre.
+   */
+  marketByPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
+}
+
+export interface ComputeScoresInput {
+  client: Pick<
+    KickbaseClient,
+    'getCompetitionTable' | 'getCompetitionMatchdays' | 'getPlayerDetailsBatch'
+  >;
+  leagueId: LeagueId;
+  squad: SquadPlayer[];
+  squadFreshFields: Record<PlayerId, SquadFreshFields>;
+  budget: number;
+  /**
+   * Marktspieler, die zusätzlich bewertet werden sollen, etwa die eigenen
+   * offenen Gebote. Ihre Details kommen frisch, nicht aus dem Kader-Cache:
+   * der räumt alles weg, was nicht im Kader steht.
+   */
+  market?: readonly MarketPlayer[];
+}
+
+export async function computeScores(input: ComputeScoresInput): Promise<ScoreResult> {
+  const { client, leagueId, squad, squadFreshFields, budget } = input;
+
+  // Der Spielplan darf den Score nicht aufhalten: fällt der Abruf aus, bleibt
+  // die Gegner-Spalte leer und alles andere rechnet weiter.
+  const [tableResult, schedule] = await Promise.all([
+    client.getCompetitionTable(1),
+    client.getCompetitionMatchdays(1).catch(() => EMPTY_SCHEDULE),
+  ]);
+  const tableMc = tableResult.teams.length === 0
+    ? 0
+    : Math.max(...tableResult.teams.map((t) => t.matchesPlayed));
+
+  const cache = loadOptimizerCache(leagueId) ?? emptyOptimizerCache();
+
+  // Pro Eintrag entscheiden, nicht global: ein Spieler, der beim letzten
+  // Spieltagswechsel nicht im Kader war, behält sonst dauerhaft seinen
+  // veralteten Eintrag, weil das globale `mc` längst hochgezählt ist.
+  //
+  // Ungleich, nicht kleiner: zur neuen Saison fällt `mc` von 34 auf 0. Mit
+  // `<` gilt dann jeder Eintrag vom Saisonende weiter, und `mdsum` hätte
+  // dauerhaft kein offenes Spiel mehr.
+  const squadIds = squad.map((p) => p.id);
+  const missing = squadIds.filter((id) => {
+    const entry = cache.weeklyDetails[id];
+    return !entry || entry.mc !== tableMc;
+  });
+
+  if (missing.length > 0) {
+    const details = await client.getPlayerDetailsBatch(leagueId, missing);
+    for (let i = 0; i < missing.length; i++) {
+      const id = missing[i]!;
+      const d = details[i]!;
+      cache.weeklyDetails[id] = {
+        mc: tableMc,
+        matchSummary: d.matchSummary,
+        lastMatchdayPoints: d.lastMatchdayPoints,
+        hasPlayedFlags: d.hasPlayedFlags,
+      };
+    }
+  }
+
+  // Verkaufte Spieler räumen, sonst wächst der Eintrag über die Saison.
+  const inSquad = new Set(squadIds);
+  for (const id of Object.keys(cache.weeklyDetails)) {
+    if (!inSquad.has(id)) delete cache.weeklyDetails[id];
+  }
+
+  cache.table = { takenAt: Date.now(), mc: tableMc, teams: tableResult.teams };
+
+  const optimizerPlayers: OptimizerPlayer[] = squad.map((sp) => {
+    const weekly = cache.weeklyDetails[sp.id];
+    const fresh = squadFreshFields[sp.id]!;
+    return {
+      playerId: sp.id,
+      name: sp.name,
+      position: positionLabel(sp.position),
+      positionCode: sp.position,
+      marketValue: sp.marketValue,
+      averagePoints: fresh.averagePoints,
+      status: fresh.status,
+      teamId: fresh.teamId,
+      probability: fresh.probability,
+      lastMatchdayPoints: weekly?.lastMatchdayPoints ?? [],
+      hasPlayedFlags: weekly?.hasPlayedFlags ?? [],
+      matchSummary: weekly?.matchSummary ?? [],
+    };
+  });
+
+  const optimizer = new LineupOptimizer(optimizerPlayers, tableResult, budget);
+  const result = optimizer.optimize();
+  const takenAt = Date.now();
+  const opponents = buildOpponents(schedule, tableResult, 1);
+  const marketByPlayer = await scoreMarketPlayers(
+    optimizer,
+    client,
+    leagueId,
+    input.market ?? [],
+  );
+
+  let scoreResult: ScoreResult;
+  if (result) {
+    const byPlayer = mapByPlayerId(result);
+    scoreResult = {
+      takenAt,
+      formation: result.formation,
+      totalScore: result.totalScore,
+      byPlayer,
+      top11Ids: result.start11.map((p) => p.playerId),
+      formationFallback: false,
+      budgetPlusOk: result.budgetPlusOk,
+      opponents,
+      marketByPlayer,
+    };
+  } else {
+    // Fallback: optimize() returned null — score every player individually,
+    // skip the formation search.
+    const byPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }> = {};
+    for (const p of optimizerPlayers) {
+      const detail = optimizer.scorePlayer(p);
+      byPlayer[p.playerId] = { score: detail.score, detail };
+    }
+    scoreResult = {
+      takenAt,
+      formation: '',
+      totalScore: 0,
+      byPlayer,
+      top11Ids: [],
+      formationFallback: true,
+      budgetPlusOk: true,
+      opponents,
+      marketByPlayer,
+    };
+  }
+
+  saveOptimizerCache(leagueId, cache);
+
+  return scoreResult;
+}
+
+/**
+ * Bewertet Marktspieler mit demselben Optimizer wie den Kader, damit die Zahl
+ * neben einem Gebot mit den Zahlen darüber vergleichbar ist. Sie gehen nicht
+ * in die Formation ein: `scorePlayer` rechnet einen einzelnen Spieler, ohne die
+ * Elf neu zu suchen.
+ *
+ * Fällt der Detailabruf aus, bleibt die Spalte leer statt den ganzen Lauf
+ * mitzureissen: die Gebote sind Beiwerk, der Kader ist die Hauptsache.
+ */
+async function scoreMarketPlayers(
+  optimizer: LineupOptimizer,
+  client: ComputeScoresInput['client'],
+  leagueId: LeagueId,
+  market: readonly MarketPlayer[],
+): Promise<Record<PlayerId, { score: number; detail: ScoreDetail }>> {
+  const out: Record<PlayerId, { score: number; detail: ScoreDetail }> = {};
+  if (market.length === 0) return out;
+
+  const details = await client
+    .getPlayerDetailsBatch(
+      leagueId,
+      market.map((p) => p.id),
+    )
+    .catch(() => null);
+  if (!details) return out;
+
+  for (let i = 0; i < market.length; i++) {
+    const p = market[i]!;
+    const d = details[i]!;
+    const detail = optimizer.scorePlayer({
+      playerId: p.id,
+      name: p.name,
+      position: positionLabel(p.position),
+      positionCode: p.position,
+      marketValue: p.marketValue,
+      averagePoints: p.averagePoints || d.averagePoints,
+      status: p.status,
+      teamId: p.teamId || d.teamId,
+      probability: p.probability || d.probability,
+      lastMatchdayPoints: d.lastMatchdayPoints,
+      hasPlayedFlags: d.hasPlayedFlags,
+      matchSummary: d.matchSummary,
+    });
+    out[p.id] = { score: detail.score, detail };
+  }
+  return out;
+}
+
+function mapByPlayerId(
+  result: OptimizerResult,
+): Record<PlayerId, { score: number; detail: ScoreDetail }> {
+  const out: Record<PlayerId, { score: number; detail: ScoreDetail }> = {};
+  for (const p of [...result.start11, ...result.bench]) {
+    out[p.playerId] = { score: p.score, detail: p.scoreDetail };
+  }
+  return out;
+}

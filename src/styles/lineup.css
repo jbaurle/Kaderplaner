@@ -1,0 +1,960 @@
+/* ---------- Aufstellung ---------- */
+
+/*
+ * Die Seite liegt als eigene Ebene über dem Kaderplaner. Sie hängt an
+ * `document.body`, damit ein Neuzeichnen der Tabelle sie nicht mitnimmt.
+ *
+ * Der Zuschnitt folgt der Kickbase-App: Rasen mit Linien, Spieler frei auf dem
+ * Grün statt in Kacheln, leerer Platz als Plus, darunter Positionsreiter mit
+ * einem Kartenband. Der Rahmen bleibt hell wie der Rest der Anwendung.
+ */
+.lineup-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(17, 24, 39, 0.45);
+  padding: 10px 10px calc(24px + env(safe-area-inset-bottom, 0px));
+  outline: none;
+  /*
+   * Höhenbudget des Rasens: alles ausser dem Feld braucht rund 320 px, Kopf,
+   * Knöpfe, Bank und Fuss zusammen. Was übrig bleibt, bekommt das Feld, und
+   * die Breite folgt aus dem Verhältnis 4:5.
+   *
+   * Die Zahl steht hier und nicht am Rasen, weil das Blatt sie mitbenutzt:
+   * seine Breite hängt an der des Feldes, siehe `.lineup-sheet`.
+   */
+  --pitch-height: clamp(170px, calc(100vh - 390px), 560px);
+  --pitch-width: calc(var(--pitch-height) * 4 / 5);
+}
+
+/* Der Hintergrund soll nicht mitscrollen, wenn die Ebene offen ist. */
+body.is-lineup-open {
+  overflow: hidden;
+}
+
+/*
+ * Das Blatt ist so breit wie der Rasen plus das eigene Polster. Früher stand
+ * hier ein fester Deckel von 720 px: auf dem Schirm blieben dann links und
+ * rechts vom Feld je rund 130 px leer, und die Knopfzeile schwebte über
+ * dieser Leere statt über dem Platz. Auf dem Handy ändert die Bindung
+ * nichts, dort ist das Fenster ohnehin schmaler.
+ */
+.lineup-sheet {
+  max-width: min(720px, calc(var(--pitch-width) + 24px));
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Titel links, Schliessen rechts, wie in den beiden Hilfedialogen. */
+.lineup-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.lineup-head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* Die Vorlagen bekommen eine eigene Zeile, sonst quetschen sie auf dem Handy
+   die Chips aus dem Kopf. */
+.lineup-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/*
+ * Die drei Vorlagen sind Zwischenschritte und tragen deshalb keine Fläche.
+ * Als Knöpfe standen sie gleichrangig neben "Aufstellen", obwohl nur das
+ * etwas verschickt. Das Polster hält das Tippziel trotzdem bei 32 px.
+ */
+.lineup-link {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 2px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.lineup-link:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.lineup-link:disabled {
+  opacity: 0.45;
+  text-decoration-style: dotted;
+  cursor: not-allowed;
+}
+
+/*
+ * Leeren schlägt nichts vor, es räumt ab. Deshalb steht es am rechten Rand
+ * abgesetzt von den beiden Vorlagen: wer eine Elf sucht, liest links weiter
+ * und fällt nicht über den Ausweg.
+ */
+.lineup-link--clear {
+  margin-left: auto;
+}
+
+/*
+ * "Aufstellen" ist die einzige Aktion, die den Browser verlässt, und steht
+ * deshalb allein am unteren Rand: dort ist der Daumen, wenn er gerade die
+ * Bank durchgeschoben hat, und die volle Breite lässt Platz für den Grund,
+ * solange die Elf nicht steht.
+ */
+.btn--go {
+  width: 100%;
+  background: var(--success);
+  color: #fff;
+  border: 1px solid transparent;
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.btn--go:hover:not(:disabled) {
+  background: #036349;
+}
+
+/*
+ * Gesperrt bleibt er grau statt blassgrün: ein halbdurchsichtiges Grün sieht
+ * aus wie ein Knopf, der gleich losgeht, und der Text daneben ("Noch zwei
+ * Spieler") sagt das Gegenteil.
+ */
+.btn--go:disabled {
+  background: #eef2f4;
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+  cursor: not-allowed;
+}
+
+/*
+ * Schon gesendet: grün getönt statt grau. Grau hiesse "geht noch nicht",
+ * hier heisst es "ist erledigt". Der Zustand hält nur bis zur nächsten
+ * Änderung an der Elf.
+ */
+.btn--go:disabled.is-sent {
+  background: #e6f4ee;
+  color: var(--success);
+  border-color: #b6d4c6;
+}
+
+.lineup-chip--ok {
+  background: #d9ead3;
+  border-color: #b6d4a5;
+}
+
+.lineup-chip--part {
+  background: var(--bg);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.lineup-chip--bad {
+  background: var(--warning-bg);
+  border-color: #e0c583;
+  color: var(--warning-text);
+}
+
+/* "4-3-3 → 4-2-4" während des Ziehens. */
+.lineup-chip--preview {
+  background: #e8eefc;
+  border-color: #b9c8ee;
+  color: #1e3a8a;
+}
+
+/* ---------- Rasen ---------- */
+
+.pitch {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  /* Zwei Lagen: die hellen Mähstreifen über dem Farbverlauf. */
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 26px, rgba(0, 0, 0, 0) 26px 52px),
+    linear-gradient(#31cf76, #21bd66);
+  /*
+   * Verhältnis eines echten Platzes, hochkant: 68 auf 105 Meter. Die Größe
+   * hängt damit nur an der Breite, nicht daran, wer aufgestellt ist. Sonst
+   * hüpft das Feld zwischen 3-4-3 und 3-6-1 und die Bank wandert mit.
+   *
+   * Der zweite Deckel begrenzt die Höhe: auf breiten Schirmen wäre ein Feld
+   * über die volle Blattbreite mehr als tausend Pixel hoch. Dann bestimmt die
+   * Höhe die Breite, das Verhältnis bleibt in beiden Fällen gewahrt.
+   */
+  aspect-ratio: 4 / 5;
+  /*
+   * Das Höhenbudget steht an `.lineup-layer`, weil das Blatt seine Breite
+   * daraus ableitet. Hier bleibt nur die Anwendung: volle Blattbreite, aber
+   * nie breiter als das Verhältnis erlaubt.
+   */
+  width: min(100%, var(--pitch-width));
+  margin-inline: auto;
+  /*
+   * Nur seitlich. Oben, unten und an der Mittellinie sitzen die Abstände an
+   * den Reihen selbst und rechnen in `cqw`, damit die Spiegelung an jeder
+   * Feldgröße hält.
+   */
+  padding: 0 6%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /*
+   * Bezugsgröße für alles darauf. Spieler, Namen und Abzeichen rechnen in
+   * `cqw`, also in Prozent der Feldbreite: auf dem Tablet wird das Feld größer
+   * und die Spieler wachsen mit, statt als Briefmarken darauf zu liegen.
+   */
+  container-type: inline-size;
+}
+
+/* Die Linien liegen als eigenes SVG darüber und werden mitgestreckt. */
+.pitch-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/*
+ * Formation und Zähler stehen auf dem Rasen, nicht im Kopf: beim Aufstellen
+ * schaut man aufs Feld, und dort muss die Antwort stehen, ob die Elf gilt.
+ */
+/*
+ * Die Kennzahlen stehen als Chips am oberen Feldrand, in derselben Machart wie
+ * die Chips auf der Kaderseite. Früher standen sie als Zeile unter der Bank,
+ * dort schaut beim Aufstellen niemand hin.
+ */
+/*
+ * Drei Spalten: links Zähler und Mängel, mittig die Formation, rechts das
+ * Konto. Die äußeren Spalten sind gleich breit, deshalb sitzt die Formation
+ * über der Feldmitte und wandert nicht mit, wenn links ein Mangel dazukommt.
+ */
+.pitch-status {
+  position: absolute;
+  z-index: 2;
+  left: 8px;
+  right: 8px;
+  top: 7px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.pitch-status-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pitch-chip {
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: min(3.2cqw, 12px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2937;
+}
+
+/* Das Konto steht bündig am rechten Feldrand. */
+.pitch-status-right {
+  justify-self: end;
+  min-width: 0;
+}
+
+.pitch-chip .is-pos {
+  color: #067a52;
+}
+
+.pitch-chip .is-neg {
+  color: #c02626;
+}
+
+/*
+ * Die Mängel tragen die Chips der Tabelle, siehe `planning.css`. Hier hängt
+ * nur die Größe am Feld, damit sie auf kleinen Schirmen mitschrumpfen statt
+ * die Leiste zu sprengen.
+ */
+.pitch-status .formation-issue-chip {
+  font-size: min(3.2cqw, 12px);
+  padding: 2px 8px;
+}
+
+/*
+ * Der Zähler ist eine Pille wie Formation und Konto und trägt nur die
+ * Zustandsfarbe darüber. Früher erbte er den flacheren Chip der Tabelle und
+ * stand dadurch kleiner neben dem Konto.
+ */
+.pitch-chip--count {
+  background: #fee2e2;
+  color: var(--error);
+  box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25);
+}
+
+/* Steht die Elf, ist der Zähler kein Mangel mehr. */
+.pitch-status.is-ok .pitch-chip--count {
+  background: #dcfce7;
+  color: #0b6b45;
+  box-shadow: inset 0 0 0 1px rgba(11, 107, 69, 0.25);
+}
+
+.prow {
+  position: relative;
+  z-index: 1;
+  /*
+   * Wachsen ja, schrumpfen nur bis zum eigenen Inhalt: sonst rutschen auf
+   * kurzen Fenstern die Namen der einen Reihe in die Gesichter der nächsten.
+   */
+  flex: 1 1 auto;
+  min-height: min-content;
+  display: flex;
+  /* Kein Umbruch: sechs Mittelfeldspieler müssen in eine Zeile passen,
+     sonst waere die Feldhoehe doch wieder vom Kader abhaengig. */
+  flex-wrap: nowrap;
+  /*
+   * Gleichmäßig über die Reihe verteilt statt mittig gestapelt. Sonst
+   * rücken Dreier- und Viererreihen zusammen, während links und rechts
+   * Rasen frei bleibt.
+   */
+  justify-content: space-evenly;
+  gap: 1cqw;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Verteilt um die Mittellinie: Abwehr und Torwart stehen darunter, Mittelfeld
+ * und Sturm darüber. Die Lücke vor der Abwehr macht das; ohne sie verteilen
+ * sich vier gleich hohe Reihen über den ganzen Platz und die Abwehr klebt am
+ * Anstosskreis. Sie ist etwas kleiner als die genaue Spiegelung: die beiden
+ * mittleren Reihen rücken damit näher an die Linie, das Feld wirkt weniger
+ * auseinandergezogen.
+ *
+ * Oben bleibt mehr Rand als unten, weil die Namenszeile zur Reihe gehört und
+ * das Gesicht darum über der Reihenmitte sitzt: der Unterschied ist genau
+ * zweimal dieser Versatz.
+ */
+.prow[data-row='ANG'] {
+  margin-top: 8.3cqw;
+}
+
+.prow[data-row='ABW'] {
+  margin-top: 8.2cqw;
+}
+
+.prow[data-row='TW'] {
+  margin-bottom: 1.3cqw;
+}
+
+/*
+ * Beim Ziehen bleibt hell, was den Spieler nehmen kann: die eigene Reihe und
+ * jeder mögliche Tauschpartner. Alles andere tritt zurück. Früher stand ein
+ * Rahmen um die Reihe, der bei jedem Wechsel sprang und den Blick vom Finger
+ * zog. Was passiert, sagt jetzt die Lücke.
+ */
+.lineup-layer.is-dragging .tok {
+  opacity: 0.35;
+}
+
+.lineup-layer.is-dragging .prow.is-target .tok,
+.lineup-layer.is-dragging .tok.is-swappable,
+.lineup-layer.is-dragging .tok.is-over {
+  opacity: 1;
+}
+
+/* Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schliesst sich. */
+.tok.is-lifted {
+  display: none;
+}
+
+/* Steht die Lücke in einer leeren Reihe, ist sie der freie Platz. Zwei Kreise
+   nebeneinander sagten nur zweimal dasselbe. */
+.prow:has(.tok-gap) .tok-plus {
+  display: none;
+}
+
+/*
+ * Die Lücke steht dort, wo der Spieler landen würde, und ist so breit wie
+ * ein Token. Die Nachbarn rücken deshalb genau so weit zur Seite, wie sie
+ * beim Loslassen stehen bleiben.
+ */
+.tok-gap {
+  flex: 0 1 15.2cqw;
+  min-width: 0;
+  display: block;
+  padding: 2px 0;
+}
+
+.tok-gap::before {
+  content: '';
+  display: block;
+  width: min(12.5cqw, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/*
+ * Blindzeile in Höhe von Name und Score. Ohne sie wäre die Lücke kürzer
+ * als ein Token, die Reihe zentriert mittig, und der Kreis säße tiefer als
+ * die Gesichter daneben.
+ */
+.tok-gap::after {
+  content: '';
+  display: block;
+  min-height: calc(clamp(9px, 3.1cqw, 14px) + 15px);
+}
+
+/*
+ * Tokens teilen sich die Reihe und rechnen in Prozent der Feldbreite. 15,2 cqw
+ * mal sechs plus Abstände füllt eine Reihe genau aus, damit passt auch 3-6-1
+ * ohne Umbruch, und bei drei Spielern stehen sie entsprechend weiter
+ * auseinander statt breiter zu werden.
+ */
+.tok,
+.tok-plus {
+  flex: 0 1 15.2cqw;
+  min-width: 0;
+  display: block;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.tok {
+  /* Das Token gehört der Zieh-Geste, sonst scrollt die Seite darunter weg. */
+  touch-action: none;
+  /* Rücken zur Seite, wenn die Lücke den Platz wechselt, siehe `flipRow`. */
+  transition: transform 140ms ease, opacity 120ms ease;
+}
+
+/*
+ * Der freie Platz trägt keine Score-Zeile. Ohne diesen Ausgleich sitzt sein
+ * Kreis höher als die Gesichter daneben, weil die Reihe mittig ausrichtet.
+ */
+.tok-plus::after {
+  content: '';
+  display: block;
+  min-height: 12px;
+}
+
+/* Bild etwas schmaler als das Token, damit die Reihe atmen kann. */
+.tok-img {
+  position: relative;
+  width: min(12.5cqw, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  display: block;
+}
+
+/*
+ * Bilder sind von Haus aus ziehbar. Ohne diesen Riegel startet der Browser
+ * seinen eigenen Bild-Drag, schickt uns ein `pointercancel` und unsere Geste
+ * ist weg, bevor sie anfängt. Im Markup steht zusätzlich `draggable="false"`.
+ */
+.tok img,
+.bench-card img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/*
+ * Die Freisteller sind Brustbilder im Verhältnis 11:8, der Kopf sitzt oben.
+ * Ohne den Versatz zeigt der Kreis das Trikot statt des Gesichts. Die helle
+ * Scheibe dahinter hält dunkle Haare vom dunklen Rasen getrennt.
+ */
+.tok-img .tok-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 14%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.65);
+}
+
+/* Fehlt der Freisteller, steht hier das Wappen und braucht Luft. */
+.tok-img .tok-photo.is-logo {
+  object-fit: contain;
+  object-position: 50% 50%;
+  padding: 9px;
+  background: #fff;
+}
+
+/*
+ * Statuspunkt oben rechts am Bild. Ein Punkt, keine Deutung: welcher der zehn
+ * Kickbase-Zustände dahintersteckt, sagt uns die API nicht verlässlich.
+ */
+.status-dot {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: min(2.9cqw, 12px);
+  height: min(2.9cqw, 12px);
+  border-radius: 50%;
+  background: #ef8b23;
+  border: 1.5px solid #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Auf der Bank bleibt der Punkt fest, dort gibt es keinen Feldbezug. */
+.card-img .status-dot {
+  width: 10px;
+  height: 10px;
+  right: -1px;
+  top: -1px;
+}
+
+/*
+ * S11-Prognose als runde Marke unten mittig am Bild, wie in der Kickbase-App.
+ * Farbe und Zeichen kommen aus `.s11--*`.
+ */
+.tok-s11,
+.card-s11 {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tok-s11 {
+  left: 50%;
+  bottom: min(-1.2cqw, -4px);
+  transform: translateX(-50%);
+  width: min(4.4cqw, 17px);
+  height: min(4.4cqw, 17px);
+  font-size: min(3cqw, 11px);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+}
+
+.tok-s11 svg {
+  width: 66%;
+  height: 66%;
+}
+
+.card-s11 {
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  width: 15px;
+  height: 15px;
+  font-size: 10px;
+  border: 1.5px solid #fff;
+}
+
+.card-s11 svg {
+  width: 9px;
+  height: 9px;
+}
+
+.s11--sure {
+  background: #1d6fe0;
+}
+
+.s11--likely {
+  background: #16a34a;
+}
+
+.s11--unsure {
+  background: #e08a1e;
+}
+
+.s11--unlikely {
+  background: #dc2626;
+}
+
+.s11--out {
+  background: #52525b;
+}
+
+.tok-name {
+  display: block;
+  margin-top: 3px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(9px, 3.1cqw, 14px);
+  font-weight: 600;
+  color: #fff;
+  /* Namen stehen auf wechselndem Grün, ohne Schatten fransen sie aus. */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.tok-score {
+  display: block;
+  font-size: clamp(8px, 2.8cqw, 13px);
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
+  min-height: 12px;
+  /* "15,50 Mio." ist breiter als der Kreis, es darf nur nicht ausbrechen. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Freier Platz, nur in leeren Reihen. Er ist Hinweis und Ziel zugleich: ein
+ * Tipp schaltet die Bank auf diese Position um.
+ */
+.tok-plus .plus-disc {
+  display: grid;
+  place-items: center;
+  width: min(13cqw, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.75);
+  color: #fff;
+  font-size: clamp(16px, 6cqw, 26px);
+  line-height: 1;
+  font-weight: 300;
+}
+
+/* Gleiche Schrift wie der Name, sonst stehen Kreis und Gesichter versetzt. */
+.tok-plus .plus-label {
+  display: block;
+  margin-top: 3px;
+  font-size: clamp(9px, 3.1cqw, 14px);
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Bank: Reiter und Kartenband ---------- */
+
+.bench {
+  border: 1px dashed transparent;
+  border-radius: var(--radius);
+  padding: 0 2px 2px;
+}
+
+.bench.is-allowed {
+  border-color: var(--success);
+  background: rgba(4, 120, 87, 0.06);
+}
+
+/*
+ * Ein Band statt Reitern: alle Ersatzleute in einer Reihe, nach Position
+ * gruppiert. Nichts ist versteckt, es gibt keinen Modus, und aus jeder Gruppe
+ * lässt sich direkt aufs Feld ziehen.
+ */
+.bench-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  /* Quer scrollen bleibt beim Browser, das Ziehen hängt nur am Bild. */
+  touch-action: pan-x;
+  padding: 4px 2px 6px;
+  scroll-padding-left: 2px;
+  align-items: flex-start;
+}
+
+.bench-group {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 10px;
+  border-right: 1px solid var(--border);
+}
+
+.bench-group:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.bench-grouplabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-left: 2px;
+}
+
+.bench-grouplabel span {
+  font-weight: 500;
+}
+
+.bench-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.bench-card {
+  position: relative;
+  flex: 0 0 84px;
+  width: 84px;
+  /*
+   * Die ganze Kachel ist der Griff, senkrecht wie waagerecht. `pan-x` wäre
+   * das Naheliegende, aber der Browser bricht die Geste dann mit
+   * `pointercancel` ab, sobald der Finger nach oben zieht: der Zug aufs Feld
+   * wäre auf dem Handy nicht möglich. Beide Richtungen gehören deshalb uns,
+   * das Blättern schiebt `decideGesture` selbst.
+   */
+  touch-action: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 8px 4px 6px;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.bench-card:hover {
+  border-color: var(--border-strong);
+}
+
+.card-img {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+
+.card-img .card-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 14%;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.card-img .card-photo.is-logo {
+  object-fit: contain;
+  object-position: 50% 50%;
+  padding: 7px;
+}
+
+.card-name {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Wappen oben links in der Kachel, nur auf der Bank: auf dem Feld sagt es das
+ * Trikot. Über dem Bild statt darunter, damit die Zeile darunter der Zahl
+ * gehört.
+ */
+.card-club {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Der Score steht zusätzlich unter dem Betrag, wenn er gerechnet ist. */
+.card-score {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-meta {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bench-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 2px;
+}
+
+/* ---------- Ziehen ---------- */
+
+/*
+ * Während des Ziehens: jeder Spieler auf der Gegenseite, der sich tauschen
+ * lässt. Auch über Positionsgrenzen hinweg, solange die Formation danach
+ * eine der zehn gültigen ist. Ohne die Markierung bliebe das unentdeckt.
+ */
+.tok.is-swappable .tok-photo {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95);
+}
+
+.tok.is-over .tok-photo {
+  box-shadow: 0 0 0 4px #ffffff;
+}
+
+.bench-card.is-swappable {
+  border-color: var(--success);
+  box-shadow: inset 0 0 0 1px var(--success);
+}
+
+.bench-card.is-over {
+  background: rgba(4, 120, 87, 0.1);
+}
+
+.lineup-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: drop-shadow(0 6px 12px rgba(17, 24, 39, 0.35));
+}
+
+/*
+ * Der Kreis am Finger ist so groß wie der, den er vertritt. Die Breite setzt
+ * `startDrag` in Pixeln, hier bleibt nur, das Bild sie ausfüllen zu lassen:
+ * das `cqw` aus der Feldrechnung hat ausserhalb des Rasens keinen Bezug mehr
+ * und wäre Prozent des Fensters.
+ */
+.lineup-ghost .tok-img {
+  width: 100%;
+}
+
+.lineup-ghost .tok-s11 {
+  bottom: -4px;
+}
+
+.lineup-layer.is-dragging {
+  cursor: grabbing;
+}
+
+/* ---------- Notiz unter der Bank ---------- */
+
+/*
+ * Nur sichtbar, wenn es etwas zu sagen gibt. Die Zahlen stehen oben am Feld,
+ * hier steht der Grund einer Sperre oder was der Elf noch fehlt.
+ */
+.lineup-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.lineup-note.is-warning {
+  color: var(--warning-text);
+  background: var(--warning-bg);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+
+.lineup-note.is-ok {
+  color: var(--success);
+  background: #e6f4ee;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+
+.lineup-note.is-error {
+  color: var(--error);
+  background: #fee2e2;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+
+/*
+ * Schmale Handys: die Tokens schrumpfen von selbst mit `min(52px, 100%)`, nur
+ * Schrift und Zähler brauchen eine Stufe weniger.
+ */
+@media (max-width: 380px) {
+  .tok-name,
+  .tok-plus .plus-label {
+    font-size: 10px;
+  }
+}
+
+/*
+ * Flache Fenster, vor allem Tablets quer und kurze Notebooks. Das Feld allein
+ * kleiner zu rechnen reicht nicht: unter etwa 560 px Höhe braucht auch alles
+ * drumherum weniger Platz, sonst bleibt für den Rasen nichts übrig.
+ */
+@media (max-height: 560px) {
+  .lineup-layer {
+    padding: 6px 8px 10px;
+  }
+  .lineup-sheet {
+    padding: 8px;
+    gap: 6px;
+  }
+  .lineup-head h2 {
+    font-size: 14px;
+  }
+  /* Der Balken bleibt breit, wird aber flacher: die Höhe fehlt dem Rasen. */
+  .btn.btn--go {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  .lineup-link {
+    padding: 4px 2px;
+  }
+  .lineup-layer {
+    --pitch-height: clamp(140px, calc(100vh - 250px), 400px);
+  }
+  .bench-card {
+    flex-basis: 74px;
+    width: 74px;
+    padding: 6px 3px 5px;
+  }
+  .card-img,
+  .card-img .card-photo {
+    width: 34px;
+    height: 34px;
+  }
+  /*
+   * Der Hinweis beim Aufstellen fällt weg, das Ergebnis des Sendens nicht:
+   * ein Fehler, den niemand sieht, lässt den Benutzer glauben, die Elf stehe
+   * bei Kickbase.
+   */
+  .lineup-note.is-warning {
+    display: none;
+  }
+}

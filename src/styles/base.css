@@ -1,0 +1,227 @@
+:root {
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --text: #1f2330;
+  --text-muted: #6b7280;
+  --text-strong: #111827;
+  --border: #e5e7eb;
+  --border-strong: #cbd5e1;
+  --primary: #1f2937;
+  --primary-hover: #111827;
+  --primary-active: #0b1221;
+  --error: #b91c1c;
+  --warning-bg: #fef3c7;
+  --warning-text: #78350f;
+  --success: #047857;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono-nums: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /*
+   * Zweiter Riegel gegen das eingebaute Ziehen zum Neuladen. Das
+   * `preventDefault` in `pull-to-refresh.ts` kommt erst mit der ersten
+   * Bewegung; hier sagt die Seite schon vorher, dass sie die Geste behält.
+   * Sonst lädt Safari das ganze Dokument statt nur die Daten.
+   */
+  overscroll-behavior-y: contain;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  /* Ohne das wartet iOS auf einen möglichen Doppeltipp und der erste Tipp
+     fuehlt sich tot an. */
+  touch-action: manipulation;
+}
+
+/* ---------- Auth shell (login + league picker + planning placeholder) ---------- */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(420px, 100%);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.auth-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-error {
+  margin: 0;
+  color: var(--error);
+  font-size: 13px;
+  min-height: 18px;
+}
+
+.auth-submit {
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.auth-submit:active:not(:disabled) {
+  background: var(--primary-active);
+}
+
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-link {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 0;
+  align-self: flex-start;
+}
+
+.auth-link:hover {
+  color: var(--text);
+}
+
+.row-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- Form fields ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.field-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  background: #fff;
+  color: var(--text);
+  transition: border-color 0.15s, outline-color 0.15s;
+}
+
+.field-input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+  border-color: var(--primary);
+}
+
+/* ---------- Banner ---------- */
+
+.banner {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.banner--warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+/* ---------- League picker ---------- */
+
+.league-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.league-item {
+  display: flex;
+}
+
+.league-button {
+  flex: 1;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.league-button:hover {
+  background: #eef2f7;
+  border-color: var(--border-strong);
+}

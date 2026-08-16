@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+*.log
+
+# Sitzungsdaten lokaler Werkzeuge, kein Projektinhalt.
+.playwright-mcp/
+.claude/settings.local.json
