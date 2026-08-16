@@ -635,12 +635,13 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
         <span class="legend-sep amount-hint">·</span>
         <span class="amount-hint">Beträge in Mio. €</span>
       </span>
+      <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
         <button type="button" data-modal="score">Was ist der Score?</button>
+        <span class="legend-sep" aria-hidden="true">·</span>
         <button type="button" data-modal="features">Was kann die App?</button>
-        ${LEGAL_LINKS}
       </span>
-      <span class="footline-build">${escapeHtml(buildLabel())}</span>
+      ${LEGAL_LINKS}
     </p>
   `;
 }
@@ -649,11 +650,18 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
  * Pflichtangaben. Sie müssen von jeder Seite erreichbar sein, nicht nur von
  * der Anmeldung, und öffnen in einem neuen Tab: die Rückkehr würde sonst die
  * Anwendung neu laden und den Kader ein zweites Mal holen.
+ *
+ * Eigene, mittige Zeile ganz unten, in jeder Breite. Sie gehören nicht zur
+ * Bedienung und stehen deshalb abgesetzt, wie auf der Anmeldeseite auch.
  */
 const LEGAL_LINKS = `
-  <a href="/impressum.html" target="_blank" rel="noopener">Impressum</a>
-  <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
-  <a href="/nutzungsbedingungen.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
+  <span class="footline-legal">
+    <a href="/impressum.html" target="_blank" rel="noopener">Impressum</a>
+    <span class="legend-sep" aria-hidden="true">·</span>
+    <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+    <span class="legend-sep" aria-hidden="true">·</span>
+    <a href="/nutzungsbedingungen.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
+  </span>
 `;
 
 /**

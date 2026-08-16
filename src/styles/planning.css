@@ -1253,8 +1253,7 @@
 }
 
 .footline-legend,
-.footline-hints,
-.footline-links {
+.footline-hints {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1293,42 +1292,54 @@
   color: var(--border-strong);
 }
 
-/*
- * Links als Chips: 11 px unterstrichener Text ist auf dem Handy kein Ziel,
- * sondern eine Linie. Ab Tablet fallen sie auf schlichte Textlinks zurück,
- * dort trifft die Maus auch einen Buchstaben.
- */
-.footline-links a,
-.footline-links button {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
-  font: inherit;
-  color: var(--text-muted);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .footline-links a:hover,
-  .footline-links button:hover {
-    color: var(--text);
-    border-color: var(--border-strong);
-  }
-}
-
 .footline-build {
   font-variant-numeric: tabular-nums;
 }
 
 /*
- * Ab Tablet zurück in eine Zeile: Legende, Hinweise und Links laufen links,
- * der Build-Stempel wird nach rechts geschoben. Dieselbe Breitenstufe, ab der
- * die Tabelle die FIX-Spalte zeigt.
+ * Hilfe und Pflichtangaben: je eine eigene, mittige Zeile in jeder Breite.
+ * `width: 100%` bricht sie sowohl im Raster als auch in der Flex-Zeile ab
+ * 744 px auf eine eigene Zeile um.
+ */
+.footline-links,
+.footline-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0 8px;
+  width: 100%;
+}
+
+/*
+ * Schlichte Textlinks. Das senkrechte Polster ist die Tap-Fläche: es macht
+ * aus der 13 px hohen Zeile ein Ziel von rund 26 px, ohne dass man es sieht.
+ */
+.footline-links a,
+.footline-links button,
+.footline-legal a {
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .footline-links a:hover,
+  .footline-links button:hover,
+  .footline-legal a:hover {
+    color: var(--text);
+  }
+}
+
+/*
+ * Ab Tablet stehen Legende und Hinweise nebeneinander, der Build-Stempel
+ * rechts daneben. Die beiden Linkzeilen bleiben eigene, mittige Zeilen.
+ * Dieselbe Breitenstufe, ab der die Tabelle die FIX-Spalte zeigt.
  */
 @container (min-width: 744px) {
   .table-footline {
@@ -1339,21 +1350,9 @@
   }
 
   .footline-legend,
-  .footline-hints,
-  .footline-links {
+  .footline-hints {
     align-items: baseline;
     gap: 2px 6px;
-  }
-
-  .footline-links a,
-  .footline-links button {
-    display: inline;
-    min-height: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    text-decoration: underline;
-    text-underline-offset: 2px;
   }
 
   .footline-build {
