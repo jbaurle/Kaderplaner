@@ -613,36 +613,48 @@ function renderLeagueChoice(leagues: League[], currentId: LeagueId): string {
 }
 
 /**
- * Fusszeile unter den Tabellen: links die Legende zur Score-Spalte samt den
- * beiden Hilfetexten, rechts der Build-Stempel. Aufbau bleibt in jedem Zustand
- * gleich, nur der Chip wechselt.
+ * Fusszeile unter den Tabellen: Legende zur Score-Spalte, Hinweise, Links und
+ * der Build-Stempel. Aufbau bleibt in jedem Zustand gleich, nur der Chip
+ * wechselt.
  *
  * Die Hilfe steht hier und nicht mehr oben: die Kopfzeile trägt Aktionen, und
  * erklärt wird die Spalte da, wo die Legende schon steht.
  */
 function renderFootline(scores: ScoreResult | null, isScoring: boolean): string {
-  // Zwei Gruppen statt loser Teile: bricht die Zeile um, wandert die rechte
-  // Gruppe geschlossen nach unten, statt dass einzelne Stücke auseinanderfallen.
+  // Vier Gruppen statt loser Teile. Schmal steht jede in einer eigenen Zeile,
+  // ab Tablet laufen sie wieder nebeneinander. Ein einzelner Fließtext aus
+  // Trennpunkten war auf dem Handy nicht mehr zu lesen.
   return `
     <p class="table-footline">
       <span class="footline-legend">
         <span class="legend-sample">Beste Elf nach Score</span>
         ${renderScoreStateChip(scores, isScoring)}
-        <span class="legend-sep">·</span>
+      </span>
+      <span class="footline-hints">
         <span>0 % = fällt aus</span>
-        <span class="legend-sep">·</span>
-        <button type="button" class="help-link" data-modal="score">Was ist der Score?</button>
-        <span class="legend-sep">·</span>
-        <button type="button" class="help-link" data-modal="features">Was kann die App?</button>
-      </span>
-      <span class="footline-meta">
-        <span class="amount-hint">Beträge in Mio. €</span>
         <span class="legend-sep amount-hint">·</span>
-        <span class="footline-build">${escapeHtml(buildLabel())}</span>
+        <span class="amount-hint">Beträge in Mio. €</span>
       </span>
+      <span class="footline-links">
+        <button type="button" data-modal="score">Was ist der Score?</button>
+        <button type="button" data-modal="features">Was kann die App?</button>
+        ${LEGAL_LINKS}
+      </span>
+      <span class="footline-build">${escapeHtml(buildLabel())}</span>
     </p>
   `;
 }
+
+/**
+ * Pflichtangaben. Sie müssen von jeder Seite erreichbar sein, nicht nur von
+ * der Anmeldung, und öffnen in einem neuen Tab: die Rückkehr würde sonst die
+ * Anwendung neu laden und den Kader ein zweites Mal holen.
+ */
+const LEGAL_LINKS = `
+  <a href="/impressum.html" target="_blank" rel="noopener">Impressum</a>
+  <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+  <a href="/nutzungsbedingungen.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
+`;
 
 /**
  * Stand der Score-Berechnung als Chip. Grün wird er erst, wenn es die grün
@@ -670,7 +682,8 @@ function renderScoreStateChip(scores: ScoreResult | null, isScoring: boolean): s
   return `
     <span class="formation-chip">${escapeHtml(scores.formation)}</span>
     ${budgetChip}
-    · Stand ${escapeHtml(formatStand(scores.takenAt))}
+    <span class="legend-sep">·</span>
+    <span>Stand ${escapeHtml(formatStand(scores.takenAt))}</span>
   `;
 }
 

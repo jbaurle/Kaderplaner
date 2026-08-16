@@ -103,8 +103,7 @@
  * Pseudoelement statt über Polster, damit die Untertitelzeile nicht
  * auseinandergezogen wird.
  */
-.league-link::after,
-.help-link::after {
+.league-link::after {
   content: '';
   position: absolute;
   inset: -14px -8px;
@@ -1239,23 +1238,27 @@
  * Block in die zweite Zeile und beginnt dort links, statt dass Einheit und
  * Build an gegenüberliegende Ränder springen.
  */
+/*
+ * Schmal untereinander, ab Tablet in einer Zeile. Alles in einer Zeile war auf
+ * dem Handy ein Fliesstext aus Trennpunkten, in dem weder der Stand noch die
+ * Links auffielen.
+ */
 .table-footline {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 2px 10px;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
   margin: 16px 2px 0;
   font-size: 11px;
   color: var(--text-muted);
 }
 
 .footline-legend,
-.footline-meta {
+.footline-hints,
+.footline-links {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 2px 6px;
+  gap: 6px;
 }
 
 .legend-sample {
@@ -1290,26 +1293,72 @@
   color: var(--border-strong);
 }
 
-.help-link {
-  position: relative;
-  padding: 0;
-  border: 0;
-  background: transparent;
+/*
+ * Links als Chips: 11 px unterstrichener Text ist auf dem Handy kein Ziel,
+ * sondern eine Linie. Ab Tablet fallen sie auf schlichte Textlinks zurück,
+ * dort trifft die Maus auch einen Buchstaben.
+ */
+.footline-links a,
+.footline-links button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
   font: inherit;
   color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
   cursor: pointer;
 }
 
 @media (hover: hover) {
-  .help-link:hover {
+  .footline-links a:hover,
+  .footline-links button:hover {
     color: var(--text);
+    border-color: var(--border-strong);
   }
 }
 
 .footline-build {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Ab Tablet zurück in eine Zeile: Legende, Hinweise und Links laufen links,
+ * der Build-Stempel wird nach rechts geschoben. Dieselbe Breitenstufe, ab der
+ * die Tabelle die FIX-Spalte zeigt.
+ */
+@container (min-width: 744px) {
+  .table-footline {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+
+  .footline-legend,
+  .footline-hints,
+  .footline-links {
+    align-items: baseline;
+    gap: 2px 6px;
+  }
+
+  .footline-links a,
+  .footline-links button {
+    display: inline;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footline-build {
+    margin-left: auto;
+  }
 }
 
 .score-cell {
