@@ -1,6 +1,7 @@
 /**
- * Hilfe-Overlays. Zwei Inhalte, ein Rahmen:
+ * Hilfe-Overlays. Drei Inhalte, ein Rahmen:
  *
+ *   - `features`   statische Übersicht, was die App kann.
  *   - `score`      statische Erklärung, wie der Score zustande kommt.
  *   - `formation`  datenabhängige Begründung, warum keine gültige
  *                  Formation möglich ist.
@@ -12,7 +13,7 @@
 import { VALID_FORMATIONS, type PositionLabel } from '../compute/optimizer.js';
 import { escapeHtml } from './format.js';
 
-export type HelpModal = 'score' | 'formation';
+export type HelpModal = 'features' | 'score' | 'formation';
 
 const POSITIONS: readonly PositionLabel[] = ['TW', 'ABW', 'MF', 'ANG'];
 
@@ -36,6 +37,82 @@ export function renderHelpModal(title: string, bodyHtml: string): string {
     </div>
   `;
 }
+
+export const FEATURES_HELP_TITLE = 'Was die App kann';
+
+export const FEATURES_HELP_BODY = `
+  <p>
+    Der Kaderplaner ist eine Entscheidungshilfe für Kickbase. Er zeigt deinen
+    Kader mit einem Score je Spieler und lässt dich in vier Spalten
+    durchspielen, wen du verkaufst und was danach auf dem Konto steht.
+  </p>
+
+  <dl class="help-list">
+    <dt>Kader mit Score</dt>
+    <dd>
+      Jede Zeile ist ein Spieler: Marktwert, Gewinn und Verlust seit dem Kauf,
+      Score in Prozent und der nächste Gegner. Die grün markierten Zellen sind
+      die beste Elf, die ein Optimizer über alle zehn Formationen sucht.
+    </dd>
+
+    <dt>Vier Szenariospalten</dt>
+    <dd>
+      In S1 bis S3 hakst du an, wen du verkaufen würdest. FIX ist keine
+      Auswahl, sondern deine Bank, wie sie gerade steht. Unter jeder Spalte
+      rechnen <strong>Kontostand (neu)</strong> und
+      <strong>Transaktionen</strong> live mit, dazu steht dort, ob mit den
+      übrigen Spielern noch eine gültige Formation zustande kommt.
+    </dd>
+
+    <dt>Gegner am nächsten Spieltag</dt>
+    <dd>
+      Als Wappen mit Pfeil: er zeigt, ob der Gegner in der Tabelle über oder
+      unter dem eigenen Verein steht. Die Daten kommen aus dem Spielplan des
+      Wettbewerbs.
+    </dd>
+
+    <dt>Transferblock</dt>
+    <dd>
+      Unter dem Kader stehen deine offenen Gebote, auch die aus der
+      Kickbase-App. Jedes Gebot geht vom Kontostand ab, der Spieler zählt zum
+      Kader. Ein Häkchen heißt auch hier verkaufen, ein angehaktes Gebot ist
+      damit unterm Strich neutral.
+    </dd>
+
+    <dt>Aufstellung</dt>
+    <dd>
+      Der Formations-Chip im Kopf, etwa <strong>5-4-1</strong>, öffnet ein
+      Spielfeld. Dort stellst du die Elf zusammen und schickst sie zurück an
+      Kickbase. Der Entwurf bleibt bis dahin lokal.
+    </dd>
+  </dl>
+
+  <h3>Bedienung</h3>
+  <ul class="help-list-plain">
+    <li><strong>Laden</strong> holt Kontostand, Kader und Markt neu. Der
+      Score-Lauf hängt sich von selbst dahinter, die Tabelle steht schon
+      vorher.</li>
+    <li>Auf dem Handy geht es auch mit Ziehen von oben nach unten.</li>
+    <li>Auf schmalen Geräten zeigt die Tabelle eine Szenariospalte, der
+      Umschalter darüber wechselt sie. Ab Tablet stehen alle vier
+      nebeneinander.</li>
+    <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
+      FIX, <strong>×</strong> räumt die Spalte ab.</li>
+    <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
+  </ul>
+
+  <h3>Was gespeichert wird</h3>
+  <p>
+    Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus
+    dem Browser an. Anmeldung, Szenarien und Aufstellungsentwurf liegen nur im
+    localStorage dieses Browsers.
+  </p>
+
+  <p class="help-note">
+    Außer der Aufstellung ist alles nur lesend. Verkaufen, kaufen und bieten
+    passiert weiter in Kickbase, hier wird nur gerechnet.
+  </p>
+`;
 
 export const SCORE_HELP_TITLE = 'Wie der Score entsteht';
 

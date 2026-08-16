@@ -35,6 +35,8 @@ import { LineupPage, type LineupPlayer } from './lineup-page.js';
 import {
   renderFormationHelpBody,
   renderHelpModal,
+  FEATURES_HELP_BODY,
+  FEATURES_HELP_TITLE,
   FORMATION_HELP_TITLE,
   SCORE_HELP_BODY,
   SCORE_HELP_TITLE,
@@ -454,7 +456,9 @@ export class PlanningPage {
     for (const el of props.host.querySelectorAll<HTMLElement>('[data-modal]')) {
       el.addEventListener('click', () => {
         const kind = el.dataset['modal'];
-        if (kind === 'score' || kind === 'formation' || kind === 'league') this.openModal(kind);
+        if (kind === 'features' || kind === 'score' || kind === 'formation' || kind === 'league') {
+          this.openModal(kind);
+        }
       });
     }
     this.wireModal();
@@ -516,6 +520,9 @@ export class PlanningPage {
   }
 
   private renderModal(view: PlanningView): string {
+    if (this.state.modal === 'features') {
+      return renderHelpModal(FEATURES_HELP_TITLE, FEATURES_HELP_BODY);
+    }
     if (this.state.modal === 'score') {
       return renderHelpModal(SCORE_HELP_TITLE, SCORE_HELP_BODY);
     }
@@ -610,9 +617,9 @@ function renderLeagueChoice(leagues: League[], currentId: LeagueId): string {
 }
 
 /**
- * Fusszeile unter den Tabellen: links die Legende zur Score-Spalte samt Hilfe,
- * rechts der Build-Stempel. Aufbau bleibt in jedem Zustand gleich, nur der Chip
- * wechselt.
+ * Fusszeile unter den Tabellen: links die Legende zur Score-Spalte samt den
+ * beiden Hilfetexten, rechts der Build-Stempel. Aufbau bleibt in jedem Zustand
+ * gleich, nur der Chip wechselt.
  *
  * Die Hilfe steht hier und nicht mehr oben: die Kopfzeile trägt Aktionen, und
  * erklärt wird die Spalte da, wo die Legende schon steht.
@@ -629,6 +636,8 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
         <span>0 % = fällt aus</span>
         <span class="legend-sep">·</span>
         <button type="button" class="help-link" data-modal="score">Was ist der Score?</button>
+        <span class="legend-sep">·</span>
+        <button type="button" class="help-link" data-modal="features">Was kann die App?</button>
       </span>
       <span class="footline-meta">
         <span class="amount-hint">Beträge in Mio. €</span>

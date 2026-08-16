@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { renderFormationHelpBody, renderHelpModal } from '../src/ui/help.js';
+import { FEATURES_HELP_BODY, renderFormationHelpBody, renderHelpModal } from '../src/ui/help.js';
 
 describe('renderFormationHelpBody', () => {
   it('reports each tied formation with its own shortfall', () => {
@@ -40,6 +40,20 @@ describe('renderFormationHelpBody', () => {
       unavailable: [],
     });
     expect(body).not.toContain('Am nächsten dran');
+  });
+});
+
+describe('FEATURES_HELP_BODY', () => {
+  it('names every block of the page', () => {
+    for (const term of ['Score', 'S1 bis S3', 'FIX', 'Gegner', 'Gebote', 'Aufstellung']) {
+      expect(FEATURES_HELP_BODY).toContain(term);
+    }
+  });
+
+  it('closes every tag it opens', () => {
+    const open = FEATURES_HELP_BODY.match(/<(?!\/)([a-z]+)/g) ?? [];
+    const close = FEATURES_HELP_BODY.match(/<\/([a-z]+)/g) ?? [];
+    expect(open.length).toBe(close.length);
   });
 });
 
