@@ -210,6 +210,49 @@
   cursor: not-allowed;
 }
 
+/*
+ * Laden läuft: das Label hält die Breite und wird unsichtbar, darüber dreht
+ * sich ein Ring. Mit wechselndem Text ("Bitte warten…") sprang der Knopf in
+ * der Breite und mit ihm die ganze Kopfzeile.
+ */
+.btn.is-busy {
+  position: relative;
+}
+
+.btn.is-busy .btn-label {
+  visibility: hidden;
+}
+
+.btn.is-busy::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgb(255 255 255 / 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+/* Blasser als 0.5 wäre der Ring auf dem Blau kaum noch zu sehen. */
+.btn--primary.is-busy:disabled {
+  opacity: 0.75;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.is-busy::after {
+    animation-duration: 2.4s;
+  }
+}
+
 .btn--link {
   background: transparent;
   color: var(--text-muted);

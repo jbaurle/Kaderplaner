@@ -390,8 +390,9 @@ export class PlanningPage {
             ${view.totalPlayers} Spieler · ${view.lineupCount}/11 in Aufstellung
           </div>
           <div class="planning-actions-row">
-            <button type="button" class="btn btn--primary" id="laden-btn"${state.isLoading ? ' disabled' : ''}>
-              ${state.isLoading ? 'Bitte warten…' : 'Laden'}
+            <button type="button" class="btn btn--primary${state.isLoading ? ' is-busy' : ''}"
+                    id="laden-btn"${state.isLoading ? ' disabled aria-busy="true"' : ''}>
+              <span class="btn-label">Laden</span>
             </button>
           </div>
         </header>
