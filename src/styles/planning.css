@@ -985,6 +985,18 @@
   text-align: center;
 }
 
+/*
+ * Platzhalter in den beiden rechten Spaltenköpfen: nimmt Breite ein, aber
+ * keine Höhe. Score und Spieltag stehen erst nach dem Score-Lauf da, ohne die
+ * Reservierung wüchsen beide Spalten in dem Moment und schöben die Tabelle.
+ */
+.head-gauge {
+  display: block;
+  height: 0;
+  visibility: hidden;
+  white-space: nowrap;
+}
+
 /* Ohne die Nullzeile legt die Grundlinie des Wappens auf die Textzeile drauf
    und die Zeile wird hoeher als ohne die Spalte. */
 .planning-table td.col-opp {

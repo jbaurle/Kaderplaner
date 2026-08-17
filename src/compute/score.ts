@@ -95,9 +95,11 @@ export const EMPTY_OPPONENTS: OpponentsView = {
  * dabei auf 0 stehen, damit gilt jeder Cache-Eintrag als aktuell und wird nie
  * erneuert (gesehen 16.08.2026, keine einzige Ansetzung in der Spalte).
  */
+export const MAX_FIXTURES = 3;
+
 export function buildFixtures(
   schedule: CompetitionMatchdays,
-  max = 3,
+  max = MAX_FIXTURES,
 ): Record<string, Fixture[]> {
   const out: Record<string, Fixture[]> = {};
   const open = schedule.matches
@@ -141,7 +143,7 @@ export function trendOfPosition(position: number, teamCount: number): Trend {
 export function buildOpponents(
   schedule: CompetitionMatchdays,
   table: CompetitionTable,
-  max = 3,
+  max = MAX_FIXTURES,
 ): OpponentsView {
   const fixtures = buildFixtures(schedule, max);
   const lists = Object.values(fixtures);

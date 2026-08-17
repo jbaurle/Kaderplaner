@@ -30,6 +30,7 @@ import type {
 import type { ScenarioFlags, ScenarioSlot } from '../state/planning.js';
 import {
   EMPTY_OPPONENTS,
+  MAX_FIXTURES,
   trendOfPosition,
   type OpponentsView,
   type TeamInfo,
@@ -93,6 +94,16 @@ function gauge(value: number): string {
  * `formationIssueLabel` liefert nur `TW`, `ABW`, `MF`, `ANG` und `X/11` mit X
  * bis 10, breiter als `10/11` wird es also nie.
  */
+/**
+ * Unsichtbare Platzhalter in den beiden rechten Spaltenköpfen. Beide Spalten
+ * stehen leer da, bis der Score-Lauf durch ist, und wüchsen erst dann auf ihre
+ * Breite: die Prozentzahl kann dreistellig werden, die Spieltagsnummer
+ * zweistellig. Ohne die Reservierung rückt beim Eintreffen der Werte die halbe
+ * Tabelle nach links.
+ */
+const SCORE_GAUGE = '<span class="head-gauge" aria-hidden="true">100&nbsp;%</span>';
+const OPP_GAUGE = '<span class="head-gauge" aria-hidden="true">ST&nbsp;34</span>';
+
 function formationGauge(): string {
   return `<span class="formation-gauge" aria-hidden="true">${formationIssueChip('10/11')}</span>`;
 }
@@ -198,9 +209,10 @@ export function renderPlanningDesktop(
           </th>
           <th class="col-score" title="${SCORE_HINT}">
             <span class="label-wide">Score</span><span class="label-narrow">%</span>
+            ${SCORE_GAUGE}
           </th>
           <th class="col-opp" title="Gegner am nächsten Spieltag">
-            ${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}
+            ${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}${OPP_GAUGE}
           </th>
         </tr>
       </thead>
@@ -591,8 +603,9 @@ function renderTransferHeadRow(
       <th class="col-pl"></th>
       <th class="col-score" title="${SCORE_HINT}">
         <span class="label-wide">Score</span><span class="label-narrow">%</span>
+        ${SCORE_GAUGE}
       </th>
-      <th class="col-opp">${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}</th>
+      <th class="col-opp">${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}${OPP_GAUGE}</th>
     </tr>
   `;
 }
@@ -744,11 +757,14 @@ function renderOpponentsHeader(opp: OpponentsView): string {
  * Unter 796 px zeigt CSS nur die nächste Ansetzung, siehe `--opp-cols`.
  */
 function renderOpponents(teamId: string, opp: OpponentsView): string {
-  if (opp.columns === 0) return '';
+  // Vor dem Score-Lauf ist keine Ansetzung bekannt. Das Raster steht trotzdem
+  // schon da, in voller Breite: sonst wächst die Spalte erst mit den Wappen,
+  // und mit ihnen springt die Zeilenhöhe und die halbe Tabelle rückt.
+  const columns = opp.columns === 0 ? MAX_FIXTURES : opp.columns;
   const list = opp.fixtures[teamId] ?? [];
 
   let slots = '';
-  for (let i = 0; i < opp.columns; i++) {
+  for (let i = 0; i < columns; i++) {
     const fixture = list[i];
     if (!fixture) {
       slots += '<span class="opp-slot"></span>';
@@ -771,7 +787,7 @@ function renderOpponents(teamId: string, opp: OpponentsView): string {
 
   // Die Spaltenzahl geht als Variable rein, damit CSS sie schmal auf eine
   // herunterdrehen kann. Als fertiges `grid-template-columns` ginge das nicht.
-  return `<span class="opp-slots" style="--opp-cols:${opp.columns}">${slots}</span>`;
+  return `<span class="opp-slots" style="--opp-cols:${columns}">${slots}</span>`;
 }
 
 /**
