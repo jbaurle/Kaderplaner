@@ -1,0 +1,10 @@
+# Textdateien liegen im Repo und im Arbeitsverzeichnis mit LF. Ohne das macht
+# core.autocrlf=true auf Windows beim Auschecken CRLF daraus und Git warnt bei
+# jedem Schreibvorgang, der LF hinterlässt.
+* text=auto eol=lf
+
+# Binärdateien fasst Git nicht an.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
