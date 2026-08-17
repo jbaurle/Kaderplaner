@@ -49,11 +49,11 @@ export function renderOffersBody(input: OffersDialogInput): string {
       <div class="offers-hero-label">Damit rechnen wir</div>
       <div class="offers-hero-amount">${escapeHtml(formatEur(top))}</div>
       <div class="offers-hero-sub${overMarket < 0 ? ' offers-hero-sub--neg' : ''}">
-        ${escapeHtml(formatSignedEur(overMarket))} gegenüber dem Marktwert
+        ${escapeHtml(marketComparison(overMarket))}
       </div>
     </div>
     <ul class="offers-list">
-      ${offers.map((offer, index) => renderOffer(offer, index === 0, top, input.marketValue)).join('')}
+      ${offers.map((offer, index) => renderOffer(offer, index === 0, top)).join('')}
     </ul>
     <dl class="offers-facts">
       ${factRow('Marktwert', formatEur(input.marketValue))}
@@ -73,12 +73,17 @@ export function renderOffersBody(input: OffersDialogInput): string {
   `;
 }
 
-function renderOffer(
-  offer: MarketOffer,
-  isTop: boolean,
-  top: number,
-  marketValue: number,
-): string {
+/**
+ * Der Abstand zum Marktwert in Worten statt mit Vorzeichen. "+1.109.736 €"
+ * liest sich wie ein Gewinn, gemeint ist aber ein Abstand.
+ */
+function marketComparison(overMarket: number): string {
+  if (overMarket === 0) return 'genau der Marktwert';
+  const direction = overMarket > 0 ? 'mehr' : 'weniger';
+  return `${formatEur(Math.abs(overMarket))} ${direction} zum Marktwert`;
+}
+
+function renderOffer(offer: MarketOffer, isTop: boolean, top: number): string {
   const behind = top - offer.amount;
   const note = isTop
     ? 'höchstes Gebot'
@@ -92,7 +97,6 @@ function renderOffer(
       </span>
       <span class="offers-money">
         <span class="offers-amount">${escapeHtml(formatEur(offer.amount))}</span>
-        <span class="offers-diff ${signColorClass(offer.amount - marketValue)}">${escapeHtml(formatSignedEur(offer.amount - marketValue))} zum Marktwert</span>
       </span>
     </li>
   `;

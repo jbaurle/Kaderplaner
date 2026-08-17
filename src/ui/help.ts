@@ -70,10 +70,26 @@ export const FEATURES_HELP_BODY = `
       In der Spalte steht, was ein Verkauf bringt. Meistens ist das Kickbases
       Marktwert. Hat aber ein Mitspieler ein Gebot auf deinen Spieler gelegt
       und liegt es darüber, zählt das Gebot: das bekommst du, wenn du es
-      annimmst. Solche Beträge stehen in Grün, ein Klick zeigt alle Gebote,
-      den Marktwert und was als Gewinn oder Verlust übrig bleibt. Auch G/V
-      rechnet dann gegen das Gebot, sonst widersprächen sich die zwei Spalten.
-      Gebote gibt es nur, solange der Spieler auf dem Markt steht.
+      annimmst. Liegt es darunter, bleibt der Marktwert stehen, denn an
+      Kickbase verkaufen geht immer. Mit dem Erlös rechnen auch die
+      Szenariospalten und die Zeile <strong>Verkäufe</strong>.
+    </dd>
+
+    <dt>Gebote sehen</dt>
+    <dd>
+      Ein <span class="help-sample-offer">grüner Betrag</span> in der
+      Erlös-Spalte heißt: dahinter liegt ein Gebot. Ein Tipp darauf zeigt alle
+      Gebote mit Namen und Bild des Managers, das höchste zuerst, dazu
+      Marktwert, Kaufpreis und was unterm Strich als Gewinn oder Verlust
+      bleibt. Auch <strong>G/V</strong> rechnet bei diesen Spielern gegen das
+      Gebot, sonst widersprächen sich die beiden Spalten. Was Kickbase selbst
+      ausweist, steht weiter im Dialog.
+      <p>
+        Gebote gibt es nur, solange der Spieler auf dem Markt steht: nimmst du
+        ihn herunter oder läuft die Zeit ab, ist die Spalte wieder der blanke
+        Marktwert. Angenommen oder abgelehnt wird in Kickbase, hier wird nur
+        gerechnet.
+      </p>
     </dd>
 
     <dt>Vier Szenariospalten</dt>
@@ -100,7 +116,8 @@ export const FEATURES_HELP_BODY = `
       Kickbase-App. Jedes Gebot geht in jeder Spalte vom Kontostand ab, der
       Spieler zählt zum Kader. Ein Häkchen heißt auch hier verkaufen und bringt
       den Marktwert zurück, nicht das Gebot: wer über Marktwert bietet, sieht
-      hier genau diese Differenz.
+      hier genau diese Differenz. Kein Erlös wie oben, denn auf einen Spieler,
+      der dir noch gar nicht gehört, kann niemand bei dir bieten.
     </dd>
 
     <dt>Aufstellung</dt>

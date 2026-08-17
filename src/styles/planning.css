@@ -1269,6 +1269,14 @@
   color: var(--text-muted);
 }
 
+/* Zeigt im Hilfetext, wie ein Erlös aus einem Gebot in der Tabelle aussieht. */
+.help-sample-offer {
+  color: var(--success);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
 /* ---------- Ligaauswahl im Overlay ---------- */
 
 .league-choice {
@@ -1677,12 +1685,6 @@
   color: var(--success);
 }
 
-.offers-diff {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
 /* Die Herleitung, klein und zweispaltig. Wer nachrechnen will, findet sie. */
 .offers-facts {
   margin: 0;
@@ -1718,12 +1720,10 @@
  * Zwei Klassen tief, damit die Farbe die Grundregeln der Zeile schlägt: die
  * Beschreibung ist gedämpft, der Wert der Zeile schwarz.
  */
-.offers-list .num--pos,
 .offers-facts .num--pos {
   color: var(--success);
 }
 
-.offers-list .num--neg,
 .offers-facts .num--neg {
   color: var(--error);
 }

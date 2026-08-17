@@ -21,6 +21,10 @@ Browser an und legt nichts ab außer in deinem `localStorage`.
 - **Vier Szenariospalten.** S1 bis S3 hakst du selbst an, BANK hakt von allein
   jeden an, der gerade nicht in deiner Elf steht. Kontostand, Verkäufe und
   Gebote rechnen live mit.
+- **Erlös statt Marktwert.** Die Spalte zeigt, was ein Verkauf bringt: das
+  höchste Gebot eines Mitspielers, sonst den Marktwert. Solche Beträge stehen
+  grün, ein Klick zeigt alle Gebote mit Bild des Managers und die Rechnung
+  dahinter. G/V rechnet gegen dieselbe Zahl.
 - **Gegner am nächsten Spieltag** als Wappen mit Tendenzpfeil, aus dem
   Spielplan des Wettbewerbs.
 - **Transferblock** mit deinen offenen Geboten, auch denen aus der
