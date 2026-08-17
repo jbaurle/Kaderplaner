@@ -30,7 +30,7 @@ describe('computePlanning', () => {
     expect(view.lineupCount).toBe(0);
     expect(view.totalPlayers).toBe(0);
     expect(view.budget).toBe(1000);
-    expect(view.totalMvgl).toBe(0);
+    expect(view.totalGainLoss).toBe(0);
     expect(view.summaries.S1).toEqual({
       salesSum: 0,
       bidsSum: 0,
@@ -54,7 +54,7 @@ describe('computePlanning', () => {
     expect(view.rows.map((r) => r.id)).toEqual(['d', 'a', 'b', 'm']);
   });
 
-  it('sums totalMvgl across all rows', () => {
+  it('sums totalGainLoss across all rows', () => {
     const view = computePlanning({
       budget: 0,
       squad: [
@@ -65,7 +65,59 @@ describe('computePlanning', () => {
       scenarios: NO_SCENARIOS,
     });
 
-    expect(view.totalMvgl).toBe(70);
+    expect(view.totalGainLoss).toBe(70);
+  });
+
+  /**
+   * Karazor am 17.08.2026: Marktwert 7.790.264, G/V -2.575.291, also für
+   * 10.365.555 gekauft. Karinator bietet 8.900.000.
+   */
+  describe('Gebote eines Mitspielers', () => {
+    const squad = [
+      player({ id: 'karazor', marketValue: 7_790_264, mvgl: -2_575_291, isInLineup: false }),
+    ];
+
+    it('rechnet Erlös und G/V gegen das höchste Gebot', () => {
+      const view = computePlanning({
+        budget: 0,
+        squad,
+        scenarios: { byPlayer: { karazor: { S1: true, S2: false, S3: false } } },
+        bestOffers: { karazor: 8_900_000 },
+      });
+
+      const row = view.rows[0]!;
+      expect(row.saleValue).toBe(8_900_000);
+      expect(row.bestOffer).toBe(8_900_000);
+      // Marktwert und Kickbases G/V bleiben unangetastet.
+      expect(row.marketValue).toBe(7_790_264);
+      expect(row.mvgl).toBe(-2_575_291);
+      expect(row.gainLoss).toBe(-1_465_555);
+      expect(view.summaries.S1.salesSum).toBe(8_900_000);
+      expect(view.totalGainLoss).toBe(-1_465_555);
+    });
+
+    it('ignoriert ein Gebot unter Marktwert, an Kickbase verkaufen geht immer', () => {
+      const view = computePlanning({
+        budget: 0,
+        squad,
+        scenarios: { byPlayer: { karazor: { S1: true, S2: false, S3: false } } },
+        bestOffers: { karazor: 5_000_000 },
+      });
+
+      const row = view.rows[0]!;
+      expect(row.saleValue).toBe(7_790_264);
+      expect(row.gainLoss).toBe(-2_575_291);
+      expect(view.summaries.S1.salesSum).toBe(7_790_264);
+    });
+
+    it('fällt ohne Gebote auf Marktwert und mvgl zurück', () => {
+      const view = computePlanning({ budget: 0, squad, scenarios: NO_SCENARIOS });
+
+      const row = view.rows[0]!;
+      expect(row.saleValue).toBe(row.marketValue);
+      expect(row.bestOffer).toBe(0);
+      expect(row.gainLoss).toBe(row.mvgl);
+    });
   });
 
   describe('S4 (auto-bench)', () => {

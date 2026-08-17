@@ -24,12 +24,19 @@ export interface FormationHelpInput {
   unavailable: string[];
 }
 
-export function renderHelpModal(title: string, bodyHtml: string): string {
+/**
+ * Der Rahmen für jedes Overlay. `subtitle` ist optional und steht klein unter
+ * dem Titel: die Hilfetexte brauchen keinen, die Gebote zählen dort mit.
+ */
+export function renderHelpModal(title: string, bodyHtml: string, subtitle = ''): string {
   return `
     <div class="dialog-shade" data-dialog-shade tabindex="-1">
       <section class="dialog-box" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
         <header class="dialog-head">
-          <h2 class="dialog-title">${escapeHtml(title)}</h2>
+          <div class="dialog-heading">
+            <h2 class="dialog-title">${escapeHtml(title)}</h2>
+            ${subtitle ? `<p class="dialog-subtitle">${escapeHtml(subtitle)}</p>` : ''}
+          </div>
           <button type="button" class="dialog-close" data-dialog-close aria-label="Schließen">×</button>
         </header>
         <div class="dialog-body">${bodyHtml}</div>
@@ -50,12 +57,23 @@ export const FEATURES_HELP_BODY = `
   <dl class="help-list">
     <dt>Kader mit Score</dt>
     <dd>
-      Jede Zeile ist ein Spieler: Marktwert, Gewinn und Verlust seit dem Kauf,
+      Jede Zeile ist ein Spieler: Erlös, Gewinn und Verlust seit dem Kauf,
       Score in Prozent und der nächste Gegner. <strong>Fett</strong> gesetzte
       Namen stehen gerade in deiner Aufstellung bei Kickbase, deiner Elf also.
       Die grün markierten Zellen sind etwas anderes: die beste Elf nach Score,
       die ein Optimizer über alle zehn Formationen sucht. Wo beides
       auseinanderfällt, lohnt der Blick.
+    </dd>
+
+    <dt>Erlös statt Marktwert</dt>
+    <dd>
+      In der Spalte steht, was ein Verkauf bringt. Meistens ist das Kickbases
+      Marktwert. Hat aber ein Mitspieler ein Gebot auf deinen Spieler gelegt
+      und liegt es darüber, zählt das Gebot: das bekommst du, wenn du es
+      annimmst. Solche Beträge stehen in Grün, ein Klick zeigt alle Gebote,
+      den Marktwert und was als Gewinn oder Verlust übrig bleibt. Auch G/V
+      rechnet dann gegen das Gebot, sonst widersprächen sich die zwei Spalten.
+      Gebote gibt es nur, solange der Spieler auf dem Markt steht.
     </dd>
 
     <dt>Vier Szenariospalten</dt>

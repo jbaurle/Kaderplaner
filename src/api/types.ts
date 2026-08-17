@@ -59,6 +59,22 @@ export interface SquadResult {
 }
 
 /**
+ * Ein Gebot auf einen Spieler, egal von wem. Kickbase liefert die Liste an
+ * jedem Marktspieler mit, also auch an den eigenen, die man selbst auf den
+ * Markt gestellt hat. Genau das sind die Gebote, die den Verkauf lohnen.
+ */
+export interface MarketOffer {
+  /** Id des bietenden Managers. Dient zugleich als Id des Gebots. */
+  userId: string;
+  userName: string;
+  amount: number;
+  /** Bild des Managers relativ zum CDN, leer wenn Kickbase keins führt. */
+  imagePath: string;
+  /** Das eigene Gebot, nicht das eines Mitspielers. */
+  isMine: boolean;
+}
+
+/**
  * Ein Angebot auf dem Transfermarkt.
  *
  * Feldnamen gegen eine echte Antwort geprüft (16.08.2026). Der Mapper in
@@ -81,6 +97,11 @@ export interface MarketPlayer {
   offerCount: number;
   /** Das eigene Gebot, falls eines liegt. `uoid` braucht der Rückzug. */
   myOffer: { amount: number; offerId: string } | null;
+  /**
+   * Alle Gebote auf den Spieler, das eigene mit `isMine` markiert. Leer, wenn
+   * keins vorliegt. Ungeordnet, wie Kickbase sie liefert.
+   */
+  offers: MarketOffer[];
   status: number;
   probability: number;
   /** Schnitt, fehlt bei neu eingestellten Spielern. Dann 0. */
@@ -132,10 +153,12 @@ export interface WireSquadResponse {
 }
 
 /**
- * Transfermarkt, gegen eine echte Antwort geprüft (16.08.2026).
+ * Transfermarkt, gegen eine echte Antwort geprüft (17.08.2026).
  *
  * Alles ausser `i` und `n` ist optional: `ap` und `p` fehlen bei einem Teil
- * der Angebote, `uop`/`uoid`/`ofs` nur bei denen mit eigenem Gebot.
+ * der Angebote, `uop` und `uoid` nur bei denen mit eigenem Gebot. `ofs` steht
+ * an jedem Spieler, auf dem ein Gebot liegt, auch an den eigenen: wer einen
+ * Spieler selbst auf den Markt stellt, findet dort die Gebote der Mitspieler.
  */
 export interface WireMarketPlayer {
   i: string;
@@ -170,11 +193,13 @@ export interface WireMarketPlayer {
 }
 
 export interface WireMarketOffer {
-  /** Bietender Nutzer. */
+  /** Bietender Nutzer. Gleich `uoid`, eine eigene Gebots-Id gibt es nicht. */
   u?: string;
   unm?: string;
   uoid?: string;
   uop?: number;
+  /** Bild des Managers, etwa `user/<hash>.png`. */
+  uim?: string;
   st?: number;
 }
 

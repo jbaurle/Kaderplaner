@@ -13,7 +13,14 @@
  */
 
 import { KickbaseClient, KickbaseError } from '../api/kickbase.js';
-import type { League, LeagueId, MarketPlayer, PlayerId, SquadPlayer } from '../api/types.js';
+import type {
+  League,
+  LeagueId,
+  MarketOffer,
+  MarketPlayer,
+  PlayerId,
+  SquadPlayer,
+} from '../api/types.js';
 import { computePlanning, type PlanningView } from '../compute/planning.js';
 import {
   computeScores,
@@ -43,6 +50,7 @@ import {
   type FormationHelpInput,
   type HelpModal,
 } from './help.js';
+import { renderOffersBody } from './offers-dialog.js';
 import {
   renderPlanningDesktop,
   type DesktopScoresProp,
@@ -64,8 +72,11 @@ export interface PlanningPageProps {
   onUnauthorized: () => void;
 }
 
-/** Offene Overlays: zwei Hilfetexte plus die Ligaauswahl. */
-type ModalKind = HelpModal | 'league';
+/**
+ * Offene Overlays: die Hilfetexte, die Ligaauswahl und die Gebote auf einen
+ * Spieler. Nur letztere hängen an einer Id.
+ */
+type ModalKind = HelpModal | 'league' | { kind: 'offers'; playerId: PlayerId };
 
 interface PageState {
   isLoading: boolean;
@@ -211,6 +222,28 @@ export class PlanningPage {
   }
 
   /** Die eigenen offenen Gebote, in der Reihenfolge des Marktes. */
+  /**
+   * Das höchste Gebot eines Mitspielers je Spieler. Das eigene zählt nicht:
+   * es sagt nichts darüber, was ein Verkauf bringt.
+   *
+   * Gebote hängen am Marktspieler, und auf dem Markt stehen auch die eigenen,
+   * die man selbst dorthin gestellt hat. Genau die treffen den Kader.
+   */
+  private bestOffers(): Record<PlayerId, number> {
+    const out: Record<PlayerId, number> = {};
+    for (const player of this.state.market) {
+      const amounts = player.offers.filter((o) => !o.isMine).map((o) => o.amount);
+      if (amounts.length > 0) out[player.id] = Math.max(...amounts);
+    }
+    return out;
+  }
+
+  /** Die fremden Gebote auf einen Spieler, absteigend. Leer, wenn keine da sind. */
+  private offersFor(playerId: PlayerId): MarketOffer[] {
+    const player = this.state.market.find((p) => p.id === playerId);
+    return (player?.offers ?? []).filter((o) => !o.isMine);
+  }
+
   private bids(): MarketPlayer[] {
     return this.state.market.filter((p) => p.myOffer !== null);
   }
@@ -351,6 +384,7 @@ export class PlanningPage {
         marketValue: row.player.marketValue,
         flags: row.flags,
       })),
+      bestOffers: this.bestOffers(),
     });
 
     const desktopScores: DesktopScoresProp | null = state.scores
@@ -434,6 +468,7 @@ export class PlanningPage {
       onClearSlot,
       onCopyFromS4,
       onSelectSlot,
+      onShowOffers: (playerId) => this.openModal({ kind: 'offers', playerId }),
       onClearTransferSlot: (slot) => this.handleClearTransferSlot(slot),
       onSelectAllTransfers: (slot) => this.handleSelectAllTransfers(slot),
     });
@@ -535,7 +570,33 @@ export class PlanningPage {
         renderLeagueChoice(this.props.leagues, this.props.leagueId),
       );
     }
+    const modal = this.state.modal;
+    if (modal !== null && typeof modal === 'object' && modal.kind === 'offers') {
+      return this.renderOffersModal(modal.playerId, view);
+    }
     return '';
+  }
+
+  /**
+   * Die Gebote auf einen Kaderspieler. Der Kopf trägt seinen Namen, darunter
+   * steht, wie viele es sind. Fehlt der Spieler oder sind die Gebote weg, geht
+   * gar nichts auf: dazwischen kann ein Laden liegen.
+   */
+  private renderOffersModal(playerId: PlayerId, view: PlanningView): string {
+    const row = view.rows.find((r) => r.id === playerId);
+    const offers = this.offersFor(playerId);
+    if (!row || offers.length === 0) return '';
+
+    const market = this.state.market.find((p) => p.id === playerId);
+    const body = renderOffersBody({
+      playerName: row.name,
+      marketValue: row.marketValue,
+      mvgl: row.mvgl,
+      askingPrice: market?.price ?? 0,
+      offers,
+    });
+    const count = offers.length === 1 ? '1 Gebot' : `${offers.length} Gebote`;
+    return renderHelpModal(`Gebote für ${row.name}`, body, count);
   }
 
   private wireModal(): void {

@@ -105,6 +105,8 @@ function widestAmount(view: PlanningView): number {
 
 export interface PlanningDesktopCallbacks {
   onToggle: (playerId: PlayerId, slot: ScenarioSlot) => void;
+  /** Klick auf einen Erlös, hinter dem ein fremdes Gebot steht. */
+  onShowOffers: (playerId: PlayerId) => void;
   onClearSlot: (slot: ScenarioSlot) => void;
   onCopyFromS4: (slot: ScenarioSlot) => void;
   /** Umschalter unter 820 px: welche Szenariospalte gezeigt wird. */
@@ -142,6 +144,14 @@ const ALL_SLOTS: readonly ResolvedScenarioSlot[] = ['S1', 'S2', 'S3', 'S4'];
  * Kurzfassung im Spaltenkopf. Die lange Erklärung steht im Hilfedialog
  * ("Was ist der Score?"), die Aufschlüsselung je Spieler im Tooltip der Zelle.
  */
+/**
+ * Was in der Spalte steht, ist nicht mehr nur Kickbases Marktwert: liegt ein
+ * Gebot darüber, zählt das Gebot. Der Kopf sagt es einmal, die Zelle selbst
+ * bleibt eine Zahl.
+ */
+const ERLOES_HINT =
+  'Was der Verkauf bringt: das höchste Gebot eines Mitspielers, sonst der Marktwert. Grüne Beträge stehen für ein Gebot, ein Klick zeigt es.';
+
 const SCORE_HINT =
   'Was der Spieler am nächsten Spieltag bringt, 0 bis 100 %. Aus Form, Startelf-Prognose und Verfügbarkeit. Der Gegner steht in der Spalte daneben.';
 
@@ -178,8 +188,8 @@ export function renderPlanningDesktop(
         <tr class="planning-headrow">
           <th class="col-name">Spieler</th>
           <th class="col-pos">Pos</th>
-          <th class="col-mv">
-            <span class="label-wide">Marktwert</span><span class="label-narrow">MW</span>
+          <th class="col-mv" title="${ERLOES_HINT}">
+            <span class="label-wide">Erlös</span><span class="label-narrow">Erl.</span>
             <span class="mv-gv-label">G/V</span>
           </th>
           ${ALL_SLOTS.map((s) => renderSlotHeader(s, activeSlot)).join('')}
@@ -210,6 +220,13 @@ export function renderPlanningDesktop(
 
   host.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
+
+    const offersBtn = target.closest<HTMLElement>('[data-offers]');
+    if (offersBtn) {
+      const playerId = offersBtn.dataset['offers'];
+      if (playerId) callbacks.onShowOffers(playerId);
+      return;
+    }
 
     const slotBtn = target.closest<HTMLElement>('[data-select-slot]');
     if (slotBtn) {
@@ -432,7 +449,7 @@ function renderFormationIssueBadges(issues: string[]): string {
  * haben dort ihre eigene Summenzeile.
  */
 function renderFooterRow(view: PlanningView, activeSlot: ResolvedScenarioSlot): string {
-  const totalMv = view.rows.reduce((sum, row) => sum + row.marketValue, 0);
+  const totalSale = view.rows.reduce((sum, row) => sum + row.saleValue, 0);
   const scenCells = ALL_SLOTS.map((slot) => {
     const sold = view.rows.filter((row) => row.flags[slot]).length;
     return `<td class="${scenClass(slot, activeSlot, 'scen-count')}">${sold}</td>`;
@@ -440,12 +457,26 @@ function renderFooterRow(view: PlanningView, activeSlot: ResolvedScenarioSlot): 
   return `
     <tr class="planning-footer">
       <td class="col-name" colspan="2">${view.totalPlayers} Spieler</td>
-      <td class="num col-mv">${money(totalMv)}${mvglLine(view.totalMvgl)}</td>
+      <td class="num col-mv">${money(totalSale)}${mvglLine(view.totalGainLoss)}</td>
       ${scenCells}
-      <td class="col-pl ${signColorClass(view.totalMvgl)}">${money(view.totalMvgl, true)}</td>
+      <td class="col-pl ${signColorClass(view.totalGainLoss)}">${money(view.totalGainLoss, true)}</td>
       <td class="col-score"></td>
       <td class="col-opp"></td>
     </tr>
+  `;
+}
+
+/**
+ * Der Erlös in seiner Spalte. Ohne Gebot eine Zahl wie jede andere, mit Gebot
+ * grün und anklickbar. Kein Stern und kein Zusatzzeichen: die Farbe reicht,
+ * und die gepunktete Linie sagt, dass dahinter noch etwas steckt.
+ */
+function renderSaleValue(row: PlanningRow): string {
+  const amount = money(row.saleValue);
+  if (row.bestOffer <= row.marketValue) return amount;
+  return `
+    <button type="button" class="amount-offer" data-offers="${escapeHtml(row.id)}"
+            title="Gebot eines Mitspielers, Klick zeigt alle">${amount}</button>
   `;
 }
 
@@ -455,7 +486,7 @@ function renderPlayerRow(
   activeSlot: ResolvedScenarioSlot,
 ): string {
   const nameCls = row.isInLineup ? 'col-name col-name--lineup' : 'col-name';
-  const mvglCls = signColorClass(row.mvgl);
+  const gainLossCls = signColorClass(row.gainLoss);
 
   const scenCells = ALL_SLOTS.map((slot) => {
     const checked = row.flags[slot];
@@ -473,7 +504,7 @@ function renderPlayerRow(
     // Häkchen aufspringen, was die ganze Tabelle verschiebt.
     return `
       <td class="${classes}" data-player-id="${escapeHtml(row.id)}" data-slot="${slot}">
-        <span class="scen-amount">${money(row.marketValue)}</span>
+        <span class="scen-amount">${money(row.saleValue)}</span>
       </td>
     `;
   }).join('');
@@ -484,9 +515,9 @@ function renderPlayerRow(
     <tr>
       <td class="${nameCls}"><span class="name-text">${escapeHtml(row.name)}</span>${renderTeamLogo(row.teamId, scores?.opponents.teams ?? {})}</td>
       <td class="col-pos"><span class="chip chip--pos${row.position}">${escapeHtml(row.positionLabel)}</span></td>
-      <td class="num col-mv">${money(row.marketValue)}${mvglLine(row.mvgl)}</td>
+      <td class="num col-mv">${renderSaleValue(row)}${mvglLine(row.gainLoss)}</td>
       ${scenCells}
-      <td class="col-pl ${mvglCls}">${money(row.mvgl, true)}</td>
+      <td class="col-pl ${gainLossCls}">${money(row.gainLoss, true)}</td>
       ${scoreCell}
       <td class="col-opp">${renderOpponents(row.teamId, scores?.opponents ?? EMPTY_OPPONENTS)}</td>
     </tr>

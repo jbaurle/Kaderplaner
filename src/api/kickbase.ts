@@ -18,6 +18,7 @@ import type {
   CompetitionTable,
   LeagueId,
   LoginResult,
+  MarketOffer,
   MarketPlayer,
   MarketResult,
   MatchSummary,
@@ -31,6 +32,7 @@ import type {
   WireCompetitionMatchdays,
   WireCompetitionTable,
   WireLoginResponse,
+  WireMarketOffer,
   WireMarketPlayer,
   WireMarketResponse,
   WireMatchSummary,
@@ -288,6 +290,7 @@ function toMarketPlayer(wire: WireMarketPlayer): MarketPlayer {
     wire.uop != null && wire.uoid
       ? { amount: wire.uop, offerId: wire.uoid }
       : null;
+  const offers = (wire.ofs ?? []).map((offer) => toMarketOffer(offer, wire.uoid));
 
   return {
     id: wire.i,
@@ -299,12 +302,29 @@ function toMarketPlayer(wire: WireMarketPlayer): MarketPlayer {
     expiresInSeconds: wire.exs ?? 0,
     offerCount: wire.ofc ?? 0,
     myOffer,
+    offers,
     status: wire.st ?? 0,
     probability: wire.prob ?? 0,
     averagePoints: wire.ap ?? 0,
     teamId: wire.tid ?? '',
     imagePath: wire.pim ?? '',
     trend: wire.mvt ?? 0,
+  };
+}
+
+/**
+ * Ein einzelnes Gebot. Kickbase führt keine eigene Gebots-Id: `u` und `uoid`
+ * tragen dieselbe Nutzer-Id, und genau die steht am Spieler als `uoid`, wenn
+ * das Gebot das eigene ist. Daran hängt `isMine`.
+ */
+function toMarketOffer(wire: WireMarketOffer, myOfferId: string | undefined): MarketOffer {
+  const userId = wire.u ?? wire.uoid ?? '';
+  return {
+    userId,
+    userName: wire.unm ?? '',
+    amount: wire.uop ?? 0,
+    imagePath: wire.uim ?? '',
+    isMine: !!myOfferId && userId === myOfferId,
   };
 }
 

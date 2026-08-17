@@ -97,6 +97,15 @@ export function playerImageUrl(imagePath: string): string {
   return `https://kickbase.b-cdn.net/${imagePath.replace(/^\/+/, '')}`;
 }
 
+/**
+ * Profilbild eines Managers aus `uim` eines Gebots, etwa `user/<hash>.png`.
+ * Gleiches CDN und gleiche Regel wie beim Spielerbild: nicht jeder hat eins,
+ * dann antwortet das CDN mit 403.
+ */
+export function managerImageUrl(imagePath: string): string {
+  return `https://kickbase.b-cdn.net/${imagePath.replace(/^\/+/, '')}`;
+}
+
 /** XSS-safe escape for use inside `innerHTML` template literals. */
 export function escapeHtml(text: string): string {
   const div = document.createElement('div');

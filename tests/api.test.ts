@@ -405,4 +405,57 @@ describe('toMarketPlayer', () => {
     const player = _marketInternal.toMarketPlayer({ i: '1', n: 'X', uop: 500 });
     expect(player.myOffer).toBeNull();
   });
+
+  /**
+   * Karazor am 17.08.2026: von uns eingestellt, ein fremdes Gebot. Kickbase
+   * fuehrt keine eigene Gebots-Id, `u` und `uoid` tragen die Nutzer-Id.
+   */
+  it('liest fremde Gebote aus ofs, ohne sie als eigene zu zaehlen', () => {
+    const player = _marketInternal.toMarketPlayer({
+      i: '2214',
+      n: 'Karazor',
+      mv: 7_790_264,
+      prc: 8_500_000,
+      ofc: 1,
+      ofs: [
+        {
+          u: '1930849',
+          uoid: '1930849',
+          unm: 'Karinator',
+          uop: 8_900_000,
+          uim: 'user/09fad33bc5a048329c5956b2173fa043.png',
+          st: 0,
+        },
+      ],
+    });
+
+    expect(player.myOffer).toBeNull();
+    expect(player.offers).toEqual([
+      {
+        userId: '1930849',
+        userName: 'Karinator',
+        amount: 8_900_000,
+        imagePath: 'user/09fad33bc5a048329c5956b2173fa043.png',
+        isMine: false,
+      },
+    ]);
+  });
+
+  it('markiert das eigene Gebot in ofs ueber uoid am Spieler', () => {
+    const player = _marketInternal.toMarketPlayer({
+      i: '6158',
+      n: 'Schnellbacher',
+      mv: 3_852_232,
+      uop: 4_000_000,
+      uoid: '1893023',
+      ofs: [{ u: '1893023', uoid: '1893023', unm: 'Jelrab_', uop: 4_000_000 }],
+    });
+
+    expect(player.myOffer).toEqual({ amount: 4_000_000, offerId: '1893023' });
+    expect(player.offers.map((o) => o.isMine)).toEqual([true]);
+  });
+
+  it('kommt ohne ofs aus', () => {
+    expect(_marketInternal.toMarketPlayer({ i: '1', n: 'X' }).offers).toEqual([]);
+  });
 });

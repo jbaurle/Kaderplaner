@@ -1144,11 +1144,21 @@
   border-bottom: 1px solid var(--border);
 }
 
+.dialog-heading {
+  min-width: 0;
+}
+
 .dialog-title {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-strong);
+}
+
+.dialog-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* Sieht aus wie `.icon-btn` im Kopf und trifft genauso: 30 px sichtbar, mit
@@ -1488,5 +1498,221 @@
 
 .score-value--lineup-top11 {
   font-weight: 700;
+}
+
+/* ---------- Erlös aus einem Gebot ----------
+ *
+ * Steht hinter dem Erlös ein Gebot eines Mitspielers, ist der Betrag grün und
+ * öffnet den Gebotsdialog. Kein Stern und kein Symbol daneben: die Spalte ist
+ * schmal, und ein zweites Zeichen kostet dort mehr, als es erklärt.
+ *
+ * Ein Knopf, kein `span`: die Tastatur soll ihn erreichen. Er sieht aus wie
+ * Text und erbt Schrift und Größe der Zelle.
+ */
+.amount-offer {
+  position: relative;
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--success);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+
+/* Kragen für den Finger: 44 px hoch, ohne die Zeile höher zu machen. */
+.amount-offer::after {
+  content: '';
+  position: absolute;
+  inset: -11px -6px;
+}
+
+@media (hover: hover) {
+  .amount-offer:hover {
+    text-decoration-style: solid;
+  }
+}
+
+.amount-offer:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Gebotsdialog ---------- */
+
+/* Die eine Zahl, um die es geht. Kein Kasten, nur Größe. */
+.offers-hero {
+  padding: 2px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.offers-hero-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.offers-hero-amount {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.offers-hero-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--success);
+}
+
+.offers-hero-sub--neg {
+  color: var(--error);
+}
+
+.offers-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.offers-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.offers-item:last-child {
+  border-bottom: 0;
+}
+
+/*
+ * Bild und Initialen liegen übereinander: die Initialen stehen im Hintergrund
+ * und kommen von selbst zum Vorschein, wenn das CDN das Bild verweigert und
+ * `onerror` es entfernt.
+ */
+.offers-avatar {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.offers-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.offers-who {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.offers-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offers-note {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.offers-money {
+  flex: none;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grün sagt schon, welches das höchste ist, fett wäre dasselbe zweimal. */
+.offers-amount {
+  display: block;
+  font-size: 13px;
+  color: var(--text-strong);
+}
+
+.offers-item--top .offers-amount {
+  color: var(--success);
+}
+
+.offers-diff {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Die Herleitung, klein und zweispaltig. Wer nachrechnen will, findet sie. */
+.offers-facts {
+  margin: 0;
+  font-size: 12px;
+}
+
+.offers-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.offers-fact + .offers-fact {
+  border-top: 1px solid var(--border);
+}
+
+.offers-fact dt {
+  color: var(--text-muted);
+}
+
+.offers-fact dd {
+  margin: 0;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Beträge stehen schwarz, Gewinn und Verlust in Grün und Rot, dieselben
+ * Klassen wie in der Tabelle. Fett wäre eine zweite Auszeichnung neben der
+ * Farbe und machte die Liste unruhig.
+ *
+ * Zwei Klassen tief, damit die Farbe die Grundregeln der Zeile schlägt: die
+ * Beschreibung ist gedämpft, der Wert der Zeile schwarz.
+ */
+.offers-list .num--pos,
+.offers-facts .num--pos {
+  color: var(--success);
+}
+
+.offers-list .num--neg,
+.offers-facts .num--neg {
+  color: var(--error);
 }
 

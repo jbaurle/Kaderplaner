@@ -33,8 +33,20 @@ export interface PlanningRow {
   position: PositionCode;
   positionLabel: PositionLabel;
   marketValue: number;
-  /** "G/V seit Kauf" — gain/loss since purchase. */
+  /**
+   * Was ein Verkauf bringt: das höchste fremde Gebot, sonst der Marktwert.
+   * Ein Gebot unter Marktwert zählt nicht, an Kickbase verkaufen geht immer.
+   */
+  saleValue: number;
+  /** Das höchste fremde Gebot, 0 wenn keins vorliegt. Nur für die Anzeige. */
+  bestOffer: number;
+  /** "G/V seit Kauf" laut Kickbase, gerechnet gegen den Marktwert. */
   mvgl: number;
+  /**
+   * G/V gegen `saleValue`. Ohne Gebot identisch mit `mvgl`, sonst um die
+   * Differenz besser: der Kaufpreis steckt schon in `marketValue - mvgl`.
+   */
+  gainLoss: number;
   isInLineup: boolean;
   /** Team id — nur für das Vereinswappen in der Namensspalte. */
   teamId: string;
@@ -55,7 +67,7 @@ export interface PositionCounts {
 }
 
 export interface ScenarioSummary {
-  /** Σ marketValue of players sold in this scenario. */
+  /** Σ saleValue der in diesem Szenario verkauften Spieler. */
   salesSum: number;
   /**
    * Σ der offenen Gebote, immer negativ oder 0. Steht in jeder Spalte gleich:
@@ -98,8 +110,8 @@ export interface PlanningView {
   lineupCount: number;
   /** Total players in the squad. */
   totalPlayers: number;
-  /** Total "G/V seit Kauf" across all players. */
-  totalMvgl: number;
+  /** Summe von `gainLoss` über alle Spieler. */
+  totalGainLoss: number;
 }
 
 /**
@@ -129,6 +141,11 @@ export interface ComputePlanningInput {
   scenarios: ScenarioState;
   /** Geplante Zugänge. Fehlt die Liste, rechnet die Ansicht nur den Kader. */
   transfers?: readonly PlanningTransfer[];
+  /**
+   * Das höchste fremde Gebot je Spieler, aus dem Transfermarkt. Fehlt ein
+   * Eintrag, zählt der Marktwert.
+   */
+  bestOffers?: Readonly<Record<PlayerId, number>>;
 }
 
 const POSITION_LABELS: Record<PositionCode, PositionLabel> = {
@@ -156,8 +173,9 @@ export function computePlanning(input: ComputePlanningInput): PlanningView {
     return COLLATOR.compare(a.name, b.name);
   });
 
-  const rows: PlanningRow[] = sorted.map((p) => buildRow(p, scenarios));
-  const totalMvgl = rows.reduce((sum, row) => sum + row.mvgl, 0);
+  const bestOffers = input.bestOffers ?? {};
+  const rows: PlanningRow[] = sorted.map((p) => buildRow(p, scenarios, bestOffers[p.id] ?? 0));
+  const totalGainLoss = rows.reduce((sum, row) => sum + row.gainLoss, 0);
 
   const transfers = input.transfers ?? [];
   const summaries: ScenarioSummaries = {
@@ -186,12 +204,22 @@ export function computePlanning(input: ComputePlanningInput): PlanningView {
     formation,
     lineupCount,
     totalPlayers: rows.length,
-    totalMvgl,
+    totalGainLoss,
   };
 }
 
-function buildRow(player: SquadPlayer, scenarios: ScenarioState): PlanningRow {
+/**
+ * Eine Kaderzeile. `bestOffer` ist das höchste Gebot eines Mitspielers, 0 wenn
+ * keins vorliegt. Es zählt nur, solange es über dem Marktwert liegt: darunter
+ * ist der Verkauf an Kickbase besser, und den gibt es immer.
+ */
+function buildRow(
+  player: SquadPlayer,
+  scenarios: ScenarioState,
+  bestOffer: number,
+): PlanningRow {
   const userFlags = scenarios.byPlayer[player.id] ?? EMPTY_FLAGS;
+  const saleValue = Math.max(player.marketValue, bestOffer);
 
   return {
     id: player.id,
@@ -199,7 +227,11 @@ function buildRow(player: SquadPlayer, scenarios: ScenarioState): PlanningRow {
     position: player.position,
     positionLabel: POSITION_LABELS[player.position],
     marketValue: player.marketValue,
+    saleValue,
+    bestOffer,
     mvgl: player.mvgl,
+    // Kaufpreis = Marktwert - G/V. Beides kommt von Kickbase, der Rest folgt.
+    gainLoss: saleValue - (player.marketValue - player.mvgl),
     isInLineup: player.isInLineup,
     teamId: player.teamId,
     status: player.status,
@@ -237,7 +269,7 @@ function summarize(
   let bidsSum = 0;
   for (const row of rows) {
     if (row.flags[slot]) {
-      salesSum += row.marketValue;
+      salesSum += row.saleValue;
     } else {
       posCounts[row.positionLabel]++;
     }
