@@ -1267,27 +1267,37 @@
 /* ---------- Footline: Legende links, Build-Stempel rechts ---------- */
 
 /*
- * Zwei Gruppen: links die Legende, rechts Einheit und Build. Passt beides in
- * eine Zeile, sitzt die rechte Gruppe rechts. Bricht es um, rutscht sie als
- * Block in die zweite Zeile und beginnt dort links, statt dass Einheit und
- * Build an gegenüberliegende Ränder springen.
- */
-/*
- * Schmal untereinander, ab Tablet in einer Zeile. Alles in einer Zeile war auf
- * dem Handy ein Fliesstext aus Trennpunkten, in dem weder der Stand noch die
- * Links auffielen.
+ * Eine umbrechende Zeile aus Gruppen, keine Aufzählung: links die Legende,
+ * rechts die Einheit der Beträge. Was eine eigene Zeile braucht, holt sie sich
+ * über `width: 100%`, nämlich die beiden Linkzeilen und der Build-Stempel,
+ * sobald er nicht mehr nach oben passt. Alles in einer Zeile war auf dem Handy
+ * ein Fliesstext aus Trennpunkten, in dem nichts mehr auffiel.
  */
 .table-footline {
-  display: grid;
-  justify-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin: 16px 2px 0;
   font-size: 11px;
   color: var(--text-muted);
 }
 
-.footline-legend,
-.footline-hints {
+/*
+ * Einheit der Beträge rechts in der ersten Zeile, gegenüber der Legende. Der
+ * Stempel trägt in dem Fall keine Automarge, er steht dann unten, also kämpfen
+ * hier nie zwei Margen um denselben Platz.
+ */
+.table-footline .amount-hint {
+  margin-left: auto;
+  text-align: right;
+}
+
+/*
+ * Legende und der Zusatz "(0 % = fällt aus)" hängen zusammen und bleiben
+ * deshalb eine Gruppe: so stehen sie in jeder Breite in derselben Zeile.
+ */
+.footline-legend {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1326,7 +1336,16 @@
   color: var(--border-strong);
 }
 
+/*
+ * Der Build-Stempel steht neben der Legende, solange er dort hinpasst. Muss er
+ * in eine eigene Zeile, dann in die letzte: unter den Links, mittig wie sie.
+ * Das ist hier der Grundfall, denn schmal steht ohnehin jede Gruppe für sich.
+ * `order` löst das in beiden Zuständen, im Raster wie in der Flex-Zeile.
+ */
 .footline-build {
+  order: 1;
+  width: 100%;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1371,26 +1390,39 @@
 }
 
 /*
- * Ab Tablet stehen Legende und Hinweise nebeneinander, der Build-Stempel
- * rechts daneben. Die beiden Linkzeilen bleiben eigene, mittige Zeilen.
- * Dieselbe Breitenstufe, ab der die Tabelle die BANK-Spalte zeigt.
+ * Ab Tablet stehen Legende und Hinweis nebeneinander, der Build-Stempel rechts
+ * daneben. Die beiden Linkzeilen bleiben eigene, mittige Zeilen. Dieselbe
+ * Breitenstufe, ab der die Tabelle die BANK-Spalte zeigt.
  */
 @container (min-width: 744px) {
   .table-footline {
-    display: flex;
     align-items: baseline;
-    flex-wrap: wrap;
     gap: 2px 10px;
   }
 
-  .footline-legend,
-  .footline-hints {
+  .footline-legend {
     align-items: baseline;
     gap: 2px 6px;
   }
 
+  /* Hier ist Platz in der ersten Zeile: zurück nach oben rechts. */
   .footline-build {
+    order: 0;
+    width: auto;
     margin-left: auto;
+    text-align: right;
+  }
+
+  /*
+   * Außer der Hinweis auf Millionen steht da: dann ist die Zeile voll und der
+   * Stempel geht wieder nach unten. Drei Klassen, damit die Regel das
+   * `margin-left: auto` von oben schlägt.
+   */
+  .planning-shell.is-compact-amounts .footline-build {
+    order: 1;
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
   }
 }
 

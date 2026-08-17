@@ -621,20 +621,21 @@ function renderLeagueChoice(leagues: League[], currentId: LeagueId): string {
  * erklärt wird die Spalte da, wo die Legende schon steht.
  */
 function renderFootline(scores: ScoreResult | null, isScoring: boolean): string {
-  // Vier Gruppen statt loser Teile. Schmal steht jede in einer eigenen Zeile,
-  // ab Tablet laufen sie wieder nebeneinander. Ein einzelner Fließtext aus
+  // Gruppen statt loser Teile. Schmal steht jede in einer eigenen Zeile, ab
+  // Tablet laufen sie wieder nebeneinander. Ein einzelner Fließtext aus
   // Trennpunkten war auf dem Handy nicht mehr zu lesen.
+  //
+  // "(0 % = fällt aus)" gehört zur Legende und steht deshalb in derselben
+  // Gruppe wie sie, nicht bei den Hinweisen: es erklärt den Score, nicht die
+  // Einheit der Beträge.
   return `
     <p class="table-footline">
       <span class="footline-legend">
         <span class="legend-sample">Beste Elf nach Score</span>
         ${renderScoreStateChip(scores, isScoring)}
-      </span>
-      <span class="footline-hints">
         <span>(0 % = fällt aus)</span>
-        <span class="legend-sep amount-hint">·</span>
-        <span class="amount-hint">Beträge in Mio. €</span>
       </span>
+      <span class="amount-hint">Beträge in Mio. €</span>
       <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
         <button type="button" data-modal="score">Was ist der Score?</button>
