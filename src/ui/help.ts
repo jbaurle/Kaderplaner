@@ -60,8 +60,9 @@ export const FEATURES_HELP_BODY = `
 
     <dt>Vier Szenariospalten</dt>
     <dd>
-      In S1 bis S3 hakst du an, wen du verkaufen würdest. FIX ist keine
-      Auswahl, sondern deine Bank, wie sie gerade steht. Über der Tabelle
+      In S1 bis S3 hakst du an, wen du verkaufen würdest. BANK ist keine
+      Auswahl: dort steht jeder zum Verkauf, der gerade nicht in deiner Elf
+      steht. Über der Tabelle
       rechnen <strong>Kontostand (neu)</strong>, <strong>Verkäufe</strong> und
       <strong>Gebote</strong> live mit, dazu steht in der Spalte, ob mit den
       übrigen Spielern noch eine gültige Formation zustande kommt.
@@ -101,7 +102,7 @@ export const FEATURES_HELP_BODY = `
       Umschalter darüber wechselt sie. Ab Tablet stehen alle vier
       nebeneinander.</li>
     <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
-      FIX, <strong>×</strong> räumt die Spalte ab.</li>
+      BANK, <strong>×</strong> räumt die Spalte ab.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
   </ul>
 

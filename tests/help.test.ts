@@ -45,7 +45,7 @@ describe('renderFormationHelpBody', () => {
 
 describe('FEATURES_HELP_BODY', () => {
   it('names every block of the page', () => {
-    for (const term of ['Score', 'S1 bis S3', 'FIX', 'Gegner', 'Gebote', 'Aufstellung']) {
+    for (const term of ['Score', 'S1 bis S3', 'BANK', 'Gegner', 'Gebote', 'Aufstellung']) {
       expect(FEATURES_HELP_BODY).toContain(term);
     }
   });

@@ -13,7 +13,7 @@
  *     320   dieselbe Auswahl, passend
  *     360   + Marktwert, G/V als zweite Zeile darunter
  *     412   G/V als eigene Spalte, größere Schrift
- *     744   + FIX als Vergleichsspalte
+ *     744   + BANK als Vergleichsspalte
  *     820   alle vier Szenarien, kein Umschalter
  *     924   volle Beträge statt Millionen
  */
@@ -106,7 +106,7 @@ function widestAmount(view: PlanningView): number {
 export interface PlanningDesktopCallbacks {
   onToggle: (playerId: PlayerId, slot: ScenarioSlot) => void;
   onClearSlot: (slot: ScenarioSlot) => void;
-  onCopyFromS5: (slot: ScenarioSlot) => void;
+  onCopyFromS4: (slot: ScenarioSlot) => void;
   /** Umschalter unter 820 px: welche Szenariospalte gezeigt wird. */
   onSelectSlot: (slot: ResolvedScenarioSlot) => void;
   /** ×-Knopf im Transferkopf: räumt diese Spalte nur im Transferblock ab. */
@@ -136,7 +136,7 @@ export interface DesktopScoresProp {
   marketByPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
 }
 
-const ALL_SLOTS: readonly ResolvedScenarioSlot[] = ['S1', 'S2', 'S3', 'S5'];
+const ALL_SLOTS: readonly ResolvedScenarioSlot[] = ['S1', 'S2', 'S3', 'S4'];
 
 /**
  * Kurzfassung im Spaltenkopf. Die lange Erklärung steht im Hilfedialog
@@ -149,7 +149,7 @@ const SLOT_LABEL: Record<ResolvedScenarioSlot, string> = {
   S1: 'S1',
   S2: 'S2',
   S3: 'S3',
-  S5: 'FIX',
+  S4: 'BANK',
 };
 
 export function renderPlanningDesktop(
@@ -220,7 +220,7 @@ export function renderPlanningDesktop(
     if (selectTransfers) {
       event.stopPropagation();
       const slot = selectTransfers.dataset['selectTransfers'];
-      if (slot && slot !== 'S5') callbacks.onSelectAllTransfers(slot as ScenarioSlot);
+      if (slot && slot !== 'S4') callbacks.onSelectAllTransfers(slot as ScenarioSlot);
       return;
     }
 
@@ -228,7 +228,7 @@ export function renderPlanningDesktop(
     if (clearTransfers) {
       event.stopPropagation();
       const slot = clearTransfers.dataset['clearTransfers'];
-      if (slot && slot !== 'S5') callbacks.onClearTransferSlot(slot as ScenarioSlot);
+      if (slot && slot !== 'S4') callbacks.onClearTransferSlot(slot as ScenarioSlot);
       return;
     }
 
@@ -236,7 +236,7 @@ export function renderPlanningDesktop(
     if (clearBtn) {
       event.stopPropagation();
       const slot = clearBtn.dataset['clearSlot'];
-      if (slot && slot !== 'S5') callbacks.onClearSlot(slot as ScenarioSlot);
+      if (slot && slot !== 'S4') callbacks.onClearSlot(slot as ScenarioSlot);
       return;
     }
 
@@ -244,7 +244,7 @@ export function renderPlanningDesktop(
     if (copyBtn) {
       event.stopPropagation();
       const slot = copyBtn.dataset['copySlot'];
-      if (slot && slot !== 'S5') callbacks.onCopyFromS5(slot as ScenarioSlot);
+      if (slot && slot !== 'S4') callbacks.onCopyFromS4(slot as ScenarioSlot);
       return;
     }
 
@@ -253,7 +253,7 @@ export function renderPlanningDesktop(
     const playerId = cell.dataset['playerId'];
     const slot = cell.dataset['slot'];
     if (!playerId || !slot) return;
-    if (slot === 'S5') return; // S5 (fix) is auto-derived; not user-toggleable.
+    if (slot === 'S4') return; // S4 (BANK) is auto-derived; not user-toggleable.
     callbacks.onToggle(playerId, slot as ScenarioSlot);
   });
 }
@@ -266,8 +266,8 @@ function scenClass(slot: ResolvedScenarioSlot, activeSlot: ResolvedScenarioSlot,
   return [
     'col-scen',
     slot === activeSlot ? 'col-scen--active' : '',
-    // FIX ist die Vergleichsspalte: ab Tablet steht sie neben der aktiven.
-    slot === 'S5' ? 'col-scen--fix' : '',
+    // BANK ist die Vergleichsspalte: ab Tablet steht sie neben der aktiven.
+    slot === 'S4' ? 'col-scen--bank' : '',
     extra,
   ]
     .filter(Boolean)
@@ -278,9 +278,9 @@ function scenClass(slot: ResolvedScenarioSlot, activeSlot: ResolvedScenarioSlot,
 function renderSlotSwitch(activeSlot: ResolvedScenarioSlot): string {
   const buttons = ALL_SLOTS.map((slot) => {
     const pressed = slot === activeSlot ? 'true' : 'false';
-    // FIX fällt ab 720 aus dem Umschalter: dort steht die Spalte ohnehin
+    // BANK fällt ab 720 aus dem Umschalter: dort steht die Spalte ohnehin
     // dauerhaft neben der gewählten.
-    const cls = slot === 'S5' ? ' class="scen-switch-fix"' : '';
+    const cls = slot === 'S4' ? ' class="scen-switch-bank"' : '';
     return `
       <button type="button"${cls} data-select-slot="${slot}" aria-pressed="${pressed}">
         ${escapeHtml(SLOT_LABEL[slot])}
@@ -292,22 +292,22 @@ function renderSlotSwitch(activeSlot: ResolvedScenarioSlot): string {
 
 function renderSlotHeader(slot: ResolvedScenarioSlot, activeSlot: ResolvedScenarioSlot): string {
   const label = escapeHtml(SLOT_LABEL[slot]);
-  if (slot === 'S5') {
+  if (slot === 'S4') {
     return `<th class="${scenClass(slot, activeSlot)}">${label}</th>`;
   }
   // S1-S3: no visible label at desktop width; the column position identifies
   // which is which. Schmal steht der Name im Umschalter darüber.
   //
   // Die Knöpfe liegen über der Zelle statt in ihr. Im Fluss wären sie
-  // breiter als der Betrag darunter und machten S1 bis S3 breiter als FIX,
+  // breiter als der Betrag darunter und machten S1 bis S3 breiter als BANK,
   // dessen Kopf nur das Wort trägt.
   return `
     <th class="${scenClass(slot, activeSlot)}">
       <span class="slot-actions">
         <button type="button" class="slot-copy"
                 data-copy-slot="${slot}"
-                title="Werte aus FIX übernehmen"
-                aria-label="Werte aus FIX übernehmen">←</button>
+                title="Werte aus BANK übernehmen"
+                aria-label="Werte aus BANK übernehmen">←</button>
         <button type="button" class="slot-clear"
                 data-clear-slot="${slot}"
                 title="${label} zurücksetzen"
@@ -457,7 +457,7 @@ function renderPlayerRow(
 
   const scenCells = ALL_SLOTS.map((slot) => {
     const checked = row.flags[slot];
-    const isAuto = slot === 'S5';
+    const isAuto = slot === 'S4';
     const classes = [
       scenClass(slot, activeSlot),
       'scen-cell',
@@ -518,7 +518,7 @@ function renderTransferLabelRow(activeSlot: ResolvedScenarioSlot): string {
  *
  * Gleiche Spaltenzahl wie oben, damit die Breiten stehen bleiben, aber andere
  * Belegung: an dritter Stelle steht das Gebot. S1 bis S3 sagen, in welchem
- * Szenario der Zugang eingeplant ist, und brauchen keine Knöpfe. Wo oben FIX
+ * Szenario der Zugang eingeplant ist, und brauchen keine Knöpfe. Wo oben BANK
  * steht, steht hier der Marktwert: einen festen Bestand gibt es für Zugänge
  * nicht. Die Spalte darauf bleibt frei, dort kommt der Knopf zum Entfernen hin.
  */
@@ -527,7 +527,7 @@ function renderTransferHeadRow(
   scores: DesktopScoresProp | null,
 ): string {
   const scenCells = ALL_SLOTS.map((slot) => {
-    if (slot === 'S5') {
+    if (slot === 'S4') {
       return `<th class="${scenClass(slot, activeSlot)}">Marktwert</th>`;
     }
     // Kein Spaltenname: welche Spalte welche ist, steht schon in der Kopfzeile
@@ -600,9 +600,9 @@ function renderTransferRow(
   const amount = bid.myOffer?.amount ?? 0;
 
   const scenCells = ALL_SLOTS.map((slot) => {
-    // Die FIX-Spalte trägt hier den Marktwert und ist kein Häkchen: einen
+    // Die BANK-Spalte trägt hier den Marktwert und ist kein Häkchen: einen
     // festen Bestand gibt es für einen Zugang nicht.
-    if (slot === 'S5') {
+    if (slot === 'S4') {
       return `<td class="${scenClass(slot, activeSlot, 'num')}">${money(bid.marketValue)}</td>`;
     }
     const checked = row.flags[slot];
@@ -654,7 +654,7 @@ function renderTransferFooterRow(
   const totalBid = bids.reduce((sum, row) => sum + (row.player.myOffer?.amount ?? 0), 0);
   const totalMv = bids.reduce((sum, row) => sum + row.player.marketValue, 0);
   const scenCells = ALL_SLOTS.map((slot) => {
-    if (slot === 'S5') {
+    if (slot === 'S4') {
       return `<td class="${scenClass(slot, activeSlot, 'num')}">${money(totalMv)}</td>`;
     }
     const sold = bids

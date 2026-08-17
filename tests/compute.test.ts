@@ -68,7 +68,7 @@ describe('computePlanning', () => {
     expect(view.totalMvgl).toBe(70);
   });
 
-  describe('S5 (auto-bench)', () => {
+  describe('S4 (auto-bench)', () => {
     it('is true for non-lineup players, false for lineup players, regardless of stored S1-S3', () => {
       const scenarios: ScenarioState = {
         byPlayer: {
@@ -83,11 +83,11 @@ describe('computePlanning', () => {
         ],
         scenarios,
       });
-      expect(view.rows.find((r) => r.id === 'lineupPlayer')?.flags.S5).toBe(false);
-      expect(view.rows.find((r) => r.id === 'benchPlayer')?.flags.S5).toBe(true);
+      expect(view.rows.find((r) => r.id === 'lineupPlayer')?.flags.S4).toBe(false);
+      expect(view.rows.find((r) => r.id === 'benchPlayer')?.flags.S4).toBe(true);
     });
 
-    it("S5's transactionSum captures every non-lineup player's market value", () => {
+    it("S4's transactionSum captures every non-lineup player's market value", () => {
       const view = computePlanning({
         budget: 0,
         squad: [
@@ -97,7 +97,7 @@ describe('computePlanning', () => {
         ],
         scenarios: NO_SCENARIOS,
       });
-      expect(view.summaries.S5.transactionSum).toBe(500);
+      expect(view.summaries.S4.transactionSum).toBe(500);
     });
   });
 
@@ -326,14 +326,14 @@ describe('computePlanning', () => {
       flags: { S1: true, S2: false, S3: false },
     };
 
-    it('zieht das Gebot in jeder Spalte ab, auch in FIX', () => {
+    it('zieht das Gebot in jeder Spalte ab, auch in BANK', () => {
       const view = computePlanning({
         budget: 0,
         squad: [],
         scenarios: NO_SCENARIOS,
         transfers: [transfer],
       });
-      for (const slot of ['S1', 'S2', 'S3', 'S5'] as const) {
+      for (const slot of ['S1', 'S2', 'S3', 'S4'] as const) {
         expect(view.summaries[slot].bidsSum).toBe(-2_500);
       }
     });
@@ -362,7 +362,7 @@ describe('computePlanning', () => {
         scenarios: NO_SCENARIOS,
         transfers: [transfer],
       });
-      const fix = view.summaries.S5;
+      const fix = view.summaries.S4;
       expect(fix.salesSum).toBe(800);
       expect(fix.bidsSum).toBe(-2_500);
       expect(fix.transactionSum).toBe(-1_700);

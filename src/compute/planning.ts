@@ -15,14 +15,14 @@
 import type { PlayerId, PositionCode, SquadPlayer } from '../api/types.js';
 import type { ScenarioFlags, ScenarioSlot, ScenarioState } from '../state/planning.js';
 
-export type ResolvedScenarioSlot = ScenarioSlot | 'S5';
+export type ResolvedScenarioSlot = ScenarioSlot | 'S4';
 
 export interface ResolvedScenarioFlags {
   S1: boolean;
   S2: boolean;
   S3: boolean;
-  /** S5 is auto-bench: computed as `!isInLineup`. Never persisted. */
-  S5: boolean;
+  /** S4 is auto-bench: computed as `!isInLineup`. Never persisted. */
+  S4: boolean;
 }
 
 export type PositionLabel = 'TW' | 'ABW' | 'MF' | 'ANG';
@@ -80,7 +80,7 @@ export interface ScenarioSummaries {
   S1: ScenarioSummary;
   S2: ScenarioSummary;
   S3: ScenarioSummary;
-  S5: ScenarioSummary;
+  S4: ScenarioSummary;
 }
 
 export interface PlanningView {
@@ -164,7 +164,7 @@ export function computePlanning(input: ComputePlanningInput): PlanningView {
     S1: summarize(rows, transfers, 'S1', budget),
     S2: summarize(rows, transfers, 'S2', budget),
     S3: summarize(rows, transfers, 'S3', budget),
-    S5: summarize(rows, transfers, 'S5', budget),
+    S4: summarize(rows, transfers, 'S4', budget),
   };
 
   // Formation + lineupCount are based on CURRENT lineup (not post-sale).
@@ -209,7 +209,7 @@ function buildRow(player: SquadPlayer, scenarios: ScenarioState): PlanningRow {
       S1: userFlags.S1,
       S2: userFlags.S2,
       S3: userFlags.S3,
-      S5: !player.isInLineup,
+      S4: !player.isInLineup,
     },
   };
 }
@@ -221,9 +221,9 @@ function buildRow(player: SquadPlayer, scenarios: ScenarioState): PlanningRow {
  * die Zeile mit den sichtbaren Beträgen nicht nachrechnen.
  *
  * Ein Zugang gilt als bekommen. Sein Gebot geht in jeder Spalte ab, auch in
- * FIX, denn den Kauf entscheidet kein Szenario. Danach ist er ein Kaderspieler
+ * BANK, denn den Kauf entscheidet kein Szenario. Danach ist er ein Kaderspieler
  * wie jeder andere: ohne Häkchen bleibt er und zählt bei der Formation mit,
- * mit Häkchen geht er wieder weg und bringt seinen Marktwert. In FIX steht
+ * mit Häkchen geht er wieder weg und bringt seinen Marktwert. In BANK steht
  * kein Häkchen, die Spalte zeigt den Bestand, wie er ist.
  */
 function summarize(
@@ -244,7 +244,7 @@ function summarize(
   }
   for (const transfer of transfers) {
     bidsSum -= transfer.amount;
-    if (slot !== 'S5' && transfer.flags[slot]) {
+    if (slot !== 'S4' && transfer.flags[slot]) {
       salesSum += transfer.marketValue;
     } else {
       posCounts[transfer.positionLabel]++;

@@ -256,7 +256,7 @@
  *                                       Galaxy S22 / S23 / A-Reihe
  *   ab 388 (412)  G/V als eigene Spalte, 12 px Schrift
  *                                       Galaxy Note / Pixel, iPhone Pro Max
- *   ab 720 (744)  + FIX, volle Beträge  iPad mini, Galaxy Tab hochkant
+ *   ab 720 (744)  + BANK, volle Beträge iPad mini, Galaxy Tab hochkant
  *   ab 796 (820)  alle vier Szenarien   iPad Air hochkant, iPad Pro 11
  *   ab 900 (924)  mehr Zellenpolster    iPad quer, Desktop
  *
@@ -389,15 +389,15 @@
 }
 
 /*
- * Tablet hochkant: FIX als Vergleich neben der gewählten Spalte, lange
+ * Tablet hochkant: BANK als Vergleich neben der gewählten Spalte, lange
  * Spaltentitel, volle Beträge.
  */
 @container (min-width: 720px) {
-  .planning-shell .col-scen--fix {
+  .planning-shell .col-scen--bank {
     display: table-cell;
   }
-  /* FIX steht jetzt als eigene Spalte da, im Umschalter wäre es doppelt. */
-  .planning-shell .scen-switch-fix {
+  /* BANK steht jetzt als eigene Spalte da, im Umschalter wäre es doppelt. */
+  .planning-shell .scen-switch-bank {
     display: none;
   }
   /* Ab hier stehen mehrere Szenariospalten nebeneinander und teilen sich den
@@ -460,7 +460,7 @@
 /* ---------- Umschalter der Szenariospalte ---------- */
 
 /* Seitliches Polster wie in der Kopfkarte (14 px): so beginnt S1 auf derselben
-   Kante wie "Laden" darueber, und FIX endet auf der Kante rechts. */
+   Kante wie "Laden" darueber, und BANK endet auf der Kante rechts. */
 .scen-switch {
   display: flex;
   gap: 4px;
@@ -579,8 +579,8 @@
   text-align: center;
 }
 
-/* "FIX" column header is centered (no action icons to right-align). */
-.planning-table thead th.col-scen--fix {
+/* "BANK" column header is centered (no action icons to right-align). */
+.planning-table thead th.col-scen--bank {
   text-align: center;
 }
 
@@ -797,7 +797,7 @@
 /*
  * Kopf der Szenariospalten: die beiden Knöpfe liegen über der Zelle statt
  * in ihr. Im Fluss bräuchten sie mehr Platz als der Betrag darunter und
- * machten S1 bis S3 breiter als FIX, dessen Kopf nur das Wort trägt.
+ * machten S1 bis S3 breiter als BANK, dessen Kopf nur das Wort trägt.
  */
 .planning-table thead th.col-scen {
   position: relative;
@@ -890,7 +890,7 @@
   color: var(--text-strong);
 }
 
-/* S5 (fix) — auto-derived. Show the value but no highlight. */
+/* S4 (BANK) — auto-derived. Show the value but no highlight. */
 .scen-cell--auto.scen-cell--checked {
   background: transparent;
   font-weight: 400;
@@ -1347,7 +1347,7 @@
 /*
  * Ab Tablet stehen Legende und Hinweise nebeneinander, der Build-Stempel
  * rechts daneben. Die beiden Linkzeilen bleiben eigene, mittige Zeilen.
- * Dieselbe Breitenstufe, ab der die Tabelle die FIX-Spalte zeigt.
+ * Dieselbe Breitenstufe, ab der die Tabelle die BANK-Spalte zeigt.
  */
 @container (min-width: 744px) {
   .table-footline {

@@ -2,7 +2,7 @@
  * Per-league persisted planning state: the user's S1-S3 scenario toggles.
  *
  * Keyed by league id, so a user can have several leagues with independent
- * scenarios in the same browser. S5 (auto-bench) is computed on every
+ * scenarios in the same browser. S4 (auto-bench) is computed on every
  * render from the current lineup — never stored — so it stays correct
  * when Kickbase moves players in or out.
  */

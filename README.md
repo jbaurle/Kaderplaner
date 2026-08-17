@@ -18,8 +18,9 @@ Browser an und legt nichts ab außer in deinem `localStorage`.
   Verfügbarkeit. Der Gegner zählt nicht mit, er steht in seiner eigenen Spalte;
   bei der Auswahl der besten Elf entscheidet er nur fast gleiche Fälle. Die
   beste Elf sucht ein Optimizer über alle zehn Formationen.
-- **Vier Szenariospalten.** S1 bis S3 hakst du selbst an, FIX ist die Bank, wie
-  sie gerade steht. Kontostand, Verkäufe und Gebote rechnen live mit.
+- **Vier Szenariospalten.** S1 bis S3 hakst du selbst an, BANK hakt von allein
+  jeden an, der gerade nicht in deiner Elf steht. Kontostand, Verkäufe und
+  Gebote rechnen live mit.
 - **Gegner am nächsten Spieltag** als Wappen mit Tendenzpfeil, aus dem
   Spielplan des Wettbewerbs.
 - **Transferblock** mit deinen offenen Geboten, auch denen aus der

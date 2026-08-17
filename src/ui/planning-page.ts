@@ -288,11 +288,11 @@ export class PlanningPage {
   }
 
   /**
-   * Copy the auto-bench state (S5 = !isInLineup) into a user slot. Used to
+   * Copy the auto-bench state (S4 = !isInLineup) into a user slot. Used to
    * seed a new manual scenario from the current bench, then customise from
    * there. Replaces the slot's existing flags entirely.
    */
-  private handleCopyFromS5(slot: ScenarioSlot): void {
+  private handleCopyFromS4(slot: ScenarioSlot): void {
     if (!this.state.squad) return;
     let next = clearSlot(this.state.scenarios, slot);
     for (const player of this.state.squad) {
@@ -426,12 +426,12 @@ export class PlanningPage {
     const onToggle = (playerId: PlayerId, slot: ScenarioSlot): void =>
       this.toggleFlag(playerId, slot);
     const onClearSlot = (slot: ScenarioSlot): void => this.handleClearSlot(slot);
-    const onCopyFromS5 = (slot: ScenarioSlot): void => this.handleCopyFromS5(slot);
+    const onCopyFromS4 = (slot: ScenarioSlot): void => this.handleCopyFromS4(slot);
     const onSelectSlot = (slot: ResolvedScenarioSlot): void => this.handleSelectSlot(slot);
     renderPlanningDesktop(tableHost, view, desktopScores, transferRows, state.activeSlot, {
       onToggle,
       onClearSlot,
-      onCopyFromS5,
+      onCopyFromS4,
       onSelectSlot,
       onClearTransferSlot: (slot) => this.handleClearTransferSlot(slot),
       onSelectAllTransfers: (slot) => this.handleSelectAllTransfers(slot),
