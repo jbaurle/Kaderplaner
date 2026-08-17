@@ -38,6 +38,9 @@
   grid-column: 1;
   grid-row: 1;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-strong);
@@ -381,7 +384,7 @@
    * jeder Stufe von selbst passt.
    */
   .planning-shell .name-text {
-    max-width: min(12ch, calc(100% - 26px));
+    max-width: min(12ch, calc(100% - 28px));
   }
 }
 
@@ -566,8 +569,8 @@
   right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 }
 
@@ -941,7 +944,7 @@
    der Renderer, damit CSS sie schmal auf eine herunterdrehen kann. */
 .opp-slots {
   display: inline-grid;
-  grid-template-columns: repeat(var(--opp-cols, 1), 31px);
+  grid-template-columns: repeat(var(--opp-cols, 1), 33px);
   align-items: center;
   height: 21px;
   vertical-align: middle;
@@ -954,11 +957,16 @@
   height: 20px;
 }
 
-/* Gleiche Größe wie das Wappen neben dem Spielernamen. */
+/*
+ * Gleiche Größe wie das Wappen neben dem Spielernamen. 22 px im 21er Raster:
+ * das Bild ragt oben und unten je einen halben Pixel über das Raster hinaus,
+ * ins Zellpolster, das mindestens 4 px hat. Wächst das Raster mit, wird die
+ * ganze Zeile 2 px höher, denn die Gegnerspalte ist die höchste der Zeile.
+ */
 .opp-crest {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 }
 

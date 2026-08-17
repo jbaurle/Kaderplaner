@@ -3,8 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Score je Spieler, beste Elf, vier Szenarien. Im Browser, ohne Server."
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Kickbase Kaderplaner</title>
+
+    <!--
+      Vorschaukarte in WhatsApp, Slack, X und Co. Absolute Adressen, denn die
+      Crawler lösen relative Pfade nicht auf. Das Bild liegt in `public/` und
+      wandert damit unverändert nach `dist/`.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kickbase Kaderplaner" />
+    <meta property="og:title" content="Kickbase Kaderplaner" />
+    <meta
+      property="og:description"
+      content="Score je Spieler, beste Elf, vier Szenarien. Im Browser, ohne Server."
+    />
+    <meta property="og:url" content="https://kaderplaner.de/" />
+    <meta property="og:image" content="https://kaderplaner.de/social-preview.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="Kickbase Kaderplaner" />
+    <meta property="og:locale" content="de_DE" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="app"></div>

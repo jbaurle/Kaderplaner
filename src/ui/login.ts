@@ -23,7 +23,10 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     <main class="auth-shell">
       <div class="auth-stack">
         <form class="auth-card" id="login-form" novalidate>
-          <h1 class="auth-title">Kickbase Kaderplaner</h1>
+          <div class="auth-brand">
+            <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34">
+            <h1 class="auth-title">Kickbase Kaderplaner</h1>
+          </div>
           <p class="auth-kicker"><b>Inoffizielles Fan-Tool.</b> Kein Angebot von Kickbase.</p>
           <label class="field">
             <span class="field-label">E-Mail</span>

@@ -1,3 +1,5 @@
+<img src="public/favicon.svg" width="64" alt="">
+
 # Kickbase Kaderplaner
 
 Eine Entscheidungshilfe für [Kickbase](https://www.kickbase.com/), die im

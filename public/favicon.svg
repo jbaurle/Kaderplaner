@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  K auf Leiste: der bekannte Buchstabe, aber er steht auf der grünen Zeile der
+  Tabelle. Kachel wie in der App, Slate mit 20 Prozent Radius. Der Buchstabe ist
+  gezeichnet, nicht gesetzt, damit er ohne Inter überall gleich aussieht.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="16" fill="#1f2937"/>
-  <text x="50" y="68" font-family="Inter, system-ui, sans-serif" font-size="60" font-weight="700" text-anchor="middle" fill="#fff">K</text>
+  <rect width="100" height="100" rx="20" fill="#1f2937"/>
+  <g stroke="#ffffff" stroke-width="12" fill="none">
+    <path d="M32 20 V68"/>
+    <path d="M32 46 L64 20"/>
+    <path d="M32 44 L66 68"/>
+  </g>
+  <rect x="20" y="76" width="60" height="10" rx="5" fill="#34d399"/>
 </svg>

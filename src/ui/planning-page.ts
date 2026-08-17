@@ -376,7 +376,7 @@ export class PlanningPage {
     props.host.innerHTML = `
       <div class="planning-shell${state.isScoring ? ' is-scoring' : ''}">
         <header class="planning-header">
-          <h1>Kaderplaner</h1>
+          <h1><img class="brand-mark" src="/favicon.svg" alt="" width="22" height="22">Kaderplaner</h1>
           <div class="planning-account">
             <span class="user-label">${escapeHtml(props.userLabel)}</span>
             <button type="button" class="icon-btn" id="logout-btn" title="Abmelden" aria-label="Abmelden">
@@ -631,7 +631,7 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
         ${renderScoreStateChip(scores, isScoring)}
       </span>
       <span class="footline-hints">
-        <span>0 % = fällt aus</span>
+        <span>(0 % = fällt aus)</span>
         <span class="legend-sep amount-hint">·</span>
         <span class="amount-hint">Beträge in Mio. €</span>
       </span>
@@ -690,8 +690,6 @@ function renderScoreStateChip(scores: ScoreResult | null, isScoring: boolean): s
   return `
     <span class="formation-chip">${escapeHtml(scores.formation)}</span>
     ${budgetChip}
-    <span class="legend-sep">·</span>
-    <span>Stand ${escapeHtml(formatStand(scores.takenAt))}</span>
   `;
 }
 
@@ -729,13 +727,6 @@ function friendlyScoreMessage(err: unknown): string {
   }
   if (err instanceof Error) return `Score-Berechnung fehlgeschlagen: ${err.message}`;
   return 'Score-Berechnung fehlgeschlagen — bitte erneut versuchen.';
-}
-
-function formatStand(takenAt: number): string {
-  const dt = new Date(takenAt);
-  const date = dt.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-  const time = dt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  return `${date} (${time})`;
 }
 
 function extractSquadFreshFields(squad: SquadPlayer[]): Record<PlayerId, SquadFreshFields> {
