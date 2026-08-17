@@ -706,9 +706,11 @@ function renderOpponentsHeader(opp: OpponentsView): string {
  * einem Verein eine Ansetzung fehlt, sonst wandern die Wappen von Zeile zu
  * Zeile.
  *
- * Der Pfeil steht nur bei starkem oder schwachem Gegner, das Mittelfeld bleibt
- * leer. Heim oder auswärts steht nur im Tooltip: als Farbe oder Deckkraft
- * wäre es eine zweite Bedeutung neben der Tendenz und dafür zu leise.
+ * Der Pfeil steht bei starkem oder schwachem Gegner, im Mittelfeld steht ein
+ * grauer Strich. Heim oder auswärts steht nur im Tooltip: als Farbe oder
+ * Deckkraft wäre es eine zweite Bedeutung neben der Tendenz und dafür zu leise.
+ *
+ * Unter 796 px zeigt CSS nur die nächste Ansetzung, siehe `--opp-cols`.
  */
 function renderOpponents(teamId: string, opp: OpponentsView): string {
   if (opp.columns === 0) return '';
@@ -741,7 +743,11 @@ function renderOpponents(teamId: string, opp: OpponentsView): string {
   return `<span class="opp-slots" style="--opp-cols:${opp.columns}">${slots}</span>`;
 }
 
-/** Nur hoch und runter bekommen einen Pfeil, das Mittelfeld bleibt leer. */
+/**
+ * Hoch und runter bekommen einen Pfeil, das Mittelfeld einen grauen Strich.
+ * Der Strich füllt denselben Platz wie ein Pfeil: leer sah die Zeile aus, als
+ * fehlte die Angabe, statt zu sagen, dass der Gegner mittelmäßig steht.
+ */
 function trendGlyph(trend: Trend): string {
   if (trend === 'up') {
     return '<span class="opp-trend opp-trend--up" aria-label="schwacher Gegner">↑</span>';
@@ -749,7 +755,7 @@ function trendGlyph(trend: Trend): string {
   if (trend === 'down') {
     return '<span class="opp-trend opp-trend--down" aria-label="starker Gegner">↓</span>';
   }
-  return '';
+  return '<span class="opp-trend opp-trend--flat" aria-label="Gegner im Mittelfeld"></span>';
 }
 
 /**

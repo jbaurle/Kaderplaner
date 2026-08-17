@@ -433,6 +433,14 @@
   .planning-shell .col-scen {
     display: table-cell;
   }
+  /* Ab hier stehen alle Szenariospalten und die vollen Beträge: jetzt ist auch
+     Platz für die nächsten drei Ansetzungen statt nur der kommenden. */
+  .planning-shell .opp-slots {
+    grid-template-columns: repeat(var(--opp-cols, 1), 33px);
+  }
+  .planning-shell .opp-slot:nth-child(n + 2) {
+    display: flex;
+  }
 }
 
 /* Ab hier ist Luft für weitere Zellenpolster. */
@@ -940,11 +948,15 @@
   line-height: 0;
 }
 
-/* Festes Raster: gleich viele Felder in jeder Zeile. Die Spaltenzahl setzt
-   der Renderer, damit CSS sie schmal auf eine herunterdrehen kann. */
+/*
+ * Festes Raster: gleich viele Felder in jeder Zeile. Die Spaltenzahl setzt
+ * der Renderer, schmal dreht CSS sie auf eine herunter: drei Ansetzungen
+ * kosten 99 px, und so lange die Tabelle nicht alle Szenariospalten zeigt,
+ * fehlt der Platz woanders mehr.
+ */
 .opp-slots {
   display: inline-grid;
-  grid-template-columns: repeat(var(--opp-cols, 1), 33px);
+  grid-template-columns: 33px;
   align-items: center;
   height: 21px;
   vertical-align: middle;
@@ -955,6 +967,10 @@
   align-items: center;
   gap: 1px;
   height: 20px;
+}
+
+.opp-slot:nth-child(n + 2) {
+  display: none;
 }
 
 /*
@@ -989,6 +1005,16 @@
 
 .opp-trend--down {
   color: var(--error);
+}
+
+/* Mittelfeld: ein grauer Strich über den ganzen Pfeilplatz. */
+.opp-trend--flat {
+  display: block;
+  width: 9px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--text-muted);
+  opacity: 0.55;
 }
 
 /* ---------- Help entry points (footline + banner) ---------- */
