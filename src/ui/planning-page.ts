@@ -36,7 +36,7 @@ import {
   type ScenarioState,
 } from '../state/planning.js';
 import { loadLineup, saveLineup } from '../state/lineup.js';
-import { loadOppColumns, saveOppColumns } from '../state/opponents.js';
+import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
 import { buildLabel } from './build-info.js';
 import { escapeHtml } from './format.js';
 import { LineupPage, type LineupPlayer } from './lineup-page.js';
@@ -209,9 +209,12 @@ export class PlanningPage {
       if (run !== this.scoreRun) return;
       this.state.scores = result;
       this.state.isScoring = false;
-      // Damit die Gegner-Spalte beim nächsten Laden gleich in ihrer Breite
-      // steht, statt erst mit den Wappen zu wachsen.
-      saveOppColumns(this.props.leagueId, result.opponents.columns);
+      // Damit die Gegner-Spalte beim nächsten Laden gleich in ihrer Breite und
+      // mit ihrem Spieltag steht, statt erst mit den Wappen zu wachsen.
+      saveOppLayout(this.props.leagueId, {
+        columns: result.opponents.columns,
+        nextDay: result.opponents.nextDay,
+      });
       this.render();
     } catch (err) {
       if (err instanceof KickbaseError && err.isUnauthorized) {
@@ -475,7 +478,7 @@ export class PlanningPage {
       onShowOffers: (playerId) => this.openModal({ kind: 'offers', playerId }),
       onClearTransferSlot: (slot) => this.handleClearTransferSlot(slot),
       onSelectAllTransfers: (slot) => this.handleSelectAllTransfers(slot),
-    }, loadOppColumns(props.leagueId));
+    }, loadOppLayout(props.leagueId));
     this.fitAmounts();
     this.watchWidth();
 

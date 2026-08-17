@@ -100,6 +100,7 @@ Im `localStorage` liegen:
 | `kb.lastLeagueId` | zuletzt geöffnete Liga |
 | `kb.scenarios.<leagueId>` | deine Häkchen in S1 bis S3 |
 | `kb.optimizer.<leagueId>` | Spielerdetails und Tabelle, damit nicht jeder Klick neu abruft |
+| `kb.oppview.<leagueId>` | Spaltenzahl und Spieltag der Gegner-Spalte, damit sie beim Laden nicht springt |
 | `kb.lineup.<leagueId>` | die zuletzt gestellte Elf |
 
 Abmelden löscht Sitzung und Ligaauswahl, die Szenarien bleiben.

@@ -28,6 +28,7 @@ import type {
   ScenarioSummary,
 } from '../compute/planning.js';
 import type { ScenarioFlags, ScenarioSlot } from '../state/planning.js';
+import type { OppLayout } from '../state/opponents.js';
 import {
   EMPTY_OPPONENTS,
   trendOfPosition,
@@ -180,17 +181,18 @@ export function renderPlanningDesktop(
   activeSlot: ResolvedScenarioSlot,
   callbacks: PlanningDesktopCallbacks,
   /**
-   * Wie viele Ansetzungen die Spalte zeigen soll, solange der Score-Lauf noch
-   * läuft. Kommt aus dem letzten Lauf dieser Liga (`state/opponents.ts`).
+   * Wie die Gegner-Spalte aussehen soll, solange der Score-Lauf noch läuft.
+   * Kommt aus dem letzten Lauf dieser Liga (`state/opponents.ts`).
    */
-  fallbackOppColumns = 1,
+  fallbackOpp: OppLayout = { columns: 1, nextDay: 0 },
 ): void {
   const widest = widestAmount(view);
-  // Vor dem Lauf ist nichts bekannt: das Raster steht trotzdem schon in der
-  // Breite da, die es gleich haben wird.
+  // Vor dem Lauf ist nichts bekannt: Raster und Spaltenkopf stehen trotzdem
+  // schon so da, wie sie gleich aussehen werden.
   const opponents: OpponentsView = scores?.opponents ?? {
     ...EMPTY_OPPONENTS,
-    columns: fallbackOppColumns,
+    columns: fallbackOpp.columns,
+    nextDay: fallbackOpp.nextDay,
   };
   host.innerHTML = `
     ${renderSlotSwitch(activeSlot)}
