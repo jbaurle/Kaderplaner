@@ -30,7 +30,6 @@ import type {
 import type { ScenarioFlags, ScenarioSlot } from '../state/planning.js';
 import {
   EMPTY_OPPONENTS,
-  MAX_FIXTURES,
   trendOfPosition,
   type OpponentsView,
   type TeamInfo,
@@ -180,8 +179,19 @@ export function renderPlanningDesktop(
   bids: readonly TransferRow[],
   activeSlot: ResolvedScenarioSlot,
   callbacks: PlanningDesktopCallbacks,
+  /**
+   * Wie viele Ansetzungen die Spalte zeigen soll, solange der Score-Lauf noch
+   * läuft. Kommt aus dem letzten Lauf dieser Liga (`state/opponents.ts`).
+   */
+  fallbackOppColumns = 1,
 ): void {
   const widest = widestAmount(view);
+  // Vor dem Lauf ist nichts bekannt: das Raster steht trotzdem schon in der
+  // Breite da, die es gleich haben wird.
+  const opponents: OpponentsView = scores?.opponents ?? {
+    ...EMPTY_OPPONENTS,
+    columns: fallbackOppColumns,
+  };
   host.innerHTML = `
     ${renderSlotSwitch(activeSlot)}
     <table class="planning-table">
@@ -212,19 +222,19 @@ export function renderPlanningDesktop(
             ${SCORE_GAUGE}
           </th>
           <th class="col-opp" title="Gegner am nächsten Spieltag">
-            ${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}${OPP_GAUGE}
+            ${renderOpponentsHeader(opponents)}${OPP_GAUGE}
           </th>
         </tr>
       </thead>
       <tbody>
-        ${view.rows.map((row) => renderPlayerRow(row, scores, activeSlot)).join('')}
+        ${view.rows.map((row) => renderPlayerRow(row, scores, opponents, activeSlot)).join('')}
       </tbody>
       <tfoot>
         ${renderFooterRow(view, activeSlot)}
         ${renderFormationIssuesRow(view, activeSlot)}
         ${renderTransferLabelRow(activeSlot)}
-        ${renderTransferHeadRow(activeSlot, scores)}
-        ${renderTransferRows(bids, scores, activeSlot)}
+        ${renderTransferHeadRow(activeSlot, opponents)}
+        ${renderTransferRows(bids, scores, opponents, activeSlot)}
         ${renderTransferFooterRow(bids, activeSlot)}
       </tfoot>
     </table>
@@ -495,6 +505,7 @@ function renderSaleValue(row: PlanningRow): string {
 function renderPlayerRow(
   row: PlanningRow,
   scores: DesktopScoresProp | null,
+  opponents: OpponentsView,
   activeSlot: ResolvedScenarioSlot,
 ): string {
   const nameCls = row.isInLineup ? 'col-name col-name--lineup' : 'col-name';
@@ -525,13 +536,13 @@ function renderPlayerRow(
 
   return `
     <tr>
-      <td class="${nameCls}"><span class="name-text">${escapeHtml(row.name)}</span>${renderTeamLogo(row.teamId, scores?.opponents.teams ?? {})}</td>
+      <td class="${nameCls}"><span class="name-text">${escapeHtml(row.name)}</span>${renderTeamLogo(row.teamId, opponents.teams)}</td>
       <td class="col-pos"><span class="chip chip--pos${row.position}">${escapeHtml(row.positionLabel)}</span></td>
       <td class="num col-mv">${renderSaleValue(row)}${mvglLine(row.gainLoss)}</td>
       ${scenCells}
       <td class="col-pl ${gainLossCls}">${money(row.gainLoss, true)}</td>
       ${scoreCell}
-      <td class="col-opp">${renderOpponents(row.teamId, scores?.opponents ?? EMPTY_OPPONENTS)}</td>
+      <td class="col-opp">${renderOpponents(row.teamId, opponents)}</td>
     </tr>
   `;
 }
@@ -569,7 +580,7 @@ function renderTransferLabelRow(activeSlot: ResolvedScenarioSlot): string {
  */
 function renderTransferHeadRow(
   activeSlot: ResolvedScenarioSlot,
-  scores: DesktopScoresProp | null,
+  opponents: OpponentsView,
 ): string {
   const scenCells = ALL_SLOTS.map((slot) => {
     if (slot === 'S4') {
@@ -605,7 +616,7 @@ function renderTransferHeadRow(
         <span class="label-wide">Score</span><span class="label-narrow">%</span>
         ${SCORE_GAUGE}
       </th>
-      <th class="col-opp">${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}${OPP_GAUGE}</th>
+      <th class="col-opp">${renderOpponentsHeader(opponents)}${OPP_GAUGE}</th>
     </tr>
   `;
 }
@@ -621,6 +632,7 @@ function renderTransferHeadRow(
 function renderTransferRows(
   bids: readonly TransferRow[],
   scores: DesktopScoresProp | null,
+  opponents: OpponentsView,
   activeSlot: ResolvedScenarioSlot,
 ): string {
   if (bids.length === 0) {
@@ -631,7 +643,6 @@ function renderTransferRows(
     `;
   }
 
-  const opponents = scores?.opponents ?? EMPTY_OPPONENTS;
   return bids
     .map((row, index) => renderTransferRow(row, scores, opponents, activeSlot, index))
     .join('');
@@ -757,10 +768,9 @@ function renderOpponentsHeader(opp: OpponentsView): string {
  * Unter 796 px zeigt CSS nur die nächste Ansetzung, siehe `--opp-cols`.
  */
 function renderOpponents(teamId: string, opp: OpponentsView): string {
-  // Vor dem Score-Lauf ist keine Ansetzung bekannt. Das Raster steht trotzdem
-  // schon da, in voller Breite: sonst wächst die Spalte erst mit den Wappen,
-  // und mit ihnen springt die Zeilenhöhe und die halbe Tabelle rückt.
-  const columns = opp.columns === 0 ? MAX_FIXTURES : opp.columns;
+  // Auch ohne bekannte Ansetzung steht das Raster da: sonst fehlte seine Höhe
+  // und die Zeilen sprängen auf, sobald die Wappen eintreffen.
+  const columns = Math.max(opp.columns, 1);
   const list = opp.fixtures[teamId] ?? [];
 
   let slots = '';
