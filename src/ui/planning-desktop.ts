@@ -186,7 +186,9 @@ export function renderPlanningDesktop(
           <th class="col-pl">
             <span class="label-wide">G/V seit Kauf</span><span class="label-narrow">G/V</span>
           </th>
-          <th class="col-score" title="${SCORE_HINT}">Score</th>
+          <th class="col-score" title="${SCORE_HINT}">
+            <span class="label-wide">Score</span><span class="label-narrow">%</span>
+          </th>
           <th class="col-opp" title="Gegner am nächsten Spieltag">
             ${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}
           </th>
@@ -556,7 +558,9 @@ function renderTransferHeadRow(
       <th class="col-mv">Gebot</th>
       ${scenCells}
       <th class="col-pl"></th>
-      <th class="col-score" title="${SCORE_HINT}">Score</th>
+      <th class="col-score" title="${SCORE_HINT}">
+        <span class="label-wide">Score</span><span class="label-narrow">%</span>
+      </th>
       <th class="col-opp">${renderOpponentsHeader(scores?.opponents ?? EMPTY_OPPONENTS)}</th>
     </tr>
   `;
