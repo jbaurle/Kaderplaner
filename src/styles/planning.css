@@ -542,34 +542,48 @@
 
 /* ---------- Umschalter der Szenariospalte ---------- */
 
-/* Seitliches Polster wie in der Kopfkarte (14 px): so beginnt S1 auf derselben
-   Kante wie "Laden" darueber, und BANK endet auf der Kante rechts. */
+/*
+ * Schiene statt Karte. Der Umschalter sagt, welche Spalte zu sehen ist, er
+ * tut nichts: mit dem Vollton von `--primary` sah das aktive Segment aber
+ * genauso aus wie "Laden" zwei Zeilen darüber. Jetzt liegt es weiß und leicht
+ * erhaben auf einem grauen Band, die bekannte Form vom Telefon.
+ *
+ * Die Schiene läuft über die volle Breite, bündig mit der Tabellenkarte
+ * darunter. Sie ist selbst die Fläche, deshalb fällt das seitliche Polster
+ * von 14 px weg, das den Block vorher in der Kopfkarte ausgerichtet hat.
+ */
 .scen-switch {
   display: flex;
-  gap: 4px;
-  padding: 4px 14px;
+  gap: 2px;
+  padding: 3px;
   margin-bottom: 8px;
-  background: var(--card);
+  background: #eef1f6;
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
 }
 
 .scen-switch button {
   flex: 1;
-  padding: 8px 0;
+  padding: 6px 0;
   border: 0;
-  border-radius: var(--radius-sm);
+  /* 3 px weniger als die Schiene, sonst laufen die beiden Rundungen ausei-
+     nander. `--radius-sm` waere hier einen Punkt zu weit. */
+  border-radius: 5px;
   background: transparent;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
 }
 
+/* Der Schatten hebt das Segment von der Schiene ab, die Haarlinie darin haelt
+   es auf hellen Bildschirmen sichtbar, wo der Schatten allein verschwindet. */
 .scen-switch button[aria-pressed='true'] {
-  background: var(--primary);
-  color: #fff;
+  background: var(--card);
+  color: var(--text-strong);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(15 23 42 / 0.04);
 }
 
 .scen-switch button:focus-visible {
