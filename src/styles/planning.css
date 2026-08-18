@@ -299,8 +299,9 @@
  *                                       Galaxy S22 / S23 / A-Reihe
  *   ab 366 (390)  G/V als eigene Spalte, 10 px Schrift
  *                                       iPhone 12 bis 16
- *   ab 388 (412)  G/V in voller Größe, 12 px Schrift
- *                                       Galaxy Note / Pixel, iPhone Pro Max
+ *   ab 388 (412)  G/V in voller Größe   Galaxy Note / Pixel, iPhone Pro Max
+ *   ab 428 (452)  12 px Schrift, mehr Polster
+ *                                       Foldables aufgeklappt, kleine Tablets
  *   ab 720 (744)  + BANK, volle Beträge iPad mini, Galaxy Tab hochkant
  *   ab 796 (820)  alle vier Szenarien   iPad Air hochkant, iPad Pro 11
  *   ab 900 (924)  mehr Zellenpolster    iPad quer, Desktop
@@ -422,6 +423,15 @@
   .planning-shell .planning-table .col-pl {
     font-size: inherit;
   }
+}
+
+/*
+ * Größere Schrift und weiteres Polster. Die Stufe stand auf 388, dort passt
+ * sie aber nicht: in dieser Schreibweise braucht die Tabelle mit vollem Kader
+ * 419 px, auf einem Pixel (Container 388) fehlten 31 px und sie scrollte
+ * seitwärts. 428 ist die erste Breite, auf der sie steht.
+ */
+@container (min-width: 428px) {
   .planning-shell .planning-table {
     font-size: 12px;
   }
