@@ -252,6 +252,74 @@ export function planningDesktopMarkup(
 }
 
 /**
+ * Die Stellen nachziehen, die von den Häkchen abhängen, statt die Tabelle neu
+ * zu bauen. Ein Neuaufbau erzeugt jedes Wappen als neues Element, und Safari
+ * auf dem iPhone zeichnet die erst im nächsten Frame: sichtbar als Flackern.
+ *
+ * Angefasst wird alles, was ein Häkchen bewegt: die Zelle selbst, die
+ * Summenzeilen, die Anzahl je Szenario, die Summe im Transferblock und die
+ * Fehlerzeile. Alles andere in der Tabelle hängt am Kader, nicht am Szenario.
+ */
+export function updatePlanningScenarios(
+  host: HTMLElement,
+  view: PlanningView,
+  bids: readonly TransferRow[],
+  activeSlot: ResolvedScenarioSlot,
+): void {
+  const widest = widestAmount(view);
+
+  const flagsById = new Map<string, Record<string, boolean>>();
+  for (const row of view.rows) flagsById.set(row.id, { ...row.flags });
+  for (const bid of bids) flagsById.set(bid.player.id, { ...bid.flags });
+
+  for (const cell of host.querySelectorAll<HTMLElement>('[data-player-id][data-slot]')) {
+    const id = cell.dataset['playerId'];
+    const slot = cell.dataset['slot'];
+    if (!id || !slot) continue;
+    cell.classList.toggle('scen-cell--checked', Boolean(flagsById.get(id)?.[slot]));
+  }
+
+  for (const cell of host.querySelectorAll<HTMLElement>('[data-sum][data-slot]')) {
+    const key = cell.dataset['sum'] as keyof Pick<
+      ScenarioSummary,
+      'newBalance' | 'salesSum' | 'bidsSum'
+    >;
+    const slot = cell.dataset['slot'] as ResolvedScenarioSlot;
+    const value = view.summaries[slot][key];
+    cell.innerHTML = `${money(value)}${gauge(widest)}`;
+    if (key === 'newBalance') {
+      cell.classList.toggle('num--neg', value < 0);
+      cell.classList.toggle('num--pos', value >= 0);
+    }
+  }
+
+  for (const cell of host.querySelectorAll<HTMLElement>('[data-count]')) {
+    const slot = cell.dataset['count'] as ResolvedScenarioSlot;
+    cell.textContent = String(view.rows.filter((row) => row.flags[slot]).length);
+  }
+
+  for (const cell of host.querySelectorAll<HTMLElement>('[data-tsum]')) {
+    const slot = cell.dataset['tsum'] as ScenarioSlot;
+    const sold = bids
+      .filter((row) => row.flags[slot])
+      .reduce((sum, row) => sum + row.player.marketValue, 0);
+    cell.innerHTML = money(sold);
+  }
+
+  // Die Fehlerzeile kommt und geht mit der Formation. Sie trägt kein Bild,
+  // sie darf im Ganzen ausgetauscht werden.
+  const markup = renderFormationIssuesRow(view, activeSlot).trim();
+  const current = host.querySelector('tr.planning-footer-formation');
+  if (!markup) {
+    current?.remove();
+  } else if (current) {
+    current.outerHTML = markup;
+  } else {
+    host.querySelector('[data-footer="squad"]')?.insertAdjacentHTML('afterend', markup);
+  }
+}
+
+/**
  * Ein einziger Listener am Wirt, der alle Klicks in der Tabelle verteilt. Er
  * hängt an dem frisch gerenderten Element, nicht am dauerhaften Host: bei
  * jedem Toggle wird neu gezeichnet, am Host würden sich die Listener stapeln.
@@ -427,7 +495,8 @@ function renderScenarioSummaryRow(
     if (key === 'newBalance') {
       cls = value < 0 ? 'num num--neg' : 'num num--pos';
     }
-    return `<td class="${scenClass(slot, activeSlot, cls)}">${money(value)}${gauge(widest)}</td>`;
+    return `<td class="${scenClass(slot, activeSlot, cls)}"
+                data-sum="${key}" data-slot="${slot}">${money(value)}${gauge(widest)}</td>`;
   }).join('');
   return `
     <tr class="planning-summary">
@@ -489,10 +558,10 @@ function renderFooterRow(view: PlanningView, activeSlot: ResolvedScenarioSlot): 
   const totalSale = view.rows.reduce((sum, row) => sum + row.saleValue, 0);
   const scenCells = ALL_SLOTS.map((slot) => {
     const sold = view.rows.filter((row) => row.flags[slot]).length;
-    return `<td class="${scenClass(slot, activeSlot, 'scen-count')}">${sold}</td>`;
+    return `<td class="${scenClass(slot, activeSlot, 'scen-count')}" data-count="${slot}">${sold}</td>`;
   }).join('');
   return `
-    <tr class="planning-footer">
+    <tr class="planning-footer" data-footer="squad">
       <td class="col-name" colspan="2">${view.totalPlayers} Spieler</td>
       <td class="num col-mv">${money(totalSale)}${mvglLine(view.totalGainLoss)}</td>
       ${scenCells}
@@ -741,7 +810,7 @@ function renderTransferFooterRow(
     const sold = bids
       .filter((row) => row.flags[slot])
       .reduce((sum, row) => sum + row.player.marketValue, 0);
-    return `<td class="${scenClass(slot, activeSlot, 'num')}">${money(sold)}</td>`;
+    return `<td class="${scenClass(slot, activeSlot, 'num')}" data-tsum="${slot}">${money(sold)}</td>`;
   }).join('');
 
   return `
@@ -812,7 +881,7 @@ function renderOpponents(teamId: string, opp: OpponentsView): string {
     ].join('');
     slots += `<span class="opp-slot" title="${escapeHtml(title)}">
       <img class="opp-crest" src="${escapeHtml(teamLogoUrl(fixture.opponentId))}" alt=""
-           width="20" height="20" loading="lazy" decoding="async">
+           width="20" height="20" loading="eager" decoding="sync">
       <span class="opp-arrow">${trendGlyph(trend)}</span>
     </span>`;
   }
@@ -854,7 +923,7 @@ function renderTeamLogo(teamId: string, teams: Record<string, TeamInfo>): string
   const info = teams[teamId];
   const title = info ? ` title="${escapeHtml(`${info.name} (${info.position}.)`)}"` : '';
   return `<img class="team-logo" src="${escapeHtml(teamLogoUrl(teamId))}" alt=""${title}
-               width="20" height="20" loading="lazy" decoding="async">`;
+               width="20" height="20" loading="eager" decoding="sync">`;
 }
 
 function renderScoreCell(

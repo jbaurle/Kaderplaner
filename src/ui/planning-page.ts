@@ -54,6 +54,7 @@ import {
 import { renderOffersBody } from './offers-dialog.js';
 import {
   planningDesktopMarkup,
+  updatePlanningScenarios,
   wirePlanningDesktop,
   type DesktopScoresProp,
   type TransferRow,
@@ -281,14 +282,14 @@ export class PlanningPage {
     for (const bid of this.bids()) next = setFlag(next, bid.id, slot, value);
     this.state.scenarios = next;
     saveScenarios(this.props.leagueId, next);
-    this.render();
+    this.applyScenarioChange();
   }
 
   private toggleFlag(playerId: PlayerId, slot: ScenarioSlot): void {
     const current = this.state.scenarios.byPlayer[playerId]?.[slot] ?? false;
     this.state.scenarios = setFlag(this.state.scenarios, playerId, slot, !current);
     saveScenarios(this.props.leagueId, this.state.scenarios);
-    this.render();
+    this.applyScenarioChange();
   }
 
   /**
@@ -331,7 +332,7 @@ export class PlanningPage {
   private handleClearSlot(slot: ScenarioSlot): void {
     this.state.scenarios = clearSlot(this.state.scenarios, slot);
     saveScenarios(this.props.leagueId, this.state.scenarios);
-    this.render();
+    this.applyScenarioChange();
   }
 
   /**
@@ -349,7 +350,55 @@ export class PlanningPage {
     }
     this.state.scenarios = next;
     saveScenarios(this.props.leagueId, this.state.scenarios);
-    this.render();
+    this.applyScenarioChange();
+  }
+
+  /**
+   * Kader, Gebote und Häkchen zu einer Ansicht rechnen. Eigene Methode, weil
+   * ein Häkchen dieselbe Rechnung braucht wie das Rendern, nur ohne neuen
+   * Aufbau der Tabelle.
+   */
+  private buildView(): { view: PlanningView; transferRows: TransferRow[] } | null {
+    const { state } = this;
+    if (!state.squad || state.budget === null) return null;
+
+    const transferRows: TransferRow[] = this.bids().map((player) => ({
+      player,
+      flags: state.scenarios.byPlayer[player.id] ?? { S1: false, S2: false, S3: false },
+    }));
+
+    const view = computePlanning({
+      budget: state.budget,
+      squad: state.squad,
+      scenarios: state.scenarios,
+      transfers: transferRows.map((row) => ({
+        id: row.player.id,
+        positionLabel: positionLabel(row.player.position),
+        amount: row.player.myOffer?.amount ?? 0,
+        marketValue: row.player.marketValue,
+        flags: row.flags,
+      })),
+      bestOffers: this.bestOffers(),
+    });
+
+    return { view, transferRows };
+  }
+
+  /**
+   * Ein Häkchen ändert Zahlen und Klassen, keinen Aufbau. Deshalb wird die
+   * Tabelle nachgezogen statt neu gebaut: die Wappen bleiben dieselben
+   * Elemente und flackern nicht. Steht keine Tabelle da, bleibt es beim
+   * vollen Aufbau.
+   */
+  private applyScenarioChange(): void {
+    const host = this.props.host.querySelector<HTMLElement>('.planning-table-host');
+    const built = this.buildView();
+    if (!host || !built || !host.querySelector('.planning-table')) {
+      this.render();
+      return;
+    }
+    updatePlanningScenarios(host, built.view, built.transferRows, this.state.activeSlot);
+    this.fitAmounts();
   }
 
   private render(): void {
@@ -390,24 +439,10 @@ export class PlanningPage {
       return;
     }
 
-    const transferRows: TransferRow[] = this.bids().map((player) => ({
-      player,
-      flags: state.scenarios.byPlayer[player.id] ?? { S1: false, S2: false, S3: false },
-    }));
-
-    const view = computePlanning({
-      budget: state.budget,
-      squad: state.squad,
-      scenarios: state.scenarios,
-      transfers: transferRows.map((row) => ({
-        id: row.player.id,
-        positionLabel: positionLabel(row.player.position),
-        amount: row.player.myOffer?.amount ?? 0,
-        marketValue: row.player.marketValue,
-        flags: row.flags,
-      })),
-      bestOffers: this.bestOffers(),
-    });
+    // Die Daten sind oben geprüft, hier fällt die Rechnung nicht mehr aus.
+    const built = this.buildView();
+    if (!built) return;
+    const { view, transferRows } = built;
 
     const desktopScores: DesktopScoresProp | null = state.scores
       ? {
