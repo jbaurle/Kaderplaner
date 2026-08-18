@@ -749,11 +749,6 @@
   letter-spacing: 0.04em;
 }
 
-.planning-transfers-empty td {
-  color: var(--text-muted);
-  text-align: left;
-}
-
 
 /* Linie und Luft trennen den Block von der Summenzeile darüber. Die leichte
    Linie, nicht `--border-strong`: sie soll gliedern, nicht abschneiden. */

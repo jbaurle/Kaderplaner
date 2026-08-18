@@ -242,10 +242,17 @@ export function planningDesktopMarkup(
       <tfoot>
         ${renderFooterRow(view, activeSlot)}
         ${renderFormationIssuesRow(view, activeSlot)}
-        ${renderTransferLabelRow(activeSlot)}
-        ${renderTransferHeadRow(activeSlot, opponents)}
-        ${renderTransferRows(bids, scores, opponents, activeSlot)}
-        ${renderTransferFooterRow(bids, activeSlot)}
+        ${
+          // Ohne eigenes Gebot steht der Block leer da und kostet drei Zeilen.
+          bids.length > 0
+            ? `
+              ${renderTransferLabelRow(activeSlot)}
+              ${renderTransferHeadRow(activeSlot, opponents)}
+              ${renderTransferRows(bids, scores, opponents, activeSlot)}
+              ${renderTransferFooterRow(bids, activeSlot)}
+            `
+            : ''
+        }
       </tfoot>
     </table>
   `;
@@ -726,14 +733,6 @@ function renderTransferRows(
   opponents: OpponentsView,
   activeSlot: ResolvedScenarioSlot,
 ): string {
-  if (bids.length === 0) {
-    return `
-      <tr class="planning-transfers-empty">
-        <td class="col-name" colspan="10">Keine offenen Gebote.</td>
-      </tr>
-    `;
-  }
-
   return bids
     .map((row, index) => renderTransferRow(row, scores, opponents, activeSlot, index))
     .join('');
