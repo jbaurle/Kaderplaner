@@ -297,9 +297,10 @@
  *   Grundzustand  Spieler · Pos · aktives Szenario · Score · Gegner
  *   ab 336 (360)  + Erlös, G/V zweizeilig darunter
  *                                       Galaxy S22 / S23 / A-Reihe
- *   ab 366 (390)  G/V als eigene Spalte, 10 px Schrift
- *                                       iPhone 12 bis 16
- *   ab 388 (412)  G/V in voller Größe   Galaxy Note / Pixel, iPhone Pro Max
+ *   ab 351 (375)  G/V als eigene Spalte, 10 px Schrift
+ *                                       iPhone SE / 13 mini
+ *   ab 388 (412)  G/V in voller Größe, Chip und Polster normal
+ *                                       Galaxy Note / Pixel, iPhone Pro Max
  *   ab 428 (452)  12 px Schrift, mehr Polster
  *                                       Foldables aufgeklappt, kleine Tablets
  *   ab 720 (744)  + BANK, volle Beträge iPad mini, Galaxy Tab hochkant
@@ -325,9 +326,19 @@
   font-size: 11px;
 }
 
+/*
+ * Knappes Zellpolster und ein schmalerer Pos-Chip. Beides zusammen bringt rund
+ * 25 px, und erst damit passt die G/V-Spalte schon auf einem 375-px-Gerät. Ab
+ * 388 px steht wieder das normale Maß, siehe dort.
+ */
 .planning-shell .planning-table th,
 .planning-shell .planning-table td {
-  padding: 6px 4px;
+  padding: 6px 3px;
+}
+
+.planning-shell .chip {
+  padding: 1px 4px;
+  font-size: 10px;
 }
 
 /*
@@ -399,12 +410,11 @@
   }
 }
 
-@container (min-width: 366px) {
+@container (min-width: 351px) {
   /*
    * G/V bekommt die eigene Spalte, die zweite Zeile fällt weg. Kleiner
    * geschrieben als der Rest: der Erlös bleibt die Hauptzahl, und die Spalte
-   * kostet nur die rund 30 px, die auf dieser Stufe frei sind. Eine Stufe
-   * tiefer (Gerät 375) wären es 25 px zu viel, darum erst hier.
+   * kostet nur die rund 30 px, die das knappe Polster oben frei macht.
    */
   .planning-shell .col-pl {
     display: table-cell;
@@ -419,9 +429,21 @@
 }
 
 @container (min-width: 388px) {
-  /* Ab hier ist Platz, G/V steht in derselben Größe wie der Rest. */
+  /*
+   * Ab hier ist Platz: G/V steht in derselben Größe wie der Rest, und Chip
+   * und Zellpolster gehen auf ihr normales Maß zurück. Bleibt danach noch
+   * 22 px Reserve.
+   */
   .planning-shell .planning-table .col-pl {
     font-size: inherit;
+  }
+  .planning-shell .chip {
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+  .planning-shell .planning-table th,
+  .planning-shell .planning-table td {
+    padding: 6px 4px;
   }
 }
 
