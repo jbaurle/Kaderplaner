@@ -110,8 +110,10 @@ function formationGauge(): string {
 
 /** Obergrenze der Summen: alle verkauft, dazu ein positiver Kontostand. */
 function widestAmount(view: PlanningView): number {
-  const totalMv = view.rows.reduce((sum, row) => sum + row.marketValue, 0);
-  return Math.max(totalMv + Math.max(view.budget, 0), Math.abs(view.budget));
+  // Über den Erlös, nicht über den Marktwert: liegt ein Gebot darüber, zählt
+  // das Gebot, und die Summe der Verkäufe kann den Marktwert übersteigen.
+  const totalSale = view.rows.reduce((sum, row) => sum + row.saleValue, 0);
+  return Math.max(totalSale + Math.max(view.budget, 0), Math.abs(view.budget));
 }
 
 export interface PlanningDesktopCallbacks {
@@ -447,9 +449,7 @@ function renderFormationIssuesRow(view: PlanningView, activeSlot: ResolvedScenar
     <tr class="planning-footer planning-footer-formation">
       <td colspan="3"></td>
       ${cells}
-      <td></td>
-      <td></td>
-      <td></td>
+      ${SUMMARY_TAIL}
     </tr>
   `;
 }
@@ -586,7 +586,14 @@ function renderTransferHeadRow(
 ): string {
   const scenCells = ALL_SLOTS.map((slot) => {
     if (slot === 'S4') {
-      return `<th class="${scenClass(slot, activeSlot)}">Marktwert</th>`;
+      // Dieselbe Beschriftung wie im Kader: die Spalte trägt denselben Betrag,
+      // und das Wort "Marktwert" war in der kompakten Schreibweise breiter als
+      // jeder Betrag und zog die Spalte auseinander.
+      return `
+        <th class="${scenClass(slot, activeSlot)}">
+          <span class="label-wide">Erlös</span><span class="label-narrow">Erl.</span>
+        </th>
+      `;
     }
     // Kein Spaltenname: welche Spalte welche ist, steht schon in der Kopfzeile
     // des Kaders darüber. Hier zählt der Knopf, der die Häkchen dieser
