@@ -364,6 +364,19 @@
   white-space: nowrap;
 }
 
+/*
+ * Untergrenze der Namensspalte: acht Zeichen plus die Breite des Wappens.
+ * Ohne sie schrumpft der Name so weit, dass die vollen Beträge auch dann noch
+ * "passen", wenn vom Namen drei Buchstaben und Auslassungspunkte übrig sind.
+ * `fitAmounts()` misst nur, ob die Tabelle überläuft, und sie läuft dann nicht
+ * über. Mit der Grenze läuft sie über und die Beträge gehen in die
+ * Mio-Schreibweise, wo sie hingehören.
+ */
+.planning-shell .planning-table th.col-name,
+.planning-shell .planning-table td.col-name {
+  min-width: calc(8ch + 28px);
+}
+
 .planning-shell .col-mv,
 .planning-shell .col-pl,
 .planning-shell .col-scen {
