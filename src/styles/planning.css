@@ -1188,6 +1188,12 @@
   justify-content: center;
   padding: clamp(12px, 6vh, 56px) clamp(8px, 3vw, 16px) clamp(12px, 4vh, 32px);
   background: rgba(17, 24, 39, 0.45);
+  /*
+   * Der Zeiger ist hier nicht nur Kosmetik: Safari auf dem iPhone liefert
+   * einen Tap auf ein gewöhnliches div nicht als Klick aus, solange es nicht
+   * als klickbar gilt. Ohne die Zeile schließt der Tap daneben dort nicht.
+   */
+  cursor: pointer;
 }
 
 .dialog-shade:focus {
@@ -1198,6 +1204,7 @@
 .dialog-box {
   display: flex;
   flex-direction: column;
+  cursor: default;
   width: 100%;
   max-width: 620px;
   max-height: 100%;

@@ -142,6 +142,12 @@ export class PlanningPage {
     void this.fetch();
     // Drehen ändert die Breite, ohne dass neu gerendert wird.
     window.addEventListener('resize', () => this.fitAmounts());
+    // Escape hängt am Dokument, nicht am Overlay: das Overlay hat beim Öffnen
+    // keinen Fokus, die Taste käme dort erst nach einem Klick an. Ohne offenes
+    // Overlay läuft `closeModal()` ins Leere.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') this.closeModal();
+    });
   }
 
   /** Fetch budget + squad, danach laufen die Scores automatisch hinterher. */
@@ -628,9 +634,6 @@ export class PlanningPage {
     if (!backdrop) return;
     backdrop.addEventListener('click', (event) => {
       if (event.target === backdrop) this.closeModal();
-    });
-    backdrop.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') this.closeModal();
     });
     // Mehrere Schliesser: das Kreuz im Kopf und die bereits offene Liga.
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-dialog-close]')) {
