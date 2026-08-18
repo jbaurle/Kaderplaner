@@ -63,7 +63,7 @@ function amountPair(wide: string, narrow: string): string {
 
 /**
  * G/V als zweite Zeile in der Marktwertzelle. Sichtbar nur, solange die
- * eigene Spalte nicht passt; ab 388 blendet CSS sie aus.
+ * eigene Spalte nicht passt; ab 366 blendet CSS sie aus.
  *
  * Immer mit Vorzeichen, auch bei Gewinn: die Zeile steht direkt unter dem
  * Marktwert und ohne Plus liest sich der Wert wie ein zweiter Betrag statt

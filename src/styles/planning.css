@@ -295,9 +295,11 @@
  * viel nimmt das Polster der Shell weg. In Klammern das Gerät dahinter.
  *
  *   Grundzustand  Spieler · Pos · aktives Szenario · Score · Gegner
- *   ab 336 (360)  + Marktwert, G/V zweizeilig darunter
+ *   ab 336 (360)  + Erlös, G/V zweizeilig darunter
  *                                       Galaxy S22 / S23 / A-Reihe
- *   ab 388 (412)  G/V als eigene Spalte, 12 px Schrift
+ *   ab 366 (390)  G/V als eigene Spalte, 10 px Schrift
+ *                                       iPhone 12 bis 16
+ *   ab 388 (412)  G/V in voller Größe, 12 px Schrift
  *                                       Galaxy Note / Pixel, iPhone Pro Max
  *   ab 720 (744)  + BANK, volle Beträge iPad mini, Galaxy Tab hochkant
  *   ab 796 (820)  alle vier Szenarien   iPad Air hochkant, iPad Pro 11
@@ -324,7 +326,7 @@
 
 .planning-shell .planning-table th,
 .planning-shell .planning-table td {
-  padding: 6px 5px;
+  padding: 6px 4px;
 }
 
 /*
@@ -344,7 +346,7 @@
  */
 .planning-shell .name-text {
   display: block;
-  max-width: 12ch;
+  max-width: min(12ch, calc(100% - 28px));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -396,14 +398,29 @@
   }
 }
 
-@container (min-width: 388px) {
+@container (min-width: 366px) {
+  /*
+   * G/V bekommt die eigene Spalte, die zweite Zeile fällt weg. Kleiner
+   * geschrieben als der Rest: der Erlös bleibt die Hauptzahl, und die Spalte
+   * kostet nur die rund 30 px, die auf dieser Stufe frei sind. Eine Stufe
+   * tiefer (Gerät 375) wären es 25 px zu viel, darum erst hier.
+   */
   .planning-shell .col-pl {
     display: table-cell;
   }
-  /* Ab hier hat G/V eine eigene Spalte, die zweite Zeile fällt weg. */
+  .planning-shell .planning-table .col-pl {
+    font-size: 10px;
+  }
   .planning-shell .mv-gv,
   .planning-shell .mv-gv-label {
     display: none;
+  }
+}
+
+@container (min-width: 388px) {
+  /* Ab hier ist Platz, G/V steht in derselben Größe wie der Rest. */
+  .planning-shell .planning-table .col-pl {
+    font-size: inherit;
   }
   .planning-shell .planning-table {
     font-size: 12px;
@@ -411,23 +428,6 @@
   .planning-shell .planning-table th,
   .planning-shell .planning-table td {
     padding: 6px 7px;
-  }
-  /*
-   * Ab hier ist Platz für das Vereinswappen. Darunter bleibt es aus: es
-   * kostet zwar keine Spaltenbreite, würde auf dem Handy aber den ohnehin
-   * schon gekürzten Namen überdecken.
-   */
-  .planning-shell .team-logo {
-    display: block;
-  }
-  /*
-   * Der 12-Zeichen-Deckel bleibt, greift jetzt aber nur, solange die Zelle
-   * breit genug ist. Wird sie schmaler, kürzt der Name früher, statt unter
-   * das Wappen zu laufen. `min()` statt eines festen Werts, damit das an
-   * jeder Stufe von selbst passt.
-   */
-  .planning-shell .name-text {
-    max-width: min(12ch, calc(100% - 28px));
   }
 }
 
@@ -612,10 +612,11 @@
  * Wappen im Textfluss würde jede Stufe verschieben. Die feste rechte Kante
  * der Spalte stellt die Wappen von selbst in eine Linie.
  *
- * Eingeblendet wird es erst ab Container 388 px, siehe Breitenleiter.
+ * Steht auf jeder Breite: der Name kürzt vorher mit Auslassungspunkten,
+ * siehe `.name-text`.
  */
 .team-logo {
-  display: none;
+  display: block;
   position: absolute;
   right: 6px;
   top: 50%;
