@@ -53,7 +53,8 @@ import {
 } from './help.js';
 import { renderOffersBody } from './offers-dialog.js';
 import {
-  renderPlanningDesktop,
+  planningDesktopMarkup,
+  wirePlanningDesktop,
   type DesktopScoresProp,
   type TransferRow,
 } from './planning-desktop.js';
@@ -348,6 +349,14 @@ export class PlanningPage {
   private render(): void {
     const { state, props } = this;
 
+    /*
+     * Netz unter dem Umbau: die Seite entsteht in einer einzigen Zuweisung,
+     * das Dokument schrumpft dabei nicht mehr zwischendurch. Sollte WebKit
+     * die Position trotzdem verlieren, steht sie hier noch. Nur im Hauptzweig
+     * gesetzt, die frühen Rückgaben für Laden und Fehler gehören nach oben.
+     */
+    const scrollY = window.scrollY;
+
     // First-load skeleton — no data yet.
     if (state.isLoading && !state.squad) {
       props.host.innerHTML = `
@@ -454,7 +463,13 @@ export class PlanningPage {
             : ''
         }
         ${fallbackBanner}
-        <div class="planning-table-host"></div>
+        <div class="planning-table-host">${planningDesktopMarkup(
+          view,
+          desktopScores,
+          transferRows,
+          state.activeSlot,
+          loadOppLayout(props.leagueId),
+        )}</div>
         ${renderFootline(state.scores, state.isScoring)}
       </div>
       ${modalHtml}
@@ -470,7 +485,7 @@ export class PlanningPage {
     const onClearSlot = (slot: ScenarioSlot): void => this.handleClearSlot(slot);
     const onCopyFromS4 = (slot: ScenarioSlot): void => this.handleCopyFromS4(slot);
     const onSelectSlot = (slot: ResolvedScenarioSlot): void => this.handleSelectSlot(slot);
-    renderPlanningDesktop(tableHost, view, desktopScores, transferRows, state.activeSlot, {
+    wirePlanningDesktop(tableHost, {
       onToggle,
       onClearSlot,
       onCopyFromS4,
@@ -478,7 +493,7 @@ export class PlanningPage {
       onShowOffers: (playerId) => this.openModal({ kind: 'offers', playerId }),
       onClearTransferSlot: (slot) => this.handleClearTransferSlot(slot),
       onSelectAllTransfers: (slot) => this.handleSelectAllTransfers(slot),
-    }, loadOppLayout(props.leagueId));
+    });
     this.fitAmounts();
     this.watchWidth();
 
@@ -501,6 +516,8 @@ export class PlanningPage {
       });
     }
     this.wireModal();
+
+    if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
   }
 
   /**

@@ -175,19 +175,25 @@ const SLOT_LABEL: Record<ResolvedScenarioSlot, string> = {
   S4: 'BANK',
 };
 
-export function renderPlanningDesktop(
-  host: HTMLElement,
+/**
+ * Umschalter und Tabelle als Markup, ohne sie irgendwo einzuhängen.
+ *
+ * Getrennt vom Verdrahten, damit die Seite in einer einzigen Zuweisung
+ * entstehen kann: würde die Tabelle nachgereicht, wäre das Dokument für einen
+ * Moment nur Kopf und Fußzeile hoch, und iOS klemmt die Scroll-Position auf
+ * genau diese Höhe. Das Verdrahten übernimmt {@link wirePlanningDesktop}.
+ */
+export function planningDesktopMarkup(
   view: PlanningView,
   scores: DesktopScoresProp | null,
   bids: readonly TransferRow[],
   activeSlot: ResolvedScenarioSlot,
-  callbacks: PlanningDesktopCallbacks,
   /**
    * Wie die Gegner-Spalte aussehen soll, solange der Score-Lauf noch läuft.
    * Kommt aus dem letzten Lauf dieser Liga (`state/opponents.ts`).
    */
   fallbackOpp: OppLayout = { columns: 1, nextDay: 0 },
-): void {
+): string {
   const widest = widestAmount(view);
   // Vor dem Lauf ist nichts bekannt: Raster und Spaltenkopf stehen trotzdem
   // schon so da, wie sie gleich aussehen werden.
@@ -196,7 +202,7 @@ export function renderPlanningDesktop(
     columns: fallbackOpp.columns,
     nextDay: fallbackOpp.nextDay,
   };
-  host.innerHTML = `
+  return `
     ${renderSlotSwitch(activeSlot)}
     <table class="planning-table">
       <thead>
@@ -243,7 +249,14 @@ export function renderPlanningDesktop(
       </tfoot>
     </table>
   `;
+}
 
+/**
+ * Ein einziger Listener am Wirt, der alle Klicks in der Tabelle verteilt. Er
+ * hängt an dem frisch gerenderten Element, nicht am dauerhaften Host: bei
+ * jedem Toggle wird neu gezeichnet, am Host würden sich die Listener stapeln.
+ */
+export function wirePlanningDesktop(host: HTMLElement, callbacks: PlanningDesktopCallbacks): void {
   host.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
 
