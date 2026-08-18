@@ -1,0 +1,6 @@
+# Kickbase Kaderplaner, ein privates Fan-Werkzeug.
+# Öffentlich sind die Startseite und die Rechtsseiten, alles Weitere liegt
+# hinter der Anmeldung und ist ohne Zugang ohnehin nicht zu erreichen.
+
+User-agent: *
+Allow: /
