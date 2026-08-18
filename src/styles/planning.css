@@ -645,7 +645,7 @@
 .planning-table thead .planning-summary td {
   text-transform: none;
   letter-spacing: normal;
-  font-size: 13px;
+  font-size: inherit;
   font-weight: 600;
   color: var(--text);
   background: #f7f8fa;
@@ -676,7 +676,7 @@
  */
 .planning-table tfoot .planning-summary th.summary-label,
 .planning-table tfoot .planning-summary td {
-  font-size: 13px;
+  font-size: inherit;
   font-weight: 600;
   color: var(--text);
   background: #f7f8fa;
@@ -730,7 +730,7 @@
   background: #f7f8fa;
   border-top: 1px solid var(--border-strong);
   border-bottom: 0;
-  font-size: 13px;
+  font-size: inherit;
   font-weight: 400;
   color: var(--text);
   text-transform: none;
