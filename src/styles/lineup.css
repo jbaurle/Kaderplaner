@@ -864,6 +864,40 @@ body.is-lineup-open {
   bottom: -4px;
 }
 
+/*
+ * Das Anheben beim Finger: der Kreis rückt über die Hand, wird etwas größer
+ * und legt sich leicht schief, damit er als aufgenommen zu lesen ist. Gefahren
+ * statt gesprungen, sonst setzt er im Moment des Ausbrechens einen Satz. Wie
+ * weit es nach oben geht, sagt `--ghost-lift` aus `startDrag`, denn die halbe
+ * Kreisbreite kennt das Blatt erst zur Laufzeit.
+ */
+.lineup-ghost-body {
+  transform-origin: 50% 100%;
+}
+
+.lineup-ghost.is-touch {
+  opacity: 1;
+}
+
+.lineup-ghost.is-touch .lineup-ghost-body {
+  animation: ghost-lift 140ms ease-out forwards;
+}
+
+@keyframes ghost-lift {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(calc(var(--ghost-lift, 40px) * -1)) scale(1.12) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineup-ghost.is-touch .lineup-ghost-body {
+    animation-duration: 1ms;
+  }
+}
+
 .lineup-layer.is-dragging {
   cursor: grabbing;
 }

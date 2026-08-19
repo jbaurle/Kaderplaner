@@ -208,6 +208,11 @@ interface DragState {
   startY: number;
   active: boolean;
   ghost: HTMLElement | null;
+  /**
+   * Versatz vom Zeiger zur Mitte des Ghosts, gemessen beim Aufnehmen. Ohne
+   * ihn spränge der Kreis im Moment des Ausbrechens unter den Zeiger.
+   */
+  offset: { x: number; y: number };
   /** Der Platzhalter in der Reihe, solange der Zug dort landen würde. */
   gap: HTMLElement | null;
   drop: DropAction | null;
@@ -560,6 +565,7 @@ export class LineupPage {
       startY: event.clientY,
       active: false,
       ghost: null,
+      offset: { x: 0, y: 0 },
       gap: null,
       drop: null,
     };
@@ -615,7 +621,9 @@ export class LineupPage {
 
     event.preventDefault();
     if (drag.ghost) {
-      drag.ghost.style.transform = `translate(${event.clientX}px, ${event.clientY}px) translate(-50%, -50%)`;
+      const x = event.clientX + drag.offset.x;
+      const y = event.clientY + drag.offset.y;
+      drag.ghost.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
     }
     this.updateDropTarget(drag, event.clientX, event.clientY);
   }
@@ -629,7 +637,9 @@ export class LineupPage {
     // aufs Feld stellt.
     const panned = drag.pan !== null;
     const draggedId = drag.id;
-    const from = drag.ghost?.getBoundingClientRect() ?? null;
+    // Der Körper, nicht die Hülle: das Anheben sitzt innen, und der Flug soll
+    // dort beginnen, wo der Kreis zuletzt zu sehen war.
+    const from = drag.ghost?.querySelector('.lineup-ghost-body')?.getBoundingClientRect() ?? null;
     this.cancelDrag();
     if (!wasActive) {
       if (panned) this.suppressClick = true;
@@ -700,6 +710,7 @@ export class LineupPage {
     const source = this.elementOf(drag.id);
     // Vor dem Ausheben messen: gleich ist der Platz zu und der Kreis fort.
     const size = this.tokenSize();
+    drag.offset = grabOffset(source, drag.startX, drag.startY, size);
 
     // Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schliesst
     // sich. Was bleibt, ist die Lücke, und die wandert gleich mit.
@@ -710,10 +721,23 @@ export class LineupPage {
 
     const ghost = document.createElement('div');
     ghost.className = 'lineup-ghost';
-    ghost.innerHTML = this.renderTokenImage(drag.id);
+    // Zwei Ebenen: aussen die Lage am Zeiger, innen das Anheben. Das Anheben
+    // ist eine Animation und liefe sonst gegen die Lage, die jede Bewegung
+    // neu setzt.
+    const body = document.createElement('div');
+    body.className = 'lineup-ghost-body';
+    body.innerHTML = this.renderTokenImage(drag.id);
+    ghost.appendChild(body);
     // Die Breite kommt in Pixeln mit: der Ghost hängt an der Ebene, nicht am
     // Feld, und `cqw` wäre dort Prozent des Fensters statt des Rasens.
     if (size > 0) ghost.style.width = `${size}px`;
+    // Am Finger liegt der Kreis nicht unter der Kuppe, sondern darüber: die
+    // Hand verdeckt sonst genau das, was sie zieht. Die Maus braucht das
+    // nicht, der Pfeil deckt nichts zu.
+    if (drag.touch) {
+      ghost.classList.add('is-touch');
+      ghost.style.setProperty('--ghost-lift', `${Math.round(size * 0.5 + 16)}px`);
+    }
     this.layer.appendChild(ghost);
     drag.ghost = ghost;
     this.markTargets(drag);
@@ -1092,6 +1116,34 @@ export class LineupPage {
 
 function dedupe(ids: readonly PlayerId[]): PlayerId[] {
   return [...new Set(ids)];
+}
+
+/**
+ * Wo lag der Kreis, als er aufgenommen wurde?
+ *
+ * Der Ghost übernimmt diese Lage zum Zeiger und behält sie. Ohne sie sässe er
+ * beim Ausbrechen plötzlich mittig unter dem Finger, obwohl der die Karte
+ * vielleicht am unteren Rand gefasst hat. Der Versatz bleibt innerhalb einer
+ * halben Kreisbreite: sonst zöge man an einem Kreis, der weit neben der Hand
+ * liegt.
+ */
+function grabOffset(
+  source: HTMLElement | null,
+  startX: number,
+  startY: number,
+  size: number,
+): { x: number; y: number } {
+  const rect = source?.querySelector('.tok-img, .card-img')?.getBoundingClientRect();
+  if (!rect || rect.width === 0 || size === 0) return { x: 0, y: 0 };
+  const limit = size / 2;
+  return {
+    x: clamp(rect.left + rect.width / 2 - startX, -limit, limit),
+    y: clamp(rect.top + rect.height / 2 - startY, -limit, limit),
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
 /**
