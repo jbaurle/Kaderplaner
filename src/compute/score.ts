@@ -187,6 +187,41 @@ export interface ScoreResult {
    * der Wert sagt nur, was der Zugang wert wäre.
    */
   marketByPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
+  /**
+   * Die nächsten drei Ansetzungen je Verein, für den Spielerdialog. Die
+   * Gegner-Spalte der Tabelle bleibt davon unberührt und zeigt weiter nur die
+   * kommende, siehe `opponents.columns`.
+   */
+  fixturesAhead: Record<string, Fixture[]>;
+  /**
+   * Zutaten für einen zweiten Optimizer-Lauf im Speicher, etwa "beste Elf ohne
+   * diesen Spieler". Steht nur im Arbeitsspeicher, nichts davon wird
+   * gespeichert.
+   */
+  lineupInput: LineupInput;
+}
+
+/** Was ein Optimizer-Lauf braucht, ohne dass dafür etwas geholt werden muss. */
+export interface LineupInput {
+  players: OptimizerPlayer[];
+  table: CompetitionTable;
+  budget: number;
+}
+
+/**
+ * Die beste Elf noch einmal rechnen, diesmal ohne einen bestimmten Spieler.
+ * Läuft rein lokal auf den Zutaten des letzten Laufs, ohne eine einzige
+ * Abfrage. Sein Erlös liegt dabei auf dem Konto, sonst wäre die Rechnung für
+ * den Kontostand danach falsch.
+ */
+export function bestElevenWithout(
+  input: LineupInput,
+  excludedId: PlayerId,
+  saleValue = 0,
+): OptimizerResult | null {
+  const players = input.players.filter((p) => p.playerId !== excludedId);
+  if (players.length === 0) return null;
+  return new LineupOptimizer(players, input.table, input.budget + saleValue).optimize();
 }
 
 export interface ComputeScoresInput {
@@ -279,6 +314,14 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
   const result = optimizer.optimize();
   const takenAt = Date.now();
   const opponents = buildOpponents(schedule, tableResult, 1);
+  // Zweite, längere Liste nur für den Spielerdialog. Nicht über `max` der
+  // Gegner-Spalte lösen: die würde damit auf drei Wappen wachsen.
+  const fixturesAhead = buildFixtures(schedule, MAX_FIXTURES);
+  const lineupInput: LineupInput = {
+    players: optimizerPlayers,
+    table: tableResult,
+    budget,
+  };
   const marketByPlayer = await scoreMarketPlayers(
     optimizer,
     client,
@@ -299,6 +342,8 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       budgetPlusOk: result.budgetPlusOk,
       opponents,
       marketByPlayer,
+      fixturesAhead,
+      lineupInput,
     };
   } else {
     // Fallback: optimize() returned null — score every player individually,
@@ -318,6 +363,8 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       budgetPlusOk: true,
       opponents,
       marketByPlayer,
+      fixturesAhead,
+      lineupInput,
     };
   }
 

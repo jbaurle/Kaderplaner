@@ -37,6 +37,7 @@ import {
 } from '../state/planning.js';
 import { loadLineup, saveLineup } from '../state/lineup.js';
 import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
+import { loadOptimizerCache } from '../state/optimizer.js';
 import { buildLabel } from './build-info.js';
 import { escapeHtml } from './format.js';
 import { LineupPage, type LineupPlayer } from './lineup-page.js';
@@ -52,6 +53,8 @@ import {
   type HelpModal,
 } from './help.js';
 import { renderOffersBody } from './offers-dialog.js';
+import { computePlayerInsight } from '../compute/player-insight.js';
+import { renderPlayerDialog } from './player-dialog.js';
 import {
   planningDesktopMarkup,
   updatePlanningScenarios,
@@ -79,7 +82,11 @@ export interface PlanningPageProps {
  * Offene Overlays: die Hilfetexte, die Ligaauswahl und die Gebote auf einen
  * Spieler. Nur letztere hängen an einer Id.
  */
-type ModalKind = HelpModal | 'league' | { kind: 'offers'; playerId: PlayerId };
+type ModalKind =
+  | HelpModal
+  | 'league'
+  | { kind: 'offers'; playerId: PlayerId }
+  | { kind: 'player'; playerId: PlayerId };
 
 interface PageState {
   isLoading: boolean;
@@ -532,6 +539,7 @@ export class PlanningPage {
       onCopyFromS4,
       onSelectSlot,
       onShowOffers: (playerId) => this.openModal({ kind: 'offers', playerId }),
+      onShowPlayer: (playerId) => this.openModal({ kind: 'player', playerId }),
       onClearTransferSlot: (slot) => this.handleClearTransferSlot(slot),
       onSelectAllTransfers: (slot) => this.handleSelectAllTransfers(slot),
     });
@@ -639,6 +647,9 @@ export class PlanningPage {
     if (modal !== null && typeof modal === 'object' && modal.kind === 'offers') {
       return this.renderOffersModal(modal.playerId, view);
     }
+    if (modal !== null && typeof modal === 'object' && modal.kind === 'player') {
+      return this.renderPlayerModal(modal.playerId, view);
+    }
     return '';
   }
 
@@ -662,6 +673,58 @@ export class PlanningPage {
     });
     const count = offers.length === 1 ? '1 Gebot' : `${offers.length} Gebote`;
     return renderHelpModal(`Gebote für ${row.name}`, body, count);
+  }
+
+  /**
+   * Der Spielerdialog. Alles darin steht schon im Speicher: die Zeile aus der
+   * Planungsansicht, der Score aus dem letzten Lauf und die Spieltage aus dem
+   * Optimizer-Cache. Der zweite Optimizer-Lauf für "beste Elf ohne ihn" läuft
+   * lokal auf denselben Zutaten, es geht keine einzige Abfrage raus.
+   */
+  private renderPlayerModal(playerId: PlayerId, view: PlanningView): string {
+    const row = view.rows.find((r) => r.id === playerId);
+    if (!row) return '';
+
+    const scores = this.state.scores;
+    const cache = loadOptimizerCache(this.props.leagueId);
+    const weekly = cache?.weeklyDetails[playerId];
+
+    const insight = computePlayerInsight({
+      row,
+      squad: view.rows,
+      budget: view.budget,
+      score: scores?.byPlayer[playerId] ?? null,
+      scoreByPlayer: scores?.byPlayer ?? {},
+      top11Ids: scores?.top11Ids ?? [],
+      lineupInput: scores?.lineupInput ?? null,
+      fixtures: scores?.fixturesAhead[row.teamId] ?? [],
+      teams: scores?.opponents.teams ?? {},
+      teamCount: scores?.opponents.teamCount ?? 0,
+      weekly: weekly
+        ? {
+            mc: weekly.mc,
+            lastMatchdayPoints: weekly.lastMatchdayPoints,
+            hasPlayedFlags: weekly.hasPlayedFlags,
+            matchSummary: weekly.matchSummary,
+          }
+        : null,
+    });
+
+    return renderPlayerDialog({
+      playerId: row.id,
+      name: row.name,
+      positionLabel: row.positionLabel,
+      position: row.position,
+      teamId: row.teamId,
+      teamName: scores?.opponents.teams[row.teamId]?.name ?? '',
+      imagePath: row.imagePath,
+      status: row.status,
+      marketValue: row.marketValue,
+      saleValue: row.saleValue,
+      mvgl: row.mvgl,
+      score: scores?.byPlayer[playerId] ?? null,
+      insight,
+    });
   }
 
   private wireModal(): void {

@@ -120,6 +120,8 @@ export interface PlanningDesktopCallbacks {
   onToggle: (playerId: PlayerId, slot: ScenarioSlot) => void;
   /** Klick auf einen Erlös, hinter dem ein fremdes Gebot steht. */
   onShowOffers: (playerId: PlayerId) => void;
+  /** Klick auf den Namen eines Kaderspielers. */
+  onShowPlayer: (playerId: PlayerId) => void;
   onClearSlot: (slot: ScenarioSlot) => void;
   onCopyFromS4: (slot: ScenarioSlot) => void;
   /** Umschalter unter 820 px: welche Szenariospalte gezeigt wird. */
@@ -334,6 +336,13 @@ export function updatePlanningScenarios(
 export function wirePlanningDesktop(host: HTMLElement, callbacks: PlanningDesktopCallbacks): void {
   host.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
+
+    const nameBtn = target.closest<HTMLElement>('[data-player]');
+    if (nameBtn) {
+      const playerId = nameBtn.dataset['player'];
+      if (playerId) callbacks.onShowPlayer(playerId);
+      return;
+    }
 
     const offersBtn = target.closest<HTMLElement>('[data-offers]');
     if (offersBtn) {
@@ -627,7 +636,7 @@ function renderPlayerRow(
 
   return `
     <tr>
-      <td class="${nameCls}"><span class="name-text">${escapeHtml(row.name)}</span>${renderTeamLogo(row.teamId, opponents.teams)}</td>
+      <td class="${nameCls}"><button type="button" class="name-text name-btn" data-player="${escapeHtml(row.id)}">${escapeHtml(row.name)}</button>${renderTeamLogo(row.teamId, opponents.teams)}</td>
       <td class="col-pos"><span class="chip chip--pos${row.position}">${escapeHtml(row.positionLabel)}</span></td>
       <td class="num col-mv">${renderSaleValue(row)}${mvglLine(row.gainLoss)}</td>
       ${scenCells}

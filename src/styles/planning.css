@@ -365,6 +365,44 @@
 }
 
 /*
+ * Der Name öffnet den Spielerdialog. Er soll aber wie Text aussehen, nicht
+ * wie ein Knopf: nur der gepunktete Unterstrich verrät, dass er etwas
+ * aufmacht. Das Trefferfeld wächst über ein Pseudoelement auf Fingergröße,
+ * ohne die Zeilenhöhe zu ändern, genau wie bei `.amount-offer`.
+ */
+.planning-shell .name-btn {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--border-strong);
+  cursor: pointer;
+}
+
+.planning-shell .name-btn::after {
+  content: '';
+  position: absolute;
+  inset: -9px -6px;
+}
+
+@media (hover: hover) {
+  .planning-shell .name-btn:hover {
+    text-decoration-color: var(--text-muted);
+  }
+}
+
+.planning-shell .name-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/*
  * Untergrenze der Namensspalte: acht Zeichen plus die Breite des Wappens.
  * Ohne sie schrumpft der Name so weit, dass die vollen Beträge auch dann noch
  * "passen", wenn vom Namen drei Buchstaben und Auslassungspunkte übrig sind.
@@ -1819,3 +1857,522 @@
   color: var(--error);
 }
 
+
+/* ---------- Spielerdialog ----------
+ *
+ * Aufbau von oben nach unten: grauer Kopf mit Bild, Wappen und den drei
+ * Beträgen, danach auf Weiss Score, Spieltage, Verkaufsfolgen, Einschätzung.
+ * Der Kopf trägt den Schliessen-Knopf selbst, deshalb kommt der Dialog ohne
+ * `.dialog-head` aus.
+ */
+
+/* Ampel der Teilwerte. Farbe trägt hier Bedeutung, nicht Schmuck. */
+.pd-box {
+  --grade-good: #6ba368;
+  --grade-mid: #d2a04c;
+  --grade-weak: #c07373;
+}
+
+.pd-head {
+  flex: none;
+  position: relative;
+  padding: 14px 14px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.pd-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 34px;
+}
+
+.pd-portrait {
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+
+/*
+ * Eigene Klasse statt `.pd-portrait img`: das Wappen liegt im selben Element
+ * und hätte sonst die Bildgrösse geerbt.
+ */
+.pd-photo {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  /* Die Freisteller zeigen den Spieler halbhoch, der Kopf sitzt oben. */
+  object-position: 50% 8%;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+/* Wappen unten links halb über dem Bild: gross genug, um den Verein sofort zu
+   erkennen, ohne dass der Kopf zur Bildergalerie wird. */
+.pd-crest {
+  position: absolute;
+  left: -6px;
+  bottom: -4px;
+  width: 30px;
+  height: 30px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+  object-fit: contain;
+}
+
+.pd-ident-text {
+  min-width: 0;
+}
+
+.pd-name {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+
+.pd-tags {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+}
+
+.pd-club {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/*
+ * Status als reiner Punkt: grün heisst einsatzbereit, orange heisst Ausfall.
+ * Der Klartext steht im Tooltip, denn ein Wort daneben verdrängt bei langen
+ * Namen den Vereinsnamen aus der Zeile.
+ */
+.pd-status {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--grade-good);
+  box-shadow: 0 0 0 2px rgb(107 163 104 / 0.22);
+  cursor: help;
+}
+
+.pd-status--out {
+  background: #d98324;
+  box-shadow: 0 0 0 2px rgb(217 131 36 / 0.22);
+}
+
+/* Der Knopf sitzt im Kopf, nicht in einer eigenen Kopfzeile. */
+.pd-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.pd-values {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.pd-value {
+  flex: 1;
+  text-align: center;
+}
+
+.pd-value > span {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.pd-value b {
+  display: block;
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-pos { color: var(--success); }
+.pd-neg { color: var(--error); }
+
+.pd-unit {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.pd-body {
+  padding: 14px;
+}
+
+.pd-section + .pd-section {
+  margin-top: 18px;
+}
+
+.pd-section-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ---------- Score ---------- */
+
+.pd-score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pd-score-main {
+  flex: none;
+  text-align: center;
+}
+
+.pd-score-value {
+  display: block;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-score-value i {
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pd-score-label {
+  display: block;
+  margin-top: 5px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-score-bars {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pd-bar {
+  display: grid;
+  grid-template-columns: 84px 1fr 38px;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pd-bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.pd-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.pd-bar-value {
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-grade--good { background: var(--grade-good); }
+.pd-grade--mid { background: var(--grade-mid); }
+.pd-grade--weak { background: var(--grade-weak); }
+
+/* ---------- Spieltage ---------- */
+
+.pd-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+/*
+ * Eine Achse, zwei Hälften. Die Felder teilen sich den Platz gleichmässig,
+ * damit gespielte und kommende Spieltage dasselbe Raster haben.
+ */
+.pd-axis {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pd-half {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pd-split {
+  flex: none;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.pd-split--quiet {
+  background: var(--border);
+}
+
+.pd-day {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 0 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* Kein Einsatz: gedämpfter Grund, gleiche Bauform. */
+.pd-day--out {
+  background: var(--bg);
+}
+
+.pd-day-num {
+  font-size: 9.5px;
+  line-height: 1;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-day-crest {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Kein Wappen bekannt: der Platz bleibt frei, damit das Raster steht.
+   Ein grauer Kreis läse sich wie ein Verein, den es nicht gibt. */
+.pd-day-crest--none {
+  background: none;
+}
+
+/* Heim gefüllt, auswärts offen. Neutral, keine Wertung. */
+.pd-venue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--border);
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.pd-venue--none {
+  box-shadow: none;
+  background: transparent;
+}
+
+.pd-day-main {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-day--out .pd-day-main {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.pd-day-note {
+  font-size: 9.5px;
+  line-height: 1;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-trend--easy { color: var(--success); }
+.pd-trend--hard { color: var(--error); }
+.pd-trend--mid { color: var(--text-muted); }
+
+/*
+ * Der Punkteverlauf als flache Balken: die Form auf einen Blick, ohne fünf
+ * Zahlen zu vergleichen. Die kommenden Felder bleiben leer, halten aber das
+ * Raster, damit jeder Balken unter seinem Spieltag steht.
+ */
+.pd-axis--spark {
+  align-items: flex-end;
+  height: 28px;
+  margin-top: 4px;
+}
+
+.pd-spark {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pd-spark-fill {
+  display: block;
+  width: 70%;
+  border-radius: 2px 2px 0 0;
+  background: var(--border-strong);
+}
+
+.pd-legend {
+  margin: 8px 0 0;
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* ---------- Verkaufsfolgen ---------- */
+
+.pd-sell {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pd-cell {
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.pd-cell-label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.pd-cell-value {
+  display: block;
+  margin-top: 1px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-cell-note {
+  display: block;
+  margin-top: 1px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.pd-sale-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ---------- Einschätzung ---------- */
+
+.pd-verdict {
+  display: flex;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.pd-verdict--warn {
+  background: var(--warning-bg);
+  box-shadow: inset 0 0 0 1px #e0c583;
+  color: var(--warning-text);
+}
+
+.pd-verdict-mark {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--warning-text);
+  color: var(--warning-bg);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pd-verdict-mark--calm {
+  background: var(--border-strong);
+  color: var(--card);
+}
+
+.pd-verdict-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pd-verdict-text {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+/* Ab Tablet hat der Dialog mehr Breite, dann darf der Kopf atmen. */
+@media (min-width: 620px) {
+  .pd-head { padding: 18px 18px 14px; }
+  .pd-body { padding: 18px; }
+  .pd-portrait, .pd-photo { width: 64px; height: 64px; }
+  .pd-name { font-size: 19px; }
+}
