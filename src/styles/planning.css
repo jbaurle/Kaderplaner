@@ -1227,7 +1227,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(12px, 6vh, 56px) clamp(8px, 3vw, 16px) clamp(12px, 4vh, 32px);
+  /* Oben derselbe Wert wie in `.lineup-layer`, damit jedes Overlay an
+     derselben Stelle beginnt und nicht je nach Art tiefer ansetzt. */
+  padding: 10px clamp(8px, 3vw, 16px) clamp(12px, 4vh, 32px);
   background: rgba(17, 24, 39, 0.45);
   /*
    * Der Zeiger ist hier nicht nur Kosmetik: Safari auf dem iPhone liefert
