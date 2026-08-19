@@ -25,7 +25,12 @@ import {
 
 export interface PlayerDialogInput {
   playerId: PlayerId;
+  /** Nachname, wie in der Tabelle. */
   name: string;
+  /** Vorname aus dem Spielerdetail. Leer, wenn keiner bekannt ist. */
+  firstName: string;
+  /** Klartext zum Ausfall aus `stxt`. Leer, wenn fit oder unbekannt. */
+  statusText: string;
   positionLabel: PositionLabel;
   /** Zahlencode 1 bis 4, für die Farbe der Positionsmarke. */
   position: PositionCode;
@@ -45,6 +50,50 @@ export interface PlayerDialogInput {
   insight: PlayerInsight;
 }
 
+/*
+ * Feste Zahl der Felder je Hälfte. Die Achse behält damit ihr Raster, auch
+ * wenn eine Seite leer ist: sonst zieht die belegte Seite die Felder breit,
+ * und die Spieltage wandern beim nächsten Öffnen an eine andere Stelle.
+ */
+/*
+ * Feste Liste statt `Intl`: Chrome liefert für de-DE "Sep" und "Mär", also
+ * ohne Punkt und mit einer Abkürzung, die es im Deutschen nicht gibt.
+ * Abgekürzt wird mit Punkt, die kurzen Monatsnamen stehen ganz da.
+ */
+const MONTHS = [
+  'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
+  'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.',
+] as const;
+
+const PAST_SLOTS = 5;
+const AHEAD_SLOTS = 3;
+
+/**
+ * Kurzer Monat zum Anstoss, etwa "Aug". Leer, wenn kein Zeitstempel vorliegt:
+ * gespielte Spieltage führen keinen, `matchSummary` kennt nur Tore.
+ */
+function monthShort(kickoff: string): string {
+  if (!kickoff) return '';
+  const date = new Date(kickoff);
+  if (Number.isNaN(date.getTime())) return '';
+  return MONTHS[date.getMonth()] ?? '';
+}
+
+/** Sieg grün, Niederlage rot, Unentschieden grau. */
+function resultClass(day: MatchdayEntry): string {
+  if (day.goalsFor === null || day.goalsAgainst === null) return '';
+  if (day.goalsFor > day.goalsAgainst) return 'pd-trend--easy';
+  if (day.goalsFor < day.goalsAgainst) return 'pd-trend--hard';
+  return 'pd-trend--mid';
+}
+
+/** Grün über null, rot darunter. Null bleibt neutral. */
+function signClass(value: number): string {
+  if (value > 0) return ' pd-pos';
+  if (value < 0) return ' pd-neg';
+  return '';
+}
+
 const PERCENT = (value: number): string => `${Math.round(value * 100)} %`;
 
 /** Dieselbe Ampel als Schriftfarbe, für die grosse Zahl. */
@@ -61,11 +110,22 @@ function gradeClass(value: number): string {
   return 'pd-grade--weak';
 }
 
-/** Dieselben Wortlaute wie in der Gegner-Spalte der Tabelle. */
+/**
+ * Dasselbe Zeichen wie in der Gegner-Spalte der Tabelle: hoch heisst
+ * schwacher Gegner, runter heisst starker. Das Mittelfeld bekommt nichts:
+ * ein Zeichen für "unentschieden zu bewerten" wäre nur ein Fleck am Wappen.
+ */
+function trendGlyph(entry: MatchdayEntry): string {
+  if (entry.trend === 'up') return '&uarr;';
+  if (entry.trend === 'down') return '&darr;';
+  return '';
+}
+
+/** Für den Tooltip, dort steht der Klartext. */
 function trendLabel(entry: MatchdayEntry): string {
-  if (entry.trend === 'up') return 'leicht';
-  if (entry.trend === 'down') return 'schwer';
-  return 'mittel';
+  if (entry.trend === 'up') return 'schwacher Gegner';
+  if (entry.trend === 'down') return 'starker Gegner';
+  return 'Gegner im Mittelfeld';
 }
 
 function trendClass(entry: MatchdayEntry): string {
@@ -79,8 +139,12 @@ function trendClass(entry: MatchdayEntry): string {
 function renderHead(input: PlayerDialogInput): string {
   const photo = input.imagePath ? playerImageUrl(input.imagePath) : playerPhotoUrl(input.playerId);
   const fit = input.status === 0;
-  const statusTitle = fit ? 'Einsatzbereit' : 'Ausfall laut Kickbase';
+  const statusTitle = fit
+    ? 'Einsatzbereit'
+    : input.statusText || 'Ausfall laut Kickbase';
   const club = input.teamName || 'Verein unbekannt';
+  // Der Vorname steht nur im Spielerdetail, der Kader kennt ihn nicht.
+  const fullName = input.firstName ? `${input.firstName} ${input.name}` : input.name;
 
   return `
     <header class="pd-head">
@@ -90,7 +154,7 @@ function renderHead(input: PlayerDialogInput): string {
           <img class="pd-crest" src="${teamLogoUrl(input.teamId)}" alt="" width="30" height="30">
         </span>
         <span class="pd-ident-text">
-          <span class="pd-name">${escapeHtml(input.name)}</span>
+          <span class="pd-name">${escapeHtml(fullName)}</span>
           <span class="pd-tags">
             <span class="chip chip--pos${input.position}">${input.positionLabel}</span>
             <span class="pd-club">${escapeHtml(club)}</span>
@@ -176,27 +240,41 @@ function renderMatchdays(insight: PlayerInsight): string {
 
   const past = days.filter((day) => !day.ahead);
   const ahead = days.filter((day) => day.ahead);
-  const best = Math.max(1, ...past.map((day) => day.points ?? 0));
 
+  /*
+   * Eine Kachel je Spieltag, gespielt und geplant gleich gebaut: Nummer oben,
+   * darunter das Wappen mit dem Ort rechts und der Einschätzung links, dann
+   * das Ergebnis, unten die Hauptzahl mit ihrer Einheit.
+   */
   const cell = (day: MatchdayEntry): string => {
-    // Geschütztes Leerzeichen statt eines Zeichens für "unbekannt": die Zeile
-    // hält ihre Höhe, ohne etwas zu behaupten.
-    const label = day.day > 0 ? String(day.day) : '&nbsp;';
+    const number = day.day > 0 ? String(day.day) : '&nbsp;';
+    const month = monthShort(day.kickoff);
+    const label = month ? `${number}<i>${month}</i>` : number;
+
     const crest = day.opponentId
-      ? `<img class="pd-day-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="20" height="20">`
+      ? `<img class="pd-day-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="22" height="22">`
       : '<span class="pd-day-crest pd-day-crest--none" aria-hidden="true"></span>';
     const venue = day.home === null
-      ? '<span class="pd-venue pd-venue--none">&nbsp;</span>'
-      : `<span class="pd-venue">${day.home ? 'H' : 'A'}</span>`;
+      ? ''
+      : `<span class="pd-venue${day.home ? '' : ' pd-venue--away'}">${day.home ? 'H' : 'A'}</span>`;
+    // Die Einschätzung sitzt links am Wappen, spiegelbildlich zum Ort. Beides
+    // gehört zum Gegner, deshalb hängt beides an seinem Wappen.
+    const glyph = day.ahead ? trendGlyph(day) : '';
+    const trend = glyph
+      ? `<span class="pd-trend ${trendClass(day)}" aria-label="${trendLabel(day)}">${glyph}</span>`
+      : '';
+    const badge = `<span class="pd-day-badge">${crest}${trend}${venue}</span>`;
 
     if (day.ahead) {
+      const title = `${escapeHtml(day.opponentName ?? 'Gegner unbekannt')}, `
+        + `${day.home ? 'zu Hause' : 'auswärts'}, Spieltag ${day.day}, ${trendLabel(day)}`;
       return `
-        <span class="pd-day pd-day--ahead" title="${escapeHtml(day.opponentName ?? 'Gegner unbekannt')}, ${day.home ? 'zu Hause' : 'auswärts'}, Spieltag ${day.day}">
+        <span class="pd-day pd-day--ahead" title="${title}">
           <span class="pd-day-num">${label}</span>
-          ${crest}
-          ${venue}
-          <span class="pd-day-main">${day.opponentPosition > 0 ? `${day.opponentPosition}.` : '&nbsp;'}</span>
-          <span class="pd-day-note ${trendClass(day)}">${trendLabel(day)}</span>
+          ${badge}
+          <span class="pd-day-note">&nbsp;</span>
+          <span class="pd-day-main">${day.opponentPosition > 0 ? String(day.opponentPosition) : '&nbsp;'}</span>
+          <span class="pd-day-unit">Platz</span>
         </span>
       `;
     }
@@ -204,46 +282,37 @@ function renderMatchdays(insight: PlayerInsight): string {
     const scoreline = day.goalsFor === null
       ? '&nbsp;'
       : `${day.goalsFor}:${day.goalsAgainst}`;
+    const title = `Spieltag ${number}`
+      + (day.opponentName ? `, gegen ${escapeHtml(day.opponentName)}` : '')
+      + (day.played ? `, ${day.points} Punkte` : ', nicht gespielt');
     return `
-      <span class="pd-day${day.played ? '' : ' pd-day--out'}" title="Spieltag ${label}${day.opponentName ? `, gegen ${escapeHtml(day.opponentName)}` : ''}${day.played ? `, ${day.points} Punkte` : ', nicht gespielt'}">
+      <span class="pd-day${day.played ? '' : ' pd-day--out'}" title="${title}">
         <span class="pd-day-num">${label}</span>
-        ${crest}
-        ${venue}
-        <span class="pd-day-main">${day.played ? day.points : '&ndash;'}</span>
-        <span class="pd-day-note">${scoreline}</span>
+        ${badge}
+        <span class="pd-day-note ${resultClass(day)}">${scoreline}</span>
+        <span class="pd-day-main">${day.played ? day.points : '&middot;'}</span>
+        <span class="pd-day-unit">${day.played ? 'Punkte' : '&nbsp;'}</span>
       </span>
     `;
   };
 
-  // Der Verlauf als flache Balken: die Form der letzten Spiele auf einen
-  // Blick, ohne fünf Zahlen zu vergleichen.
-  const bar = (day: MatchdayEntry): string => {
-    const height = day.played && day.points ? Math.max(6, Math.round((day.points / best) * 26)) : 3;
-    return `<span class="pd-spark"><span class="pd-spark-fill" style="height:${height}px"></span></span>`;
-  };
+  const pastCells = past.length > 0
+    ? past.slice(-PAST_SLOTS).map(cell).join('')
+    : '<span class="pd-note">Noch keine Spieltage</span>';
+  const aheadCells = ahead.length > 0
+    ? ahead.slice(0, AHEAD_SLOTS).map(cell).join('')
+    : '<span class="pd-note">Saison ist durch</span>';
 
   return `
     <section class="pd-section">
       <h3 class="pd-section-title">Spieltage</h3>
-      <div class="pd-scale">
-        <span>Gespielt</span>
-        <span>Geplant</span>
-      </div>
       <div class="pd-axis">
-        <span class="pd-half" style="flex:${Math.max(1, past.length)}">${past.map(cell).join('')}</span>
-        <span class="pd-split" aria-hidden="true"></span>
-        <span class="pd-half" style="flex:${Math.max(1, ahead.length)}">${ahead.map(cell).join('')}</span>
+        <span class="pd-half pd-half--past">${pastCells}</span>
+        <span class="pd-split"><span class="pd-now">jetzt</span></span>
+        <span class="pd-half pd-half--ahead">${aheadCells}</span>
       </div>
-      ${past.length > 0
-        ? `<div class="pd-axis pd-axis--spark">
-             <span class="pd-half" style="flex:${Math.max(1, past.length)}">${past.map(bar).join('')}</span>
-             <span class="pd-split pd-split--quiet" aria-hidden="true"></span>
-             <span class="pd-half" style="flex:${Math.max(1, ahead.length)}">${ahead.map(() => '<span class="pd-spark"></span>').join('')}</span>
-           </div>`
-        : ''}
       <p class="pd-legend">
-        H Heim, A auswärts. Ergebnis aus Sicht seines Vereins.
-        Links die Punkte je Spieltag, rechts der Tabellenplatz des Gegners.
+        H Heim, A auswärts. Pfeil hoch heisst schwacher Gegner, runter starker.
       </p>
     </section>
   `;
@@ -259,7 +328,7 @@ function renderSale(insight: PlayerInsight): string {
 
   return `
     <section class="pd-section">
-      <h3 class="pd-section-title">Wenn du ihn verkaufst</h3>
+      <h3 class="pd-section-title">Wenn du verkaufst</h3>
       <div class="pd-sell">
         <span class="pd-cell">
           <span class="pd-cell-label">Aufs Konto</span>
@@ -273,41 +342,17 @@ function renderSale(insight: PlayerInsight): string {
         </span>
         <span class="pd-cell">
           <span class="pd-cell-label">Netto Spielraum</span>
-          <span class="pd-cell-value">${formatSignedMio(sale.net)}</span>
+          <span class="pd-cell-value${signClass(sale.net)}">${formatSignedMio(sale.net)}</span>
           <span class="pd-cell-note">Erlös minus Kreditlinie</span>
         </span>
         <span class="pd-cell">
           <span class="pd-cell-label">Rahmen danach</span>
-          <span class="pd-cell-value">${formatMio(sale.headroomAfter)}</span>
+          <span class="pd-cell-value${signClass(sale.headroomAfter)}">${formatMio(sale.headroomAfter)}</span>
           <span class="pd-cell-note">jetzt ${formatMio(sale.headroomNow)}</span>
         </span>
       </div>
       ${eleven}
     </section>
-  `;
-}
-
-// ---------- Einschätzung ----------
-
-function renderVerdict(insight: PlayerInsight): string {
-  const { lineup } = insight;
-  const successor = lineup.successor
-    ? ` ${escapeHtml(lineup.successor.name)} rückt nach, Score ${PERCENT(lineup.successor.score)}.`
-    : '';
-
-  const title = lineup.inBestEleven ? 'Er steht in der besten Elf' : 'Er steht nicht in der besten Elf';
-  const text = lineup.inBestEleven
-    ? `Ein Verkauf kostet dich einen Stammplatzspieler.${successor}`
-    : 'Ein Verkauf ändert an der besten Elf nichts.';
-
-  return `
-    <div class="pd-verdict">
-      <span class="pd-verdict-mark">i</span>
-      <span>
-        <span class="pd-verdict-title">${title}</span>
-        <span class="pd-verdict-text">${text}</span>
-      </span>
-    </div>
   `;
 }
 
@@ -324,7 +369,6 @@ export function renderPlayerDialog(input: PlayerDialogInput): string {
           ${renderScore(input)}
           ${renderMatchdays(input.insight)}
           ${renderSale(input.insight)}
-          ${renderVerdict(input.insight)}
         </div>
       </section>
     </div>

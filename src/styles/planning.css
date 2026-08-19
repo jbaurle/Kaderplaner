@@ -2015,8 +2015,10 @@
 }
 
 /* Mit dem b davor, sonst schlägt `.pd-value b` die Farbe wieder tot. */
-.pd-value b.pd-pos, .pd-pos { color: var(--success); }
-.pd-value b.pd-neg, .pd-neg { color: var(--error); }
+/* Mit dem Element bzw. der zweiten Klasse davor, sonst schlagen
+   `.pd-value b` und `.pd-cell-value` die Farbe wieder tot. */
+.pd-value b.pd-pos, .pd-cell-value.pd-pos, .pd-pos { color: var(--success); }
+.pd-value b.pd-neg, .pd-cell-value.pd-neg, .pd-neg { color: var(--error); }
 
 .pd-unit {
   margin: 8px 0 0;
@@ -2046,7 +2048,7 @@
   color: var(--text-muted);
 }
 
-.pd-empty {
+.pd-body .pd-empty {
   margin: 0;
   font-size: 12px;
   color: var(--text-muted);
@@ -2141,35 +2143,73 @@
 
 /* ---------- Spieltage ---------- */
 
-.pd-scale {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10.5px;
-  color: var(--text-muted);
-}
-
 /*
  * Eine Achse, zwei Hälften. Die Felder teilen sich den Platz gleichmässig,
  * damit gespielte und kommende Spieltage dasselbe Raster haben.
  */
+/* Der Abstand nach oben ist der Platz für die Marke am Trennstrich. */
 .pd-axis {
   display: flex;
   align-items: stretch;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 18px;
 }
 
+/*
+ * Fünf feste Spalten links, drei rechts. Das Verhältnis 5 zu 3 macht alle acht
+ * Felder gleich breit, und eine leere Hälfte behält ihren Platz, statt die
+ * andere breitzuziehen.
+ */
 .pd-half {
-  display: flex;
-  flex: 1;
+  display: grid;
   gap: 2px;
   min-width: 0;
+  align-items: stretch;
 }
 
+.pd-half--past {
+  flex: 5;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.pd-half--ahead {
+  flex: 3;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Die Meldung, wenn eine Hälfte nichts zu zeigen hat. Sie steht über alle
+   Spalten, damit der reservierte Platz nicht leer wirkt. */
+.pd-note {
+  grid-column: 1 / -1;
+  align-self: center;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/*
+ * Die Naht zwischen gespielt und geplant. Sie trägt die einzige
+ * Beschriftung der Achse: was links steht, ist vorbei, was rechts steht,
+ * kommt noch. Zwei Wörter über den Hälften sagten dasselbe und standen
+ * dabei an den äusseren Kanten, weit weg von ihrer Gruppe.
+ */
 .pd-split {
+  position: relative;
   flex: none;
   width: 1px;
   background: var(--border-strong);
+}
+
+.pd-now {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-muted);
 }
 
 .pd-split--quiet {
@@ -2182,9 +2222,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 5px 0 4px;
+  gap: 4px;
+  padding: 6px 2px 7px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+/* Was noch kommt, ist noch nicht passiert: gestrichelt statt durchgezogen. */
+.pd-day--ahead {
+  border-style: dashed;
+  border-color: var(--border-strong);
 }
 
 /* Kein Einsatz: gedämpfter Grund, gleiche Bauform. */
@@ -2193,48 +2241,131 @@
 }
 
 .pd-day-num {
-  font-size: 9.5px;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 10px;
   line-height: 1;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
+/* Der Monat steht kleiner daneben, er ordnet nur ein. */
+.pd-day-num i {
+  font-style: normal;
+  font-size: 8.5px;
+  opacity: 0.8;
+}
+
+/*
+ * Anker für Ort und Einschätzung: beide gehören zum Gegner und hängen deshalb
+ * an seinem Wappen, rechts der Ort, links die Einschätzung.
+ */
+.pd-day-badge {
+  position: relative;
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+
+/* Das Wappen ist das Erkennungszeichen der Kachel und darf deshalb der
+   grösste Teil davon sein. Ort und Einschätzung hängen aussen daran. */
 .pd-day-crest {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
-/* Kein Wappen bekannt: der Platz bleibt frei, damit das Raster steht.
-   Ein grauer Kreis läse sich wie ein Verein, den es nicht gibt. */
 .pd-day-crest--none {
   background: none;
 }
 
-/* Heim gefüllt, auswärts offen. Neutral, keine Wertung. */
+/* Ort: dunkler Kreis unten rechts am Wappen, wie in der Kickbase-App. */
+/*
+ * Ort und Einschätzung liegen jetzt auf dem Wappen statt daneben. Damit
+ * bleibt das Wappen die grösste Fläche der Kachel, und die Kachel braucht
+ * seitlich keinen Platz für Anhängsel.
+ */
+/*
+ * Der Ort als eckiger Chip mit abgerundeten Ecken, wie in der Kickbase-App.
+ * Heim ist gefüllt, auswärts nur umrandet: der Unterschied liegt damit in der
+ * Fläche und nicht allein im Buchstaben.
+ */
 .pd-venue {
-  display: inline-flex;
+  position: absolute;
+  /*
+   * Untere rechte Ecke des Wappens, bewusst darüber gezeichnet. Wie viel vom
+   * Wappen verdeckt wird, hängt an seiner Form: manche füllen ihre Box ganz
+   * aus, andere haben unten Luft. Das ist gewollt, die Zeichen gehören zum
+   * Wappen und sollen nicht daneben schweben.
+   */
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Gerade Zahlen bei Höhe und Schrift: bei 100 % landet der Buchstabe sonst
+     auf einer halben Pixelgrenze und sieht daneben aus. */
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: var(--primary);
+  box-shadow: 0 0 0 2px var(--card);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  color: #fff;
+}
+
+.pd-venue--away {
+  background: var(--card);
+  color: var(--text-strong);
+  box-shadow: 0 0 0 2px var(--card), inset 0 0 0 1px var(--border-strong);
+}
+
+.pd-day--out .pd-venue {
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.pd-day--out .pd-venue--away {
+  box-shadow: 0 0 0 2px var(--bg), inset 0 0 0 1px var(--border-strong);
+}
+
+/* Einschätzung spiegelbildlich links, ohne Fläche: der Pfeil trägt die Farbe. */
+.pd-trend {
+  position: absolute;
+  /* Spiegelbildlich zum Ort: untere linke Ecke, ebenfalls über dem Wappen. */
+  left: 0;
+  bottom: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 14px;
   height: 14px;
-  border-radius: 4px;
-  background: var(--bg);
-  box-shadow: inset 0 0 0 1px var(--border);
-  font-size: 8.5px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  color: var(--text-muted);
+  /* Der Strich des Pfeils ist dünn, die Kontur macht ihn kräftig genug, um
+     neben dem gefüllten Chip zu bestehen. */
+  -webkit-text-stroke: 0.6px currentColor;
+  /* Weisser Saum, damit der Pfeil auf jedem Wappen lesbar bleibt. Der Ort
+     nebenan trägt seinen Kontrast in der eigenen Fläche. */
+  text-shadow:
+    0 0 2px var(--card), 0 0 2px var(--card),
+    0 0 3px var(--card), 0 0 3px var(--card);
 }
 
-.pd-venue--none {
-  box-shadow: none;
-  background: transparent;
+.pd-day-note {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .pd-day-main {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.1;
   color: var(--text-strong);
@@ -2246,45 +2377,21 @@
   font-weight: 400;
 }
 
-.pd-day-note {
-  font-size: 9.5px;
+/* Einheit unter der Zahl, damit Punkte und Tabellenplatz nicht zu verwechseln
+   sind. Klein und grau: die Zahl bleibt die Aussage. */
+.pd-day-unit {
+  font-size: 8.5px;
   line-height: 1;
+  letter-spacing: 0.02em;
   color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
 }
 
 .pd-trend--easy { color: var(--success); }
 .pd-trend--hard { color: var(--error); }
 .pd-trend--mid { color: var(--text-muted); }
 
-/*
- * Der Punkteverlauf als flache Balken: die Form auf einen Blick, ohne fünf
- * Zahlen zu vergleichen. Die kommenden Felder bleiben leer, halten aber das
- * Raster, damit jeder Balken unter seinem Spieltag steht.
- */
-.pd-axis--spark {
-  align-items: flex-end;
-  height: 28px;
-  margin-top: 4px;
-}
-
-.pd-spark {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.pd-spark-fill {
-  display: block;
-  width: 70%;
-  border-radius: 2px 2px 0 0;
-  background: var(--border-strong);
-}
-
-.pd-legend {
-  margin: 8px 0 0;
+.pd-body .pd-legend {
+  margin: 10px 0 0;
   font-size: 10px;
   line-height: 1.45;
   color: var(--text-muted);
@@ -2300,6 +2407,7 @@
 
 .pd-cell {
   padding: 8px 10px;
+  text-align: center;
   border-radius: var(--radius);
   background: var(--bg);
 }
@@ -2328,57 +2436,37 @@
   color: var(--text-muted);
 }
 
-.pd-sale-note {
-  margin: 8px 0 0;
+.pd-body .pd-sale-note {
+  margin: 10px 0 0;
   font-size: 11px;
   color: var(--text-muted);
 }
 
-/* ---------- Einschätzung ---------- */
-
-.pd-verdict {
-  display: flex;
-  gap: 9px;
-  margin-top: 16px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--text);
-}
-
-.pd-verdict-mark {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 17px;
-  height: 17px;
-  margin-top: 1px;
-  border-radius: 50%;
-  background: var(--border-strong);
-  color: var(--card);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.pd-verdict-title {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.pd-verdict-text {
-  display: block;
-  margin-top: 2px;
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-
-/* Passen vier Kacheln nebeneinander, stehen sie in einer Zeile. */
+/* Passen vier Kacheln nebeneinander, stehen sie in einer Zeile. Gemessen
+   wird der Dialog selbst, nicht das Fenster: seine Breite entscheidet. */
 @container (min-width: 540px) {
   .pd-sell {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Breite Kacheln tragen ein grösseres Wappen. Auf dem Handy bleibt es bei
+     30 px, sonst stossen Ort und Pfeil über den Rand der Kachel. */
+  .pd-day-badge,
+  .pd-day-crest {
+    width: 54px;
+    height: 54px;
+  }
+
+  /* Breite Kacheln haben Rand, dort dürfen die Zeichen einen Tick über die
+     Wappenkante hinausstehen. Auf dem Handy fehlt der Platz dafür. */
+  .pd-trend {
+    left: -4px;
+    bottom: -2px;
+  }
+
+  .pd-venue {
+    right: -4px;
+    bottom: -2px;
   }
 }
 

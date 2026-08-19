@@ -713,6 +713,8 @@ export class PlanningPage {
     return renderPlayerDialog({
       playerId: row.id,
       name: row.name,
+      firstName: weekly?.firstName ?? '',
+      statusText: weekly?.statusText ?? '',
       positionLabel: row.positionLabel,
       position: row.position,
       teamId: row.teamId,

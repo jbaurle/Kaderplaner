@@ -63,6 +63,11 @@ export interface MatchdayEntry {
   /** Ergebnis aus Sicht des eigenen Vereins, null wenn unbekannt. */
   goalsFor: number | null;
   goalsAgainst: number | null;
+  /**
+   * Anstoss als ISO-Zeitstempel, leer wenn keiner bekannt ist. Gespielte
+   * Spieltage führen keinen: `matchSummary` kennt nur Tore, kein Datum.
+   */
+  kickoff: string;
 }
 
 /** Was ein Verkauf dieses Spielers am Spielraum ändert. */
@@ -164,6 +169,7 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         home,
         goalsFor: match ? (home ? match.team1Goals : match.team2Goals) : null,
         goalsAgainst: match ? (home ? match.team2Goals : match.team1Goals) : null,
+        kickoff: '',
       });
     }
   }
@@ -182,14 +188,15 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
       home: fixture.home,
       goalsFor: null,
       goalsAgainst: null,
+      kickoff: fixture.kickoff,
     };
   });
 
-  // Ein Eintrag ohne Nummer, ohne Punkte und ohne Einsatz sagt nichts. Der
-  // steht am Saisonanfang für jeden Spieler da und macht die Achse zu einer
-  // Reihe aus Punkten.
-  const meaningful = played.filter((day) => day.day > 0 || day.played || (day.points ?? 0) > 0);
-  return [...meaningful, ...ahead];
+  // Nur Spieltage dieser Saison. Ohne Nummer liesse sich der Eintrag nirgends
+  // verorten: zur neuen Saison stehen dort noch die Punkte der alten, und die
+  // gehören nicht in eine Achse, die bei Spieltag 1 anfängt.
+  const inSeason = played.filter((day) => day.day > 0);
+  return [...inSeason, ...ahead];
 }
 
 /** Schnitt der Scores einer Elf, 0..1. Null bei leerer Liste. */

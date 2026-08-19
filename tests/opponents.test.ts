@@ -39,9 +39,10 @@ const table: CompetitionTable = {
 describe('buildFixtures', () => {
   it('traegt jede Begegnung bei beiden Vereinen ein, mit Heimrecht', () => {
     const plan = schedule(24, [match({ day: 24, team1Id: 'A', team2Id: 'B' })]);
+    // Der Anstoss faehrt mit, der Spielerdialog schreibt den Monat daraus.
     expect(buildFixtures(plan)).toEqual({
-      A: [{ opponentId: 'B', home: true, day: 24 }],
-      B: [{ opponentId: 'A', home: false, day: 24 }],
+      A: [{ opponentId: 'B', home: true, day: 24, kickoff: '2026-08-34T13:30:00Z' }],
+      B: [{ opponentId: 'A', home: false, day: 24, kickoff: '2026-08-34T13:30:00Z' }],
     });
   });
 
@@ -51,7 +52,9 @@ describe('buildFixtures', () => {
       match({ day: 24, state: 2, team1Id: 'A', team2Id: 'Y' }),
       match({ day: 25, team1Id: 'A', team2Id: 'Z' }),
     ]);
-    expect(buildFixtures(plan)['A']).toEqual([{ opponentId: 'Z', home: true, day: 25 }]);
+    expect(buildFixtures(plan)['A']).toEqual([
+      { opponentId: 'Z', home: true, day: 25, kickoff: '2026-08-35T13:30:00Z' },
+    ]);
   });
 
   it('sortiert aufsteigend nach Spieltag und deckelt auf `max`', () => {

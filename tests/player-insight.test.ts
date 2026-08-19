@@ -193,7 +193,7 @@ describe('buildMatchdays', () => {
     expect(away.goalsAgainst).toBe(1);
   });
 
-  it('lässt die Spieltagsnummer weg, statt eine falsche zu erfinden', () => {
+  it('lässt weg, was sich nicht in der Saison verorten lässt', () => {
     const days = buildMatchdays(input({
       weekly: {
         mc: 1,
@@ -203,9 +203,10 @@ describe('buildMatchdays', () => {
       },
     }));
 
-    // mc 1 deckt nur den jüngsten Eintrag ab, die beiden davor liegen davor.
-    expect(days.map((day) => day.day)).toEqual([0, 0, 1]);
-    expect(days.every((day) => day.opponentId === null)).toBe(true);
+    // mc 1 deckt nur den jüngsten Eintrag ab. Die beiden davor stammen aus der
+    // alten Saison und gehören nicht in eine Achse, die bei Spieltag 1 anfängt.
+    expect(days.map((day) => day.day)).toEqual([1]);
+    expect(days[0]!.points).toBe(50);
   });
 
   it('hängt die kommenden Ansetzungen mit Einschätzung hinten an', () => {
@@ -213,8 +214,8 @@ describe('buildMatchdays', () => {
       teams,
       teamCount: 18,
       fixtures: [
-        { opponentId: '9', home: true, day: 1 },
-        { opponentId: '10', home: false, day: 2 },
+        { opponentId: '9', home: true, day: 1, kickoff: '2026-08-28T18:30:00Z' },
+        { opponentId: '10', home: false, day: 2, kickoff: '2026-09-04T18:30:00Z' },
       ],
     }));
 
