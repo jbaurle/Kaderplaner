@@ -690,9 +690,17 @@
   text-align: center;
 }
 
-/* "BANK" column header is centered (no action icons to right-align). */
-.planning-table thead th.col-scen--bank {
-  text-align: center;
+/*
+ * Der BANK-Kopf trägt keine Knöpfe, an denen er sich rechts ausrichten müsste.
+ * Zentriert steht er aber erst, sobald BANK als eigene Spalte neben der
+ * gewählten liegt, siehe Breitenleiter ab 720. Darunter ist BANK die einzige
+ * sichtbare Szenariospalte und der Kopf richtet sich wie jeder andere nach den
+ * Beträgen darunter, also rechts.
+ */
+@container (min-width: 720px) {
+  .planning-table thead th.col-scen--bank {
+    text-align: center;
+  }
 }
 
 .planning-summary {
