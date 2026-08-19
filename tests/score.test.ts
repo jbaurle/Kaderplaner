@@ -77,6 +77,8 @@ function table(mc: number): CompetitionTable {
 
 function details(overrides: Partial<PlayerDetails> = {}): PlayerDetails {
   return {
+    firstName: '',
+    lastName: '',
     averagePoints: overrides.averagePoints ?? 100,
     status: overrides.status ?? 0,
     statusText: overrides.statusText ?? '',
@@ -130,8 +132,8 @@ describe('computeScores', () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
     cache.weeklyDetails = {
-      a: { mc: 25, matchSummary: [{ day: 1, state: 0, team1Id: 't1', team2Id: 't2', team1Goals: 0, team2Goals: 0 }], lastMatchdayPoints: [], hasPlayedFlags: [] },
-      b: { mc: 25, matchSummary: [{ day: 1, state: 0, team1Id: 't1', team2Id: 't2', team1Goals: 0, team2Goals: 0 }], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      a: { mc: 25, firstName: '', statusText: '', matchSummary: [{ day: 1, state: 0, team1Id: 't1', team2Id: 't2', team1Goals: 0, team2Goals: 0 }], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      b: { mc: 25, firstName: '', statusText: '', matchSummary: [{ day: 1, state: 0, team1Id: 't1', team2Id: 't2', team1Goals: 0, team2Goals: 0 }], lastMatchdayPoints: [], hasPlayedFlags: [] },
     };
     saveOptimizerCache(LEAGUE, cache);
 
@@ -159,7 +161,7 @@ describe('computeScores', () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
     cache.weeklyDetails = {
-      a: { mc: 25, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      a: { mc: 25, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
     };
     saveOptimizerCache(LEAGUE, cache);
 
@@ -184,7 +186,7 @@ describe('computeScores', () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
     cache.weeklyDetails = {
-      a: { mc: 25, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      a: { mc: 25, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
     };
     saveOptimizerCache(LEAGUE, cache);
 
@@ -211,8 +213,8 @@ describe('computeScores', () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
     cache.weeklyDetails = {
-      a: { mc: 25, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
-      stale: { mc: 24, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      a: { mc: 25, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      stale: { mc: 24, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
     };
     saveOptimizerCache(LEAGUE, cache);
 
@@ -238,8 +240,8 @@ describe('computeScores', () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
     cache.weeklyDetails = {
-      a: { mc: 25, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
-      sold: { mc: 25, matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      a: { mc: 25, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
+      sold: { mc: 25, firstName: '', statusText: '', matchSummary: [], lastMatchdayPoints: [], hasPlayedFlags: [] },
     };
     saveOptimizerCache(LEAGUE, cache);
 

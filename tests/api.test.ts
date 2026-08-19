@@ -262,6 +262,8 @@ describe('KickbaseClient', () => {
     it('GETs /leagues/{lid}/players/{pid} with bearer token and maps the response', async () => {
       const { calls, setResponse } = captureCalls();
       setResponse(jsonResponse({
+        fn: 'Dayot',
+        ln: 'Upamecano',
         ap: 92.5,
         st: 0,
         stxt: 'fit',
@@ -285,6 +287,8 @@ describe('KickbaseClient', () => {
       expect(calls[0]?.url).toBe('https://api.kickbase.com/v4/leagues/league-1/players/player-1');
       expect(calls[0]?.headers.get('Authorization')).toBe('Bearer tok');
       expect(details).toEqual({
+        firstName: 'Dayot',
+        lastName: 'Upamecano',
         averagePoints: 92.5,
         status: 0,
         statusText: 'fit',
@@ -307,6 +311,8 @@ describe('KickbaseClient', () => {
       const client = new KickbaseClient('tok');
       const details = await client.getPlayerDetails('l', 'p');
       expect(details).toEqual({
+        firstName: '',
+        lastName: '',
         averagePoints: 0,
         status: 0,
         statusText: '',

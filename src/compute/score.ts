@@ -47,6 +47,8 @@ export interface Fixture {
   home: boolean;
   /** Spieltag, nur für den Tooltip. */
   day: number;
+  /** Anstoss als ISO-Zeitstempel, leer wenn Kickbase keinen führt. */
+  kickoff: string;
 }
 
 /** Was die Gegner-Spalte über einen Verein wissen muss. */
@@ -115,6 +117,7 @@ export function buildFixtures(
         opponentId: home ? match.team2Id : match.team1Id,
         home,
         day: match.day,
+        kickoff: match.kickoff,
       });
     }
   }
@@ -276,6 +279,8 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       const d = details[i]!;
       cache.weeklyDetails[id] = {
         mc: tableMc,
+        firstName: d.firstName,
+        statusText: d.statusText,
         matchSummary: d.matchSummary,
         lastMatchdayPoints: d.lastMatchdayPoints,
         hasPlayedFlags: d.hasPlayedFlags,

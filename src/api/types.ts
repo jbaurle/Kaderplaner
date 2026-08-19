@@ -251,6 +251,10 @@ export interface CompetitionMatchdays {
 }
 
 export interface PlayerDetails {
+  /** Vorname. Leer, wenn Kickbase keinen führt. */
+  firstName: string;
+  /** Nachname, wie im Kader. */
+  lastName: string;
   averagePoints: number;
   /** 0 = available, anything else = unavailable. */
   status: number;
@@ -332,6 +336,10 @@ export interface WireMatchdayMatch {
 }
 
 export interface WirePlayerDetails {
+  /** Vorname. Nur hier, der Kader liefert ihn nicht. */
+  fn?: string;
+  /** Nachname. */
+  ln?: string;
   ap?: number;
   st?: number;
   stxt?: string;

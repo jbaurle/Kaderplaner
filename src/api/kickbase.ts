@@ -354,6 +354,8 @@ function toPlayerDetails(wire: WirePlayerDetails): PlayerDetails {
     hasPlayedFlags.push(!!entry.hp);
   }
   return {
+    firstName: wire.fn ?? '',
+    lastName: wire.ln ?? '',
     averagePoints: wire.ap ?? 0,
     status: wire.st ?? 0,
     statusText: wire.stxt ?? '',

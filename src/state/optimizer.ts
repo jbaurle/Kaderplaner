@@ -9,10 +9,14 @@
 import type { LeagueId, MatchSummary, PlayerId, TeamRow } from '../api/types.js';
 import * as storage from '../storage/local.js';
 
+// v5: Vorname und der Klartext zum Status kommen mit in den Eintrag. Beide
+// stehen im Spielerdetail, das der Score-Lauf ohnehin holt, wurden bisher aber
+// weggeworfen. Der Spielerdialog zeigt sie.
+//
 // v4: `mc` pro weeklyDetails-Eintrag (statt nur global auf der Tabelle), und
 // das nie gelesene `scores`-Feld ist raus. Schema-Bump verwirft ältere
 // Caches einmalig beim nächsten Score-Klick.
-export const OPTIMIZER_SCHEMA_VERSION = 4;
+export const OPTIMIZER_SCHEMA_VERSION = 5;
 
 export interface OptimizerCacheTable {
   takenAt: number;
@@ -23,6 +27,10 @@ export interface OptimizerCacheTable {
 export interface OptimizerCacheWeekly {
   /** Stand: höchster `matchesPlayed` der Tabelle beim Abruf dieses Eintrags. */
   mc: number;
+  /** Vorname, nur für den Spielerdialog. Leer, wenn Kickbase keinen führt. */
+  firstName: string;
+  /** Klartext zum Ausfall, etwa "Back problems". Leer, wenn fit. */
+  statusText: string;
   matchSummary: MatchSummary[];
   lastMatchdayPoints: number[];
   hasPlayedFlags: boolean[];
