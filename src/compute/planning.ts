@@ -255,8 +255,13 @@ function buildRow(
  * Ein Zugang gilt als bekommen. Sein Gebot geht in jeder Spalte ab, auch in
  * BANK, denn den Kauf entscheidet kein Szenario. Danach ist er ein Kaderspieler
  * wie jeder andere: ohne Häkchen bleibt er und zählt bei der Formation mit,
- * mit Häkchen geht er wieder weg und bringt seinen Marktwert. In BANK steht
- * kein Häkchen, die Spalte zeigt den Bestand, wie er ist.
+ * mit Häkchen geht er wieder weg und bringt seinen Marktwert.
+ *
+ * In BANK gibt es kein Häkchen zum Setzen, die Spalte verkauft alles, was nicht
+ * in der Aufstellung steht. Ein Zugang steht dort nie, also geht er in BANK
+ * immer wieder weg. Die Tabelle zeigt seinen Marktwert in der BANK-Spalte
+ * ohnehin schon an; zählte die Summe ihn nicht mit, ließe sich die Spalte nicht
+ * nachrechnen.
  */
 function summarize(
   rows: PlanningRow[],
@@ -276,7 +281,7 @@ function summarize(
   }
   for (const transfer of transfers) {
     bidsSum -= transfer.amount;
-    if (slot !== 'S4' && transfer.flags[slot]) {
+    if (slot === 'S4' || transfer.flags[slot]) {
       salesSum += transfer.marketValue;
     } else {
       posCounts[transfer.positionLabel]++;

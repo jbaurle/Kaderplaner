@@ -407,6 +407,22 @@ describe('computePlanning', () => {
       expect(view.summaries.S1.posCounts.TW).toBe(0);
     });
 
+    it('verkauft den Zugang auch in BANK, ohne dass ein Häkchen steht', () => {
+      const view = computePlanning({
+        budget: 0,
+        squad: [],
+        scenarios: NO_SCENARIOS,
+        transfers: [transfer],
+      });
+      // BANK verkauft alles, was nicht in der Aufstellung steht. Ein Zugang
+      // steht dort nie, also zählt sein Marktwert mit, genau wie die Tabelle
+      // ihn in der BANK-Spalte anzeigt.
+      expect(view.summaries.S4.salesSum).toBe(2_000);
+      expect(view.summaries.S4.transactionSum).toBe(-500);
+      // Verkauft ist verkauft: bei der Formation zählt er in BANK nicht mit.
+      expect(view.summaries.S4.posCounts.TW).toBe(0);
+    });
+
     it('trennt Verkäufe und Gebote, transactionSum bleibt die Summe', () => {
       const view = computePlanning({
         budget: 10_000,
@@ -414,11 +430,12 @@ describe('computePlanning', () => {
         scenarios: NO_SCENARIOS,
         transfers: [transfer],
       });
-      const fix = view.summaries.S4;
-      expect(fix.salesSum).toBe(800);
-      expect(fix.bidsSum).toBe(-2_500);
-      expect(fix.transactionSum).toBe(-1_700);
-      expect(fix.newBalance).toBe(8_300);
+      const bank = view.summaries.S4;
+      // 800 vom Kaderspieler auf der Bank, 2.000 vom Zugang.
+      expect(bank.salesSum).toBe(2_800);
+      expect(bank.bidsSum).toBe(-2_500);
+      expect(bank.transactionSum).toBe(300);
+      expect(bank.newBalance).toBe(10_300);
     });
   });
 });
