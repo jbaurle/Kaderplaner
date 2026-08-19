@@ -1867,7 +1867,13 @@
  */
 
 /* Ampel der Teilwerte. Farbe trägt hier Bedeutung, nicht Schmuck. */
+/* Der graue Kopf reicht bis an die Kante, deshalb muss der Kasten ihn
+   beschneiden, sonst stehen oben zwei eckige Ecken. */
 .pd-box {
+  /* Der Dialog misst sich selbst: ob die vier Verkaufsfolgen nebeneinander
+     passen, haengt an seiner Breite, nicht an der des Fensters. */
+  container-type: inline-size;
+  overflow: hidden;
   --grade-good: #6ba368;
   --grade-mid: #d2a04c;
   --grade-weak: #c07373;
@@ -2006,8 +2012,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-.pd-pos { color: var(--success); }
-.pd-neg { color: var(--error); }
+/* Mit dem b davor, sonst schlägt `.pd-value b` die Farbe wieder tot. */
+.pd-value b.pd-pos, .pd-pos { color: var(--success); }
+.pd-value b.pd-neg, .pd-neg { color: var(--error); }
 
 .pd-unit {
   margin: 8px 0 0;
@@ -2017,14 +2024,18 @@
 }
 
 .pd-body {
-  padding: 14px;
+  /* Oben knapper: der graue Kopf trennt schon, ein zweiter Abstand
+     darunter schiebt den Score unnötig weit nach unten. */
+  padding: 8px 14px 14px;
 }
 
 .pd-section + .pd-section {
   margin-top: 18px;
 }
 
-.pd-section-title {
+/* Mit .pd-body davor, sonst gewinnt `.dialog-body h3` mit seinen 20 px
+   Abstand nach oben und schiebt jeden Abschnitt auseinander. */
+.pd-body .pd-section-title {
   margin: 0 0 8px;
   font-size: 11px;
   font-weight: 600;
@@ -2117,6 +2128,10 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
+
+.pd-text--good { color: var(--grade-good); }
+.pd-text--mid { color: var(--grade-mid); }
+.pd-text--weak { color: var(--grade-weak); }
 
 .pd-grade--good { background: var(--grade-good); }
 .pd-grade--mid { background: var(--grade-mid); }
@@ -2329,12 +2344,6 @@
   color: var(--text);
 }
 
-.pd-verdict--warn {
-  background: var(--warning-bg);
-  box-shadow: inset 0 0 0 1px #e0c583;
-  color: var(--warning-text);
-}
-
 .pd-verdict-mark {
   flex: none;
   display: flex;
@@ -2344,16 +2353,11 @@
   height: 17px;
   margin-top: 1px;
   border-radius: 50%;
-  background: var(--warning-text);
-  color: var(--warning-bg);
+  background: var(--border-strong);
+  color: var(--card);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-}
-
-.pd-verdict-mark--calm {
-  background: var(--border-strong);
-  color: var(--card);
 }
 
 .pd-verdict-title {
@@ -2369,10 +2373,17 @@
   line-height: 1.45;
 }
 
+/* Passen vier Kacheln nebeneinander, stehen sie in einer Zeile. */
+@container (min-width: 540px) {
+  .pd-sell {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 /* Ab Tablet hat der Dialog mehr Breite, dann darf der Kopf atmen. */
 @media (min-width: 620px) {
   .pd-head { padding: 18px 18px 14px; }
-  .pd-body { padding: 18px; }
+  .pd-body { padding: 10px 18px 18px; }
   .pd-portrait, .pd-photo { width: 64px; height: 64px; }
   .pd-name { font-size: 19px; }
 }

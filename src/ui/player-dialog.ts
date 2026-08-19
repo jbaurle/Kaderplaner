@@ -47,6 +47,13 @@ export interface PlayerDialogInput {
 
 const PERCENT = (value: number): string => `${Math.round(value * 100)} %`;
 
+/** Dieselbe Ampel als Schriftfarbe, für die grosse Zahl. */
+function gradeText(value: number): string {
+  if (value >= 0.7) return 'pd-text--good';
+  if (value >= 0.4) return 'pd-text--mid';
+  return 'pd-text--weak';
+}
+
 /** Ab 70 % gut, ab 40 % mittel, darunter schwach. Farbe trägt Bedeutung. */
 function gradeClass(value: number): string {
   if (value >= 0.7) return 'pd-grade--good';
@@ -120,7 +127,7 @@ function renderScore(input: PlayerDialogInput): string {
   const out = detail.availability === 0;
   const bars: Array<[string, number]> = [
     ['Form', detail.form],
-    ['Startelfchance', detail.startProb],
+    ['S11', detail.startProb],
     ['Verfügbarkeit', detail.availability],
   ];
 
@@ -129,7 +136,7 @@ function renderScore(input: PlayerDialogInput): string {
       <h3 class="pd-section-title">Score</h3>
       <div class="pd-score">
         <span class="pd-score-main">
-          <span class="pd-score-value">${Math.round(input.score.score * 100)}<i>%</i></span>
+          <span class="pd-score-value ${gradeText(input.score.score)}">${Math.round(input.score.score * 100)}<i>%</i></span>
           <span class="pd-score-label">Gesamt</span>
         </span>
         <span class="pd-score-bars">
@@ -220,7 +227,7 @@ function renderMatchdays(insight: PlayerInsight): string {
       <h3 class="pd-section-title">Spieltage</h3>
       <div class="pd-scale">
         <span>Gespielt</span>
-        <span>Kommend</span>
+        <span>Geplant</span>
       </div>
       <div class="pd-axis">
         <span class="pd-half" style="flex:${Math.max(1, past.length)}">${past.map(cell).join('')}</span>
@@ -288,18 +295,6 @@ function renderVerdict(insight: PlayerInsight): string {
     ? ` ${escapeHtml(lineup.successor.name)} rückt nach, Score ${PERCENT(lineup.successor.score)}.`
     : '';
 
-  if (!lineup.formationHolds) {
-    return `
-      <div class="pd-verdict pd-verdict--warn">
-        <span class="pd-verdict-mark">!</span>
-        <span>
-          <span class="pd-verdict-title">Die Aufstellung kippt</span>
-          <span class="pd-verdict-text">Danach bleiben ${lineup.countAfter} ${lineup.position}, für eine gültige Formation reicht das nicht.${successor}</span>
-        </span>
-      </div>
-    `;
-  }
-
   const title = lineup.inBestEleven ? 'Er steht in der besten Elf' : 'Er steht nicht in der besten Elf';
   const text = lineup.inBestEleven
     ? `Ein Verkauf kostet dich einen Stammplatzspieler.${successor}`
@@ -307,7 +302,7 @@ function renderVerdict(insight: PlayerInsight): string {
 
   return `
     <div class="pd-verdict">
-      <span class="pd-verdict-mark pd-verdict-mark--calm">i</span>
+      <span class="pd-verdict-mark">i</span>
       <span>
         <span class="pd-verdict-title">${title}</span>
         <span class="pd-verdict-text">${text}</span>
