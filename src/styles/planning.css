@@ -2013,6 +2013,28 @@ body.is-dialog-open {
   box-shadow: 0 0 0 2px rgb(217 131 36 / 0.22);
 }
 
+/*
+ * Die Suche nach Nachrichten, in derselben Sprache wie der Spielername in der
+ * Tabelle: grau und gestrichelt unterstrichen. Eigene Zeile unter den Marken,
+ * sonst drängt sie sich bei langen Vereinsnamen mit dem Verein um denselben
+ * Platz.
+ */
+.pd-news {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-decoration: underline dashed;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+@media (hover: hover) {
+  .pd-news:hover {
+    text-decoration-style: solid;
+  }
+}
+
 /* Der Knopf sitzt im Kopf, nicht in einer eigenen Kopfzeile. */
 .pd-close {
   position: absolute;

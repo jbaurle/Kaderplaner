@@ -160,6 +160,7 @@ function renderHead(input: PlayerDialogInput): string {
             <span class="pd-club">${escapeHtml(club)}</span>
             <span class="pd-status${fit ? '' : ' pd-status--out'}" title="${statusTitle}" aria-label="${statusTitle}"></span>
           </span>
+          ${renderNewsLink(fullName, club, fit ? '' : input.statusText)}
         </span>
         <button type="button" class="dialog-close pd-close" data-dialog-close aria-label="Schließen">×</button>
       </div>
@@ -171,6 +172,27 @@ function renderHead(input: PlayerDialogInput): string {
       <p class="pd-unit">Alle Beträge in Mio. €</p>
     </header>
   `;
+}
+
+/**
+ * Suche nach Nachrichten zum Spieler.
+ *
+ * Kein Deep-Link: Ligainsider und Kicker haben keine Adresse, die sich aus
+ * Namen bauen liesse, und eine gepflegte Zuordnung wäre bei jedem Wechsel
+ * falsch. Die Suche mit Name, Verein und `ligainsider` führt in aller Regel
+ * genau auf die Spielerseite dort.
+ *
+ * Bei einem Ausfall geht der Grund mit in die Anfrage: Kickbase nennt nur das
+ * Wort, wie lange er fehlt, steht nur in den Nachrichten.
+ */
+function renderNewsLink(fullName: string, club: string, statusText: string): string {
+  const terms = [fullName, club, 'ligainsider', statusText].filter((t) => t !== '').join(' ');
+  const url = `https://www.google.com/search?q=${encodeURIComponent(terms)}`;
+  const title = statusText
+    ? `Nachrichten zum Ausfall von ${fullName} suchen`
+    : `Nachrichten zu ${fullName} suchen`;
+  return `<a class="pd-news" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"
+             title="${escapeHtml(title)}">News suchen</a>`;
 }
 
 // ---------- Score ----------
