@@ -565,6 +565,9 @@ export class PlanningPage {
       });
     }
     this.wireModal();
+    // Deklarativ statt in openModal und closeModal: so stimmt die Sperre auch
+    // dann, wenn ein Laden oder ein Ligawechsel das Overlay nebenbei schliesst.
+    document.body.classList.toggle('is-dialog-open', this.state.modal !== null);
 
     if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
   }

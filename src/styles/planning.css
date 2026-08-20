@@ -1230,6 +1230,16 @@
  * Ligawechsel an derselben Stelle auf, obwohl der eine Text lang und der
  * andere kurz ist. Zentriert wäre die Kopfzeile jedes Mal woanders.
  */
+/*
+ * Solange ein Overlay offen ist, steht die Seite darunter still. Ohne das
+ * scrollt die Tabelle weiter, sobald der Zeiger neben dem Kasten steht oder
+ * der Dialog selbst am Ende angekommen ist. Dieselbe Sperre wie bei der
+ * Aufstellung, siehe `body.is-lineup-open` in lineup.css.
+ */
+body.is-dialog-open {
+  overflow: hidden;
+}
+
 .dialog-shade {
   position: fixed;
   inset: 0;
@@ -1241,6 +1251,9 @@
      derselben Stelle beginnt und nicht je nach Art tiefer ansetzt. */
   padding: 10px clamp(8px, 3vw, 16px) clamp(12px, 4vh, 32px);
   background: rgba(17, 24, 39, 0.45);
+  /* Am Rand des Overlays endet das Scrollen, es reicht nicht an die Seite
+     dahinter durch. */
+  overscroll-behavior: contain;
   /*
    * Der Zeiger ist hier nicht nur Kosmetik: Safari auf dem iPhone liefert
    * einen Tap auf ein gewöhnliches div nicht als Klick aus, solange es nicht
