@@ -73,18 +73,10 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
           </form>
 
-          <!--
-            Ein Bild für beide Breiten, deshalb ein einziges img: das schmale
-            Gerät lädt nur den Handy-Schnitt, das breite nur den Desktop-Schnitt.
-            Zwei img-Elemente mit display:none holten beide.
-          -->
           <div class="lp-shot">
-            <picture>
-              <source media="(min-width: 720px)" srcset="/images/table-desktop.webp">
-              <img class="lp-shot-img" src="/images/table-mobile.webp"
-                   width="724" height="1568" decoding="async"
-                   alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
-            </picture>
+            <img class="lp-shot-img" src="/images/table-desktop.webp"
+                 width="1356" height="765" decoding="async"
+                 alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
           </div>
 
           <!--
