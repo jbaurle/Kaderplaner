@@ -117,7 +117,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             und siehst den neuen Kontostand, bevor du etwas anfasst.
           </p>
           <p class="lp-body">
-            Ein Tipp auf einen Namen öffnet seinen Dialog: Score, die letzten
+            Ein Klick auf den Spielernamen öffnet seinen Dialog: Score, die letzten
             Spieltage, die nächsten Gegner und was ein Verkauf am Spielraum ändert.
             Dazu die Aufstellung auf dem Spielfeld, die sich an Kickbase
             zurückschicken lässt.
