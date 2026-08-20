@@ -10,6 +10,11 @@ wen du verkaufst und was danach auf dem Konto steht.
 Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus dem
 Browser an und legt nichts ab außer in deinem `localStorage`.
 
+![Die Startseite am Desktop](docs/shot-start.png)
+
+Die Startseite: Anmeldung mit dem eigenen Kickbase-Konto, dahinter ein Blick auf
+Tabelle, Spielerdialog und Aufstellung.
+
 ![Kaderplaner am Desktop](docs/shot-desktop.png)
 
 ## Was drin ist
@@ -70,7 +75,7 @@ geprüft.
 
 ```
 ├─ index.html
-├─ public/favicon.svg
+├─ public/                   favicon, Rechtstexte, "Was die App kann"
 ├─ src/
 │  ├─ main.ts                Einstieg, haengt die App an #app
 │  ├─ api/                   Kickbase-Client und Typen
@@ -79,7 +84,8 @@ geprüft.
 │  │  ├─ score.ts            Score-Lauf, Cache, Gegner-Spalte
 │  │  ├─ planning.ts         Szenariospalten, Summen, Formationspruefung
 │  │  └─ lineup.ts           Aufstellung auf dem Feld
-│  ├─ state/                 Sitzung, Szenarien, Optimizer-Cache
+│  ├─ state/                 Sitzung, Szenarien, Optimizer-Cache,
+│  │                         Aufstellungsentwurf, Gegneransicht
 │  ├─ storage/local.ts       getippter localStorage-Wrapper
 │  ├─ ui/                    Seiten und reine Renderer
 │  └─ styles/
@@ -96,14 +102,15 @@ Im `localStorage` liegen:
 
 | Schlüssel | Inhalt |
 | --- | --- |
-| `kb.session` | Token, E-Mail, Ligaliste |
+| `kb.session` | Token, E-Mail, Anzeigename, Ligaliste |
 | `kb.lastLeagueId` | zuletzt geöffnete Liga |
 | `kb.scenarios.<leagueId>` | deine Häkchen in S1 bis S3 |
 | `kb.optimizer.<leagueId>` | Spielerdetails und Tabelle, damit nicht jeder Klick neu abruft |
 | `kb.oppview.<leagueId>` | Spaltenzahl und Spieltag der Gegner-Spalte, damit sie beim Laden nicht springt |
-| `kb.lineup.<leagueId>` | die zuletzt gestellte Elf |
+| `kb.lineup.<leagueId>` | dein Aufstellungsentwurf, bis du ihn abschickst |
 
-Abmelden löscht Sitzung und Ligaauswahl, die Szenarien bleiben.
+Abmelden löscht Sitzung und Ligaauswahl. Szenarien, Aufstellungsentwurf und
+Cache bleiben.
 
 ## Lizenz
 
