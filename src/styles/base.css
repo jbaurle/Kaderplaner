@@ -9,6 +9,14 @@
   --primary: #1f2937;
   --primary-hover: #111827;
   --primary-active: #0b1221;
+  /*
+   * Der Knopf, der etwas auslöst: Anmelden, Laden, Aufstellen. Eigenes Token
+   * und nicht `--success` mitbenutzt, das ist die Textfarbe positiver
+   * Beträge und soll unabhängig bleiben.
+   */
+  --action: #047857;
+  --action-hover: #036349;
+  --action-active: #02513c;
   --error: #b91c1c;
   --warning-bg: #fef3c7;
   --warning-text: #78350f;
@@ -135,7 +143,7 @@ button {
 }
 
 .auth-submit {
-  background: var(--primary);
+  background: var(--action);
   color: #fff;
   border: 0;
   border-radius: var(--radius-sm);
@@ -147,11 +155,11 @@ button {
 }
 
 .auth-submit:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: var(--action-hover);
 }
 
 .auth-submit:active:not(:disabled) {
-  background: var(--primary-active);
+  background: var(--action-active);
 }
 
 .auth-submit:disabled {
@@ -287,9 +295,9 @@ button {
 }
 
 .field-input:focus {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: -1px;
-  border-color: var(--primary);
+  border-color: var(--action);
 }
 
 /* ---------- Banner ---------- */

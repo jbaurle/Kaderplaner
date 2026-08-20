@@ -179,7 +179,7 @@
 }
 
 .icon-btn:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 1px;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .btn--primary {
-  background: var(--primary);
+  background: var(--action);
   color: #fff;
   padding: 6px 16px;
   font-weight: 600;
@@ -202,7 +202,7 @@
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: var(--action-hover);
 }
 
 .btn--primary:disabled {
@@ -436,7 +436,7 @@
 }
 
 .planning-shell .name-btn:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
 }
 
@@ -682,7 +682,7 @@
 }
 
 .scen-switch button:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 1px;
 }
 
@@ -1037,7 +1037,7 @@
 
 .slot-copy:focus-visible,
 .slot-clear:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 1px;
 }
 
@@ -1375,7 +1375,7 @@ body.is-dialog-open {
 }
 
 .dialog-close:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 1px;
 }
 
@@ -1756,7 +1756,7 @@ body.is-dialog-open {
 }
 
 .amount-offer:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
 }
 

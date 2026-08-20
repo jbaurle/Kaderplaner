@@ -122,7 +122,7 @@ body.is-lineup-open {
  */
 .btn--go {
   width: 100%;
-  background: var(--success);
+  background: var(--action);
   color: #fff;
   border: 1px solid transparent;
   padding: 11px 16px;
@@ -133,7 +133,7 @@ body.is-lineup-open {
 }
 
 .btn--go:hover:not(:disabled) {
-  background: #036349;
+  background: var(--action-hover);
 }
 
 /*
