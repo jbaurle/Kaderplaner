@@ -68,12 +68,15 @@ export const FEATURES_HELP_BODY = `
     <dt>Spielerdialog</dt>
     <dd>
       Ein Tipp auf einen Spielernamen öffnet ihn. Oben steht, wer er ist und
-      was er wert ist, darunter der Score mit seinen drei Teilen als Balken.
-      Dann die Spieltage: links die gespielten mit Punkten, Gegner und
+      was er wert ist. Neben dem Statuspunkt führt <strong>News</strong> auf
+      eine Suche nach Nachrichten zu ihm, bei einem Ausfall geht der Grund mit
+      in die Anfrage: Kickbase nennt nur das Wort, wie lange jemand fehlt,
+      steht nur in den Nachrichten. Darunter der Score mit seinen drei Teilen
+      als Balken. Dann die Spieltage: links die gespielten mit Punkten, Gegner und
       Ergebnis, rechts die nächsten drei mit Tabellenplatz und Einschätzung.
       <p>
         Ganz unten steht, was ein Verkauf auslöst, und zwar mit zwei Zahlen,
-        die es sonst nirgends gibt. Dein Rahmen ist Kontostand plus 33 % vom
+        die es sonst nirgends gibt. Dein Spielraum ist Kontostand plus 33 % vom
         Teamwert: verkaufst du einen Spieler, steigt das Konto um seinen
         Erlös, die Kreditlinie fällt aber um 33 % seines Marktwerts. Netto
         bleibt weniger übrig, als der Erlös verspricht. Und die beste Elf
@@ -170,6 +173,8 @@ export const FEATURES_HELP_BODY = `
     <li>Ein Tipp auf einen <strong>Spielernamen</strong> öffnet den
       Spielerdialog.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
+    <li>Jeder Dialog schließt mit Escape, mit dem Kreuz oben rechts oder mit
+      einem Klick daneben.</li>
   </ul>
 
   <h3>Was gespeichert wird</h3>
