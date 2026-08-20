@@ -65,6 +65,23 @@ export const FEATURES_HELP_BODY = `
       auseinanderfällt, lohnt der Blick.
     </dd>
 
+    <dt>Spielerdialog</dt>
+    <dd>
+      Ein Tipp auf einen Spielernamen öffnet ihn. Oben steht, wer er ist und
+      was er wert ist, darunter der Score mit seinen drei Teilen als Balken.
+      Dann die Spieltage: links die gespielten mit Punkten, Gegner und
+      Ergebnis, rechts die nächsten drei mit Tabellenplatz und Einschätzung.
+      <p>
+        Ganz unten steht, was ein Verkauf auslöst, und zwar mit zwei Zahlen,
+        die es sonst nirgends gibt. Dein Rahmen ist Kontostand plus 33 % vom
+        Teamwert: verkaufst du einen Spieler, steigt das Konto um seinen
+        Erlös, die Kreditlinie fällt aber um 33 % seines Marktwerts. Netto
+        bleibt weniger übrig, als der Erlös verspricht. Und die beste Elf
+        wird ohne ihn noch einmal gerechnet, damit dasteht, was der Verkauf
+        sportlich kostet.
+      </p>
+    </dd>
+
     <dt>Erlös statt Marktwert</dt>
     <dd>
       In der Spalte steht, was ein Verkauf bringt. Meistens ist das Kickbases
@@ -104,9 +121,11 @@ export const FEATURES_HELP_BODY = `
 
     <dt>Gegner am nächsten Spieltag</dt>
     <dd>
-      Als Wappen mit Pfeil: er zeigt, ob der Gegner in der Tabelle über oder
-      unter dem eigenen Verein steht. Die Daten kommen aus dem Spielplan des
-      Wettbewerbs. Der Gegner steht bewusst neben dem Score und nicht darin:
+      Als Wappen mit Pfeil. Er teilt die Tabelle in Drittel: ein Gegner aus dem
+      unteren Drittel bekommt einen grünen Pfeil nach oben, einer aus dem
+      oberen einen roten nach unten, das Mittelfeld bleibt ohne Zeichen. Mit
+      dem eigenen Verein wird dabei nicht verglichen. Die Daten kommen aus dem
+      Spielplan des Wettbewerbs. Der Gegner steht bewusst neben dem Score und nicht darin:
       die Prozentzahl bewertet den Spieler, die Ansetzung liest du selbst dazu.
     </dd>
 
@@ -138,6 +157,8 @@ export const FEATURES_HELP_BODY = `
       nebeneinander.</li>
     <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
       BANK, <strong>×</strong> räumt die Spalte ab.</li>
+    <li>Ein Tipp auf einen <strong>Spielernamen</strong> öffnet den
+      Spielerdialog.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
   </ul>
 
@@ -165,6 +186,12 @@ export const SCORE_HELP_BODY = `
 
   <p class="help-formula">
     Score = (35 % Form + 55 % Startelf + 10 % Sockel) × Verfügbarkeit
+  </p>
+
+  <p>
+    Im Spielerdialog stehen die drei Teile als Balken nebeneinander. Startelf
+    heißt dort kurz <strong>S11</strong>, sonst passt die Beschriftung nicht
+    neben den Balken.
   </p>
 
   <p>
