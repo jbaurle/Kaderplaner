@@ -885,11 +885,11 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
  */
 const LEGAL_LINKS = `
   <span class="footline-legal">
-    <a href="/impressum.html" target="_blank" rel="noopener">Impressum</a>
+    <a href="/legal-notice.html" target="_blank" rel="noopener">Impressum</a>
     <span class="legend-sep" aria-hidden="true">·</span>
-    <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+    <a href="/privacy.html" target="_blank" rel="noopener">Datenschutz</a>
     <span class="legend-sep" aria-hidden="true">·</span>
-    <a href="/nutzungsbedingungen.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
+    <a href="/terms.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
   </span>
 `;
 

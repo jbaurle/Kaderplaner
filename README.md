@@ -43,8 +43,8 @@ Alles außer der Aufstellung ist nur lesend.
 
 <table>
   <tr valign="top">
-    <td><img src="docs/shot-mobil.png" alt="Kaderplaner auf dem Handy" width="330"></td>
-    <td><img src="docs/shot-aufstellung.png" alt="Aufstellung auf dem Spielfeld" width="330"></td>
+    <td><img src="docs/shot-mobile.png" alt="Kaderplaner auf dem Handy" width="330"></td>
+    <td><img src="docs/shot-lineup.png" alt="Aufstellung auf dem Spielfeld" width="330"></td>
   </tr>
 </table>
 
