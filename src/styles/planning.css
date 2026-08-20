@@ -365,10 +365,20 @@
 }
 
 /*
- * Der Name öffnet den Spielerdialog. Er soll aber wie Text aussehen, nicht
- * wie ein Knopf: nur der gepunktete Unterstrich verrät, dass er etwas
- * aufmacht. Das Trefferfeld wächst über ein Pseudoelement auf Fingergröße,
- * ohne die Zeilenhöhe zu ändern, genau wie bei `.amount-offer`.
+ * Die ganze Namenszelle öffnet den Spielerdialog, nicht nur der Text: auf dem
+ * Handy ist die Zelle das grösste Ziel der Zeile, und daneben zu tippen ist
+ * dort die Regel, nicht die Ausnahme. Der Name bleibt trotzdem ein Knopf,
+ * damit er mit der Tastatur erreichbar ist.
+ */
+.planning-shell .col-name[data-player] {
+  cursor: pointer;
+}
+
+/*
+ * Er soll aber wie Text aussehen, nicht wie ein Knopf: nur der gepunktete
+ * Unterstrich verrät, dass er etwas aufmacht. Das Trefferfeld wächst über ein
+ * Pseudoelement auf Fingergröße, ohne die Zeilenhöhe zu ändern, genau wie bei
+ * `.amount-offer`.
  */
 .planning-shell .name-btn {
   position: relative;

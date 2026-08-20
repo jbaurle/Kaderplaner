@@ -636,7 +636,7 @@ function renderPlayerRow(
 
   return `
     <tr>
-      <td class="${nameCls}"><button type="button" class="name-text name-btn" data-player="${escapeHtml(row.id)}">${escapeHtml(row.name)}</button>${renderTeamLogo(row.teamId, opponents.teams)}</td>
+      <td class="${nameCls}" data-player="${escapeHtml(row.id)}"><button type="button" class="name-text name-btn">${escapeHtml(row.name)}</button>${renderTeamLogo(row.teamId, opponents.teams)}</td>
       <td class="col-pos"><span class="chip chip--pos${row.position}">${escapeHtml(row.positionLabel)}</span></td>
       <td class="num col-mv">${renderSaleValue(row)}${mvglLine(row.gainLoss)}</td>
       ${scenCells}
