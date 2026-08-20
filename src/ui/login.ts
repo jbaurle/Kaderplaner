@@ -95,13 +95,13 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           <div class="lp-cards">
             <div class="lp-inset lp-inset--player">
               <img class="lp-inset-img" src="/images/player-dialog.webp"
-                   width="560" height="592" loading="lazy" decoding="async"
+                   width="946" height="1140" loading="lazy" decoding="async"
                    alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
             </div>
 
             <div class="lp-inset lp-inset--lineup">
               <img class="lp-inset-img" src="/images/lineup.webp"
-                   width="480" height="676" loading="lazy" decoding="async"
+                   width="531" height="1086" loading="lazy" decoding="async"
                    alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
             </div>
           </div>
