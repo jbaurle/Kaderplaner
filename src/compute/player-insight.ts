@@ -64,8 +64,9 @@ export interface MatchdayEntry {
   goalsFor: number | null;
   goalsAgainst: number | null;
   /**
-   * Anstoss als ISO-Zeitstempel, leer wenn keiner bekannt ist. Gespielte
-   * Spieltage führen keinen: `matchSummary` kennt nur Tore, kein Datum.
+   * Anstoss als ISO-Zeitstempel, leer wenn keiner bekannt ist. Kommende
+   * Spieltage bringen ihn aus der Ansetzung mit, gespielte aus dem Spielplan:
+   * `matchSummary` kennt nur Tore, kein Datum.
    */
   kickoff: string;
 }
@@ -116,6 +117,8 @@ export interface PlayerInsightInput {
   lineupInput: LineupInput | null;
   /** Die nächsten Ansetzungen seines Vereins. */
   fixtures: readonly Fixture[];
+  /** Anstoss je Spieltag für seinen Verein, aus dem Spielplan der Saison. */
+  kickoffs: Record<number, string>;
   teams: Record<string, TeamInfo>;
   teamCount: number;
   /** Aus dem Optimizer-Cache: Punkte, Einsätze, Spielplan-Ausschnitt. */
@@ -145,7 +148,7 @@ export interface PlayerInsight {
  * von rund drei Spieltagen führt: was darüber hinausgeht, zeigt nur Punkte.
  */
 export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
-  const { row, weekly, fixtures, teams, teamCount } = input;
+  const { row, weekly, fixtures, kickoffs, teams, teamCount } = input;
   const played: MatchdayEntry[] = [];
 
   if (weekly) {
@@ -169,7 +172,7 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         home,
         goalsFor: match ? (home ? match.team1Goals : match.team2Goals) : null,
         goalsAgainst: match ? (home ? match.team2Goals : match.team1Goals) : null,
-        kickoff: '',
+        kickoff: kickoffs[day] ?? '',
       });
     }
   }

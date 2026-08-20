@@ -2323,13 +2323,6 @@ body.is-dialog-open {
   font-variant-numeric: tabular-nums;
 }
 
-/* Der Monat steht kleiner daneben, er ordnet nur ein. */
-.pd-day-num i {
-  font-style: normal;
-  font-size: 8.5px;
-  opacity: 0.8;
-}
-
 /*
  * Anker für Ort und Einschätzung: beide gehören zum Gegner und hängen deshalb
  * an seinem Wappen, rechts der Ort, links die Einschätzung.
@@ -2457,6 +2450,30 @@ body.is-dialog-open {
   line-height: 1;
   letter-spacing: 0.02em;
   color: var(--text-muted);
+}
+
+/*
+ * Das Anstossdatum als Fuss der Kachel. Eigene Linie darüber, damit es als
+ * Angabe zur ganzen Kachel lesbar bleibt und nicht als zweite Einheit unter
+ * der Zahl. Es läuft über die volle Kachelbreite, also über das seitliche
+ * Polster hinweg: der Fuss braucht jeden Pixel, "28. Sept." ist knapp.
+ */
+.pd-day-date {
+  align-self: stretch;
+  margin: 2px -2px 0;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 8px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-day--ahead .pd-day-date {
+  border-top-color: var(--border-strong);
+  border-top-style: dashed;
 }
 
 .pd-trend--easy { color: var(--success); }

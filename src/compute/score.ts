@@ -124,6 +124,25 @@ export function buildFixtures(
   return out;
 }
 
+/**
+ * Anstosszeiten je Verein und Spieltag, aus dem Spielplan des Wettbewerbs.
+ *
+ * Der Spielerdialog stellt gespielte und kommende Spieltage nebeneinander und
+ * schreibt unter jede Kachel das Datum. Für gespielte gibt es dafür sonst
+ * keine Quelle: `mdsum` aus dem Spielerdetail führt nur Tore. Der Spielplan
+ * kennt jede Begegnung der Saison und damit auch ihren Anstoss.
+ */
+export function buildKickoffs(schedule: CompetitionMatchdays): Record<string, Record<number, string>> {
+  const out: Record<string, Record<number, string>> = {};
+  for (const match of schedule.matches) {
+    if (!match.kickoff || match.day <= 0) continue;
+    for (const teamId of [match.team1Id, match.team2Id]) {
+      (out[teamId] ??= {})[match.day] = match.kickoff;
+    }
+  }
+  return out;
+}
+
 /** Tabellenplatz und Name je Verein, aus der Wettbewerbstabelle. */
 export function buildTeamInfo(table: CompetitionTable): Record<string, TeamInfo> {
   const out: Record<string, TeamInfo> = {};
@@ -196,6 +215,11 @@ export interface ScoreResult {
    * kommende, siehe `opponents.columns`.
    */
   fixturesAhead: Record<string, Fixture[]>;
+  /**
+   * Anstoss je Verein und Spieltag, für das Datum unter den Kacheln im
+   * Spielerdialog. Deckt die ganze Saison ab, gespielt wie kommend.
+   */
+  kickoffs: Record<string, Record<number, string>>;
   /**
    * Zutaten für einen zweiten Optimizer-Lauf im Speicher, etwa "beste Elf ohne
    * diesen Spieler". Steht nur im Arbeitsspeicher, nichts davon wird
@@ -322,6 +346,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
   // Zweite, längere Liste nur für den Spielerdialog. Nicht über `max` der
   // Gegner-Spalte lösen: die würde damit auf drei Wappen wachsen.
   const fixturesAhead = buildFixtures(schedule, MAX_FIXTURES);
+  const kickoffs = buildKickoffs(schedule);
   const lineupInput: LineupInput = {
     players: optimizerPlayers,
     table: tableResult,
@@ -348,6 +373,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       opponents,
       marketByPlayer,
       fixturesAhead,
+      kickoffs,
       lineupInput,
     };
   } else {
@@ -369,6 +395,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       opponents,
       marketByPlayer,
       fixturesAhead,
+      kickoffs,
       lineupInput,
     };
   }

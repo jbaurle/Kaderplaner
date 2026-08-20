@@ -42,6 +42,7 @@ function input(overrides: Partial<PlayerInsightInput> = {}): PlayerInsightInput 
     top11Ids: overrides.top11Ids ?? [],
     lineupInput: overrides.lineupInput ?? null,
     fixtures: overrides.fixtures ?? [],
+    kickoffs: overrides.kickoffs ?? {},
     teams: overrides.teams ?? {},
     teamCount: overrides.teamCount ?? 18,
     weekly: overrides.weekly ?? null,
@@ -207,6 +208,23 @@ describe('buildMatchdays', () => {
     // alten Saison und gehören nicht in eine Achse, die bei Spieltag 1 anfängt.
     expect(days.map((day) => day.day)).toEqual([1]);
     expect(days[0]!.points).toBe(50);
+  });
+
+  it('holt den Anstoss gespielter Spieltage aus dem Spielplan', () => {
+    const days = buildMatchdays(input({
+      teams,
+      kickoffs: { 33: '2026-05-02T13:30:00Z' },
+      weekly: {
+        mc: 34,
+        lastMatchdayPoints: [128, 94],
+        hasPlayedFlags: [true, true],
+        matchSummary,
+      },
+    }));
+
+    // `matchSummary` kennt nur Tore, das Datum kommt aus dem Spielplan.
+    expect(days.find((day) => day.day === 33)!.kickoff).toBe('2026-05-02T13:30:00Z');
+    expect(days.find((day) => day.day === 34)!.kickoff).toBe('');
   });
 
   it('hängt die kommenden Ansetzungen mit Einschätzung hinten an', () => {

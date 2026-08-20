@@ -69,14 +69,33 @@ const PAST_SLOTS = 5;
 const AHEAD_SLOTS = 3;
 
 /**
- * Kurzer Monat zum Anstoss, etwa "Aug". Leer, wenn kein Zeitstempel vorliegt:
- * gespielte Spieltage führen keinen, `matchSummary` kennt nur Tore.
+ * Ab wann die Tabelle etwas taugt. Nach ein, zwei Spieltagen steht ein
+ * Aufsteiger auf Platz 2 und der Meister auf 15: Platz und Pfeil wären dann
+ * eine Aussage über nichts. Bis dahin bleiben beide Zeilen leer.
  */
-function monthShort(kickoff: string): string {
+const TABLE_COUNTS_FROM = 3;
+
+/**
+ * Anstossdatum als Fuss der Kachel, etwa "22. Aug.". Leer, wenn kein
+ * Zeitstempel vorliegt.
+ */
+function dateShort(kickoff: string): string {
   if (!kickoff) return '';
   const date = new Date(kickoff);
   if (Number.isNaN(date.getTime())) return '';
-  return MONTHS[date.getMonth()] ?? '';
+  const month = MONTHS[date.getMonth()];
+  return month ? `${date.getDate()}. ${month}` : '';
+}
+
+/**
+ * Wie viele Spieltage die Tabelle schon zählt. Der nächste angesetzte Spieltag
+ * sagt es genauer als die Zahl der Kacheln: die Punkte reichen nur so weit
+ * zurück, wie Kickbase sie führt. Ohne Ansetzung zählt der letzte gespielte.
+ */
+function countedDays(past: readonly MatchdayEntry[], ahead: readonly MatchdayEntry[]): number {
+  const next = ahead[0]?.day ?? 0;
+  if (next > 0) return next - 1;
+  return past[past.length - 1]?.day ?? 0;
 }
 
 /** Sieg grün, Niederlage rot, Unentschieden grau. */
@@ -245,9 +264,9 @@ function renderScore(input: PlayerDialogInput): string {
 
 /**
  * Eine durchgehende Achse, gespielt links und kommend rechts, getrennt nur
- * durch eine feine Linie. Beide Hälften sind gleich gebaut: Spieltag, Wappen,
- * Ort, Hauptzahl, kleine Zeile. Links ist die Hauptzahl die Punkte, rechts
- * der Tabellenplatz des Gegners.
+ * durch eine feine Linie. Beide Hälften sind gleich gebaut: Nummer, Wappen,
+ * Ort, kleine Zeile, Hauptzahl mit Einheit, unten das Anstossdatum. Links ist
+ * die Hauptzahl die Punkte, rechts der Tabellenplatz des Gegners.
  */
 function renderMatchdays(insight: PlayerInsight): string {
   const days = insight.matchdays;
@@ -262,16 +281,21 @@ function renderMatchdays(insight: PlayerInsight): string {
 
   const past = days.filter((day) => !day.ahead);
   const ahead = days.filter((day) => day.ahead);
+  // Solange die Tabelle nichts aussagt, bleiben Platz und Pfeil weg.
+  const ranked = countedDays(past, ahead) >= TABLE_COUNTS_FROM;
 
   /*
    * Eine Kachel je Spieltag, gespielt und geplant gleich gebaut: Nummer oben,
    * darunter das Wappen mit dem Ort rechts und der Einschätzung links, dann
-   * das Ergebnis, unten die Hauptzahl mit ihrer Einheit.
+   * das Ergebnis, die Hauptzahl mit ihrer Einheit, ganz unten das Datum.
+   *
+   * `start` schiebt die erste gespielte Kachel im Raster nach rechts, damit
+   * eine halb volle Vergangenheit an der Linie steht und nicht am Rand.
    */
-  const cell = (day: MatchdayEntry): string => {
+  const cell = (day: MatchdayEntry, start = 0): string => {
     const number = day.day > 0 ? String(day.day) : '&nbsp;';
-    const month = monthShort(day.kickoff);
-    const label = month ? `${number}<i>${month}</i>` : number;
+    const place = start > 1 ? ` style="grid-column-start:${start}"` : '';
+    const date = dateShort(day.kickoff) || '&nbsp;';
 
     const crest = day.opponentId
       ? `<img class="pd-day-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="22" height="22">`
@@ -281,22 +305,25 @@ function renderMatchdays(insight: PlayerInsight): string {
       : `<span class="pd-venue${day.home ? '' : ' pd-venue--away'}">${day.home ? 'H' : 'A'}</span>`;
     // Die Einschätzung sitzt links am Wappen, spiegelbildlich zum Ort. Beides
     // gehört zum Gegner, deshalb hängt beides an seinem Wappen.
-    const glyph = day.ahead ? trendGlyph(day) : '';
+    const glyph = day.ahead && ranked ? trendGlyph(day) : '';
     const trend = glyph
       ? `<span class="pd-trend ${trendClass(day)}" aria-label="${trendLabel(day)}">${glyph}</span>`
       : '';
     const badge = `<span class="pd-day-badge">${crest}${trend}${venue}</span>`;
 
     if (day.ahead) {
+      const position = ranked && day.opponentPosition > 0 ? String(day.opponentPosition) : '';
       const title = `${escapeHtml(day.opponentName ?? 'Gegner unbekannt')}, `
-        + `${day.home ? 'zu Hause' : 'auswärts'}, Spieltag ${day.day}, ${trendLabel(day)}`;
+        + `${day.home ? 'zu Hause' : 'auswärts'}, Spieltag ${day.day}`
+        + (ranked ? `, ${trendLabel(day)}` : '');
       return `
-        <span class="pd-day pd-day--ahead" title="${title}">
-          <span class="pd-day-num">${label}</span>
+        <span class="pd-day pd-day--ahead"${place} title="${title}">
+          <span class="pd-day-num">${number}</span>
           ${badge}
           <span class="pd-day-note">&nbsp;</span>
-          <span class="pd-day-main">${day.opponentPosition > 0 ? String(day.opponentPosition) : '&nbsp;'}</span>
-          <span class="pd-day-unit">Platz</span>
+          <span class="pd-day-main">${position || '&nbsp;'}</span>
+          <span class="pd-day-unit">${position ? 'Platz' : '&nbsp;'}</span>
+          <span class="pd-day-date">${date}</span>
         </span>
       `;
     }
@@ -308,21 +335,23 @@ function renderMatchdays(insight: PlayerInsight): string {
       + (day.opponentName ? `, gegen ${escapeHtml(day.opponentName)}` : '')
       + (day.played ? `, ${day.points} Punkte` : ', nicht gespielt');
     return `
-      <span class="pd-day${day.played ? '' : ' pd-day--out'}" title="${title}">
-        <span class="pd-day-num">${label}</span>
+      <span class="pd-day${day.played ? '' : ' pd-day--out'}"${place} title="${title}">
+        <span class="pd-day-num">${number}</span>
         ${badge}
         <span class="pd-day-note ${resultClass(day)}">${scoreline}</span>
         <span class="pd-day-main">${day.played ? day.points : '&middot;'}</span>
         <span class="pd-day-unit">${day.played ? 'Punkte' : '&nbsp;'}</span>
+        <span class="pd-day-date">${date}</span>
       </span>
     `;
   };
 
-  const pastCells = past.length > 0
-    ? past.slice(-PAST_SLOTS).map(cell).join('')
+  const shown = past.slice(-PAST_SLOTS);
+  const pastCells = shown.length > 0
+    ? shown.map((day, i) => cell(day, i === 0 ? PAST_SLOTS - shown.length + 1 : 0)).join('')
     : '<span class="pd-note">Noch keine Spieltage</span>';
   const aheadCells = ahead.length > 0
-    ? ahead.slice(0, AHEAD_SLOTS).map(cell).join('')
+    ? ahead.slice(0, AHEAD_SLOTS).map((day) => cell(day)).join('')
     : '<span class="pd-note">Saison ist durch</span>';
 
   return `
@@ -334,7 +363,7 @@ function renderMatchdays(insight: PlayerInsight): string {
         <span class="pd-half pd-half--ahead">${aheadCells}</span>
       </div>
       <p class="pd-legend">
-        H Heim, A auswärts. Pfeil hoch heisst schwacher Gegner, runter starker.
+        H Heim, A auswärts.${ranked ? ' Pfeil hoch heisst schwacher Gegner, runter starker.' : ''}
       </p>
     </section>
   `;

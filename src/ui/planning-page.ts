@@ -705,6 +705,7 @@ export class PlanningPage {
       top11Ids: scores?.top11Ids ?? [],
       lineupInput: scores?.lineupInput ?? null,
       fixtures: scores?.fixturesAhead[row.teamId] ?? [],
+      kickoffs: scores?.kickoffs[row.teamId] ?? {},
       teams: scores?.opponents.teams ?? {},
       teamCount: scores?.opponents.teamCount ?? 0,
       weekly: weekly
