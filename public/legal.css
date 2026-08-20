@@ -45,13 +45,45 @@ a {
   color: var(--primary);
 }
 
+/*
+ * Kopfzeile über der Karte: links die Marke, rechts der Weg zurück. Das
+ * seitliche Polster ist dasselbe wie in der Karte, damit die Marke mit dem
+ * Text darunter bündig steht.
+ */
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 4px 32px 20px;
+}
+
 .brand {
-  display: inline-block;
-  padding: 4px 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-strong);
   text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+
+.brand:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.top-back {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .box {
@@ -101,11 +133,13 @@ code {
   padding: 0 4px;
 }
 
+/* Dasselbe seitliche Polster wie Kopfzeile und Karte: die drei Links stehen
+   damit auf derselben Kante wie der Text darüber. */
 footer {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 20px 0 0;
+  padding: 20px 32px 0;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -118,8 +152,49 @@ footer span {
   color: var(--border);
 }
 
+/* ---------- Funktionsseite ---------- */
+
+/*
+ * „Was die App kann" liegt in derselben Breite wie die Rechtsseiten. Der Text
+ * nutzt sie ganz, die Bilder auch: ein Ausschnitt, der breiter waere als die
+ * Karte, muesste kleiner gerechnet werden und waere dann nicht mehr zu lesen.
+ */
+.shot {
+  margin: 16px 0 26px;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  /* Heller Grund und feine Kante: die Bilder sind selbst hell, ohne Rahmen
+     schwimmen sie auf der weissen Karte. */
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px var(--border);
+}
+
+/* Die zwei Dialoge sind hochkant, ueber die volle Breite waeren sie riesig.
+   Mittig gestellt, damit sie nicht an der linken Kante kleben. */
+.shot--narrow img {
+  max-width: 380px;
+  margin-inline: auto;
+}
+
+.shot figcaption {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
 @media (max-width: 560px) {
   .box {
     padding: 22px 18px;
+  }
+
+  .top,
+  footer {
+    padding-inline: 18px;
   }
 }
