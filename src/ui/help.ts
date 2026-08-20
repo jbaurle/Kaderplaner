@@ -99,9 +99,10 @@ export const FEATURES_HELP_BODY = `
     <dd>
       Ein <span class="help-sample-listed">blauer Name</span> heißt: den
       Spieler hast du selbst auf den Markt gestellt. Der Spielerdialog zeigt
-      dann oben, was du aufgerufen hast, wie weit das vom Marktwert weg ist
-      und wie lange das Angebot noch läuft. Liegen Gebote, führt der Knopf
-      daneben direkt zu ihnen.
+      dann oben, was du aufgerufen hast und wie weit das vom Marktwert weg
+      ist. Liegen Gebote, führt der Knopf daneben direkt zu ihnen. Eine
+      Frist steht dort nicht: dein Angebot läuft nicht ab, es steht, bis du
+      es zurückziehst oder ein Gebot annimmst.
     </dd>
 
     <dt>Gebote sehen</dt>
