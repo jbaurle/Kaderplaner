@@ -415,6 +415,12 @@ export class LineupPage {
     const target = event.target as HTMLElement | null;
     if (!target) return;
 
+    // Klick neben das Blatt schliesst, wie bei den Dialogen in planning-page.
+    if (target === this.layer) {
+      this.close();
+      return;
+    }
+
     if (target.closest('[data-close]')) {
       this.close();
       return;
