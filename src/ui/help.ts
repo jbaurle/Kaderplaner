@@ -141,8 +141,9 @@ export const FEATURES_HELP_BODY = `
 
     <dt>Aufstellung</dt>
     <dd>
-      Der Formations-Chip im Kopf, etwa <strong>5-4-1</strong>, öffnet ein
-      Spielfeld. Dort stellst du die Elf zusammen und schickst sie zurück an
+      Der Knopf <strong>Aufstellung</strong> im Kopf öffnet ein Spielfeld, der
+      Formations-Chip daneben, etwa <strong>5-4-1</strong>, führt zum selben
+      Ort. Dort stellst du die Elf zusammen und schickst sie zurück an
       Kickbase. Der Entwurf bleibt bis dahin lokal.
     </dd>
   </dl>

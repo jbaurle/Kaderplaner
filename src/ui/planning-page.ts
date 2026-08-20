@@ -492,6 +492,7 @@ export class PlanningPage {
                     id="laden-btn"${state.isLoading ? ' disabled aria-busy="true"' : ''}>
               <span class="btn-label">Laden</span>
             </button>
+            <button type="button" class="btn btn--secondary" id="lineup-btn">Aufstellung</button>
           </div>
         </header>
         ${
@@ -548,6 +549,9 @@ export class PlanningPage {
 
     props.host
       .querySelector('[data-lineup]')
+      ?.addEventListener('click', () => this.openLineup(view));
+    props.host
+      .querySelector('#lineup-btn')
       ?.addEventListener('click', () => this.openLineup(view));
     props.host.querySelector('#laden-btn')?.addEventListener('click', () => void this.fetch());
     props.host.querySelector('#logout-btn')?.addEventListener('click', () => props.onLogout());

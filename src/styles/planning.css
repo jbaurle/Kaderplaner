@@ -210,6 +210,23 @@
   cursor: not-allowed;
 }
 
+/* Zweitrangig neben "Laden": gleiche Höhe, nur Umriss statt Fläche. Das
+   Polster ist 1 px kleiner, den Rest holt der Rahmen zurück. */
+.btn--secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 5px 15px;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .btn--secondary:hover {
+    border-color: var(--border-strong);
+    color: var(--text-strong);
+  }
+}
+
 /*
  * Laden läuft: das Label hält die Breite und wird unsichtbar, darüber dreht
  * sich ein Ring. Mit wechselndem Text ("Bitte warten…") sprang der Knopf in
