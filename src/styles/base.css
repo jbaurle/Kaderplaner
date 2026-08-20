@@ -300,6 +300,428 @@ button {
   border-color: var(--action);
 }
 
+/* ==================================================================
+   Startseite: links der Text, rechts die Anmeldung auf einem Bild der
+   laufenden App.
+
+   Ein Markup für alle Breiten. Jeder Umbruch hängt an der Breite der
+   Seite, nicht am Gerät: `.lp-page` ist der Container, die Abstände
+   wachsen in `cqw` mit.
+   ================================================================== */
+
+.lp-page {
+  container-type: inline-size;
+
+  /* Rand, Spaltenabstand und Überhang wachsen mit der Seite. */
+  --lp-gutter: clamp(12px, 2.4cqw, 28px);
+  --lp-column-gap: clamp(24px, 4.4cqw, 48px);
+  --lp-overhang: clamp(12px, 3.4cqw, 38px);
+  --lp-panel-inset: clamp(20px, 4.6cqw, 52px);
+  /*
+   * Wie weit die Anmeldekarte über die linke Bildkante hängt. Deutlich mehr
+   * als der Überhang der Bühne: die Karte soll mittig auf der Seite stehen,
+   * nicht mittig auf dem Bild.
+   */
+  --lp-panel-pull: calc(var(--lp-overhang) + clamp(10px, 5cqw, 72px));
+  /* Platz unter der Anmeldekarte, dort liegt der Spielerdialog. */
+  --lp-player-room: clamp(140px, 24cqw, 280px);
+  /* Streifen über dem Bild, um den die Aufstellung oben übersteht. */
+  --lp-lineup-room: clamp(18px, 3cqw, 34px);
+
+  /*
+   * Gedeckelt und mittig: ohne Deckel zieht das Bild auf einem breiten
+   * Schirm über die halbe Wand, und der Text daneben steht verloren.
+   */
+  max-width: 1440px;
+  min-height: 100vh;
+  margin-inline: auto;
+  padding: clamp(16px, 2.6cqw, 32px) var(--lp-gutter) 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  /* Bild und Karten laufen bis an den Seitenrand. Der Schnitt sitzt genau
+     dort, quer rollen lässt sich nichts. Senkrecht bleibt stehen, was
+     übersteht: clip auf einer Achse lässt visible auf der anderen gelten. */
+  overflow-x: clip;
+}
+
+/* Am Handy stehen die drei Blöcke einfach untereinander. */
+.lp-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Kopf ---------- */
+
+.lp-head {
+  max-width: 34rem;
+}
+
+/* Marke neben dem Titel, nicht darüber: eine eigene Zeile kostete Höhe, die
+   der Kopf neben dem Bild nicht hat. Dieselbe Datei wie das Favicon, also nur
+   ein Abruf für beides. */
+.lp-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  /* Knapp genug, dass "Kickbase Kaderplaner" in der Spalte in eine Zeile
+     passt. Groesser bricht der Name um, und der Umbruch trifft mitten in den
+     Eigennamen. */
+  font-size: clamp(21px, 2.45cqw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* Wächst mit der Schrift: die Kachel bleibt so hoch wie eine Zeile. */
+.lp-mark {
+  display: block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.lp-kicker {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.lp-kicker b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---------- Bild und Anmeldekarte ---------- */
+
+.lp-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lp-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.lp-panel-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+
+/* Sagt, welches Konto gemeint ist. Die häufigste Frage vor dem Eintippen. */
+.lp-panel-note {
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.lp-submit {
+  margin-top: 2px;
+  padding: 13px 16px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--action);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lp-submit:hover:not(:disabled) {
+  background: var(--action-hover);
+}
+
+.lp-submit:active:not(:disabled) {
+  background: var(--action-active);
+}
+
+.lp-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lp-rule {
+  margin: 3px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Bild. Am Handy volle Breite unter der Karte, unten beschnitten, damit die
+   Tabelle gross genug bleibt. */
+.lp-shot {
+  position: relative;
+  margin: 2px calc(-1 * var(--lp-gutter)) 0;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  border-block: 1px solid var(--border);
+  background: var(--border);
+}
+
+/* Der Handy-Screenshot hat rechts einen fremden Streifen. Breiter als der
+   Rahmen gezeichnet und ein Stück nach links geschoben fällt er weg, der
+   graue Rand links ebenso. Der Rahmen darüber schneidet. */
+.lp-shot-img {
+  display: block;
+  width: 120%;
+  max-width: none;
+  height: auto;
+  margin-left: -2%;
+}
+
+/*
+ * Die zwei aufgelegten Karten: der Spielerdialog und die Aufstellung, jeder
+ * für sich freigestellt.
+ *
+ * Am Handy liegen sie nicht auf dem Bild, dort ist der Platz zu knapp. Sie
+ * stehen dann nebeneinander unter der Tabelle: auch am Telefon soll zu sehen
+ * sein, dass es mehr gibt als eine Liste.
+ */
+.lp-inset {
+  flex: 1;
+  min-width: 0;
+  padding: 5px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14),
+    0 2px 5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Beide Karten in einer Zeile, oben bündig: die eine ist höher als die
+   andere, unten auszurichten sähe nach Zufall aus. */
+.lp-cards {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.lp-inset-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Beschreibung und Fusszeile ---------- */
+
+.lp-intro {
+  max-width: 34rem;
+}
+
+.lp-body {
+  margin: 0 0 10px;
+  font-size: clamp(15px, 1.5cqw, 17px);
+  line-height: 1.55;
+}
+
+/* Führt in die Hilfe, die auch die angemeldete App zeigt. Ein Knopf, kein
+   Link: er öffnet ein Overlay, er führt nicht auf eine Adresse. */
+.lp-more {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+
+.lp-more:hover {
+  text-decoration-thickness: 2px;
+}
+
+.lp-more-arrow {
+  font-weight: 400;
+}
+
+.lp-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  /* Bleibt unten, auch wenn die Seite kürzer ist als das Fenster. */
+  margin-top: auto;
+  padding-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.lp-foot a {
+  color: var(--text-muted);
+}
+
+.lp-foot span {
+  color: var(--border-strong);
+}
+
+/* ==================================================================
+   Breite Seite: links der Text auf hellem Grund, rechts das Bild bis
+   an den Rand, darüber die Anmeldekarte.
+   ================================================================== */
+
+@container (min-width: 720px) {
+  .lp-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "head shot"
+      "intro shot";
+    /* Die Karte hängt weit über die Bildkante, ihr ganzer Zug kommt zum
+       Spaltenabstand dazu. Sonst liegt sie auf dem Text daneben. */
+    column-gap: calc(var(--lp-column-gap) + var(--lp-panel-pull));
+    row-gap: 16px;
+  }
+
+  /* Kopf unten, Beschreibung oben: zusammen stehen die beiden Blöcke damit
+     mittig neben dem Bild. Der Abstand hebt sie als Paar an, sonst sitzt der
+     Titel auf halber Höhe und die obere Hälfte der Seite steht leer. */
+  .lp-head {
+    grid-area: head;
+    align-self: end;
+    margin-bottom: clamp(12px, 4.5cqw, 64px);
+  }
+
+  .lp-intro {
+    grid-area: intro;
+    align-self: start;
+  }
+
+  .lp-showcase {
+    grid-area: shot;
+    /* Läuft in den Seitenrand hinein und endet am Rand der Seite. */
+    margin-right: calc(-1 * var(--lp-gutter));
+    /* Die Anmeldung steht oben, darunter bleibt der Streifen für den
+       Spielerdialog frei. Oben ein schmaler Streifen für die Aufstellung. */
+    justify-content: flex-start;
+    padding-top: var(--lp-lineup-room);
+    padding-bottom: var(--lp-player-room);
+  }
+
+  /* Das Bild beginnt unter dem oberen Streifen, damit die Aufstellung darüber
+     hinausstehen kann, so wie der Spielerdialog unten. */
+  .lp-shot {
+    position: absolute;
+    inset: var(--lp-lineup-room) 0 0 0;
+    margin: 0;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  /*
+   * Das Bild liegt grösser im Rahmen, als der Rahmen hoch ist: oben und unten
+   * fallen der Kopf der App und die Summenzeile weg, der Rest steht dafür fast
+   * in Originalgrösse da.
+   *
+   * Rechts endet der Ausschnitt an der Kante der App: der Inhalt reicht im
+   * Screenshot bis Pixel 1250 von 1407, dahinter liegt nur noch der
+   * Rollbalken. 83 % stellen die Kante an den Rand, damit die Spalte mit
+   * Wappen und Pfeil ganz zu sehen ist.
+   */
+  .lp-shot-img {
+    position: absolute;
+    top: -21%;
+    left: 0;
+    width: 100%;
+    height: 130%;
+    margin: 0;
+    object-fit: cover;
+    object-position: 83% 0;
+  }
+
+  .lp-panel {
+    position: relative;
+    z-index: 1;
+    width: clamp(280px, 66%, 396px);
+    /* Hängt links über die Bildkante hinaus, damit die Karte als eigene
+       Fläche liest und nicht als Teil des Screenshots. */
+    margin: var(--lp-panel-inset) 0 0 calc(-1 * var(--lp-panel-pull));
+    padding: clamp(20px, 2.4cqw, 28px);
+    border-radius: 14px;
+    box-shadow: 0 26px 54px rgba(15, 23, 42, 0.26),
+      0 8px 18px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  }
+}
+
+/* ==================================================================
+   Ab hier die zwei aufgelegten Karten. Erst bei dieser Breite bleibt
+   neben der Anmeldekarte Luft dafür. Über der Anmeldung liegt keine:
+   die hat z-index 1, die Karten haben keinen.
+   ================================================================== */
+
+@container (min-width: 880px) {
+  /* Die Zeile mit den zwei Karten löst sich auf, die Karten liegen jetzt
+     einzeln auf dem Bild. */
+  .lp-cards {
+    display: contents;
+  }
+
+  .lp-inset {
+    position: absolute;
+    flex: none;
+    padding: clamp(4px, 0.5cqw, 6px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18),
+      0 2px 6px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+
+  /*
+   * Der Spielerdialog, unten links. Er hängt über die linke Kante des
+   * Tabellenbilds hinaus und steht damit halb auf dem hellen Grund: so liest
+   * er als eigenes Blatt und nicht als Teil des Screenshots.
+   */
+  .lp-inset--player {
+    left: calc(-1 * clamp(40px, 7cqw, 84px));
+    bottom: calc(-1 * clamp(6px, 0.9cqw, 12px));
+    width: clamp(170px, 19.5cqw, 232px);
+  }
+
+  /*
+   * Die Aufstellung, oben rechts. Sie steht oben über die Bildkante hinaus,
+   * so wie der Spielerdialog unten, bleibt dabei aber ganz zu sehen:
+   * angeschnitten wäre sie als dritte Ebene schwer zu lesen.
+   */
+  .lp-inset--lineup {
+    right: clamp(8px, 1.2cqw, 16px);
+    top: 0;
+    width: clamp(160px, 21cqw, 250px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14),
+      0 2px 5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Gedämpft wird das Bild, nicht die Karte: die bleibt deckend, sonst
+     scheint die Tabelle durch den Rasen und das liest als Fehler. */
+  .lp-inset--lineup .lp-inset-img {
+    opacity: 0.84;
+    filter: saturate(0.85);
+  }
+}
+
 /* ---------- Banner ---------- */
 
 .banner {
