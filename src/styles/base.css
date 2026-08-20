@@ -483,26 +483,18 @@ button {
  * Die zwei aufgelegten Karten: der Spielerdialog und die Aufstellung, jeder
  * für sich freigestellt.
  *
- * Am Handy liegen sie nicht auf dem Bild, dort ist der Platz zu knapp. Sie
- * stehen dann nebeneinander unter der Tabelle: auch am Telefon soll zu sehen
- * sein, dass es mehr gibt als eine Liste.
+ * Auf schmalen Geräten gibt es sie nicht, so wie das Tabellenbild. Wer die
+ * Seite dort öffnet, will sich anmelden, und dazu gehört ein Formular und
+ * nicht eine Reihe Bilder darüber.
  */
+.lp-cards {
+  display: none;
+}
+
 .lp-inset {
-  flex: 1;
-  min-width: 0;
   padding: 5px;
   background: var(--card);
   border-radius: var(--radius-lg);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14),
-    0 2px 5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
-}
-
-/* Beide Karten in einer Zeile, oben bündig: die eine ist höher als die
-   andere, unten auszurichten sähe nach Zufall aus. */
-.lp-cards {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
 }
 
 .lp-inset-img {
@@ -669,15 +661,14 @@ button {
    ================================================================== */
 
 @container (min-width: 880px) {
-  /* Die Zeile mit den zwei Karten löst sich auf, die Karten liegen jetzt
-     einzeln auf dem Bild. */
+  /* Die Zeile um die Karten trägt hier nichts mehr: jede Karte liegt an
+     ihrer eigenen Stelle auf dem Bild. */
   .lp-cards {
     display: contents;
   }
 
   .lp-inset {
     position: absolute;
-    flex: none;
     padding: clamp(4px, 0.5cqw, 6px);
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18),
       0 2px 6px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
