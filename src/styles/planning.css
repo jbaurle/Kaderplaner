@@ -375,23 +375,34 @@
 }
 
 /*
- * Er soll aber wie Text aussehen, nicht wie ein Knopf: nur der gepunktete
- * Unterstrich verrät, dass er etwas aufmacht. Das Trefferfeld wächst über ein
+ * Er soll aber wie Text aussehen, nicht wie ein Knopf: nur der gestrichelte
+ * Unterstrich verrät, dass er etwas aufmacht. Grau, nicht grün: Grün heisst in
+ * dieser Tabelle Gebot, und eine ganze Spalte davon wäre lauter als der eine
+ * Betrag, der dort heraussticht. Das Trefferfeld wächst über ein
  * Pseudoelement auf Fingergröße, ohne die Zeilenhöhe zu ändern, genau wie bei
  * `.amount-offer`.
  */
 .planning-shell .name-btn {
   position: relative;
   padding: 0;
+  /*
+   * Platz für den Unterstrich, sonst schneidet ihn das `overflow: hidden` aus
+   * `.name-text` ab: der Strich sitzt 3 px unter der Grundlinie und damit
+   * ausserhalb des Kastens, den das Kürzen mit Auslassungspunkten braucht. Der
+   * negative Rand nimmt die 3 px aus dem Layout wieder heraus, die Zeile
+   * bleibt so hoch wie vorher.
+   */
+  padding-bottom: 3px;
+  margin-bottom: -3px;
   border: 0;
   background: none;
   font: inherit;
   color: inherit;
   text-align: left;
-  text-decoration: underline dotted;
+  text-decoration: underline dashed;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
-  text-decoration-color: var(--border-strong);
+  text-decoration-color: var(--text-muted);
   cursor: pointer;
 }
 
@@ -403,7 +414,7 @@
 
 @media (hover: hover) {
   .planning-shell .name-btn:hover {
-    text-decoration-color: var(--text-muted);
+    text-decoration-style: solid;
   }
 }
 
