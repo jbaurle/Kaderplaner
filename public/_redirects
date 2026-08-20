@@ -1,0 +1,4 @@
+# Alte deutsche Adressen der Rechtsseiten, dauerhaft umgeleitet.
+/datenschutz.html /privacy.html 301
+/impressum.html /legal-notice.html 301
+/nutzungsbedingungen.html /terms.html 301
