@@ -463,26 +463,20 @@ button {
   border-top: 1px solid var(--border);
 }
 
-/* Bild. Am Handy volle Breite unter der Karte, unten beschnitten, damit die
-   Tabelle gross genug bleibt. */
+/*
+ * Das Tabellenbild gibt es erst auf der breiten Seite. Am Handy wäre es ein
+ * hoher Streifen, durch den man scrollt, bevor irgendetwas gesagt ist: dort
+ * tragen die zwei kleinen Karten darunter mehr. `display: none` heisst
+ * ausserdem, dass das Bild am Telefon gar nicht erst geladen wird.
+ */
 .lp-shot {
-  position: relative;
-  margin: 2px calc(-1 * var(--lp-gutter)) 0;
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
-  border-block: 1px solid var(--border);
-  background: var(--border);
+  display: none;
 }
 
-/* Der Handy-Screenshot hat rechts einen fremden Streifen. Breiter als der
-   Rahmen gezeichnet und ein Stück nach links geschoben fällt er weg, der
-   graue Rand links ebenso. Der Rahmen darüber schneidet. */
 .lp-shot-img {
   display: block;
-  width: 120%;
-  max-width: none;
+  width: 100%;
   height: auto;
-  margin-left: -2%;
 }
 
 /*
@@ -625,11 +619,10 @@ button {
   /* Das Bild beginnt unter dem oberen Streifen, damit die Aufstellung darüber
      hinausstehen kann, so wie der Spielerdialog unten. */
   .lp-shot {
+    display: block;
     position: absolute;
     inset: var(--lp-lineup-room) 0 0 0;
-    margin: 0;
-    aspect-ratio: auto;
-    border: 0;
+    overflow: hidden;
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
     box-shadow: var(--shadow-card);
   }
