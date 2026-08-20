@@ -178,8 +178,8 @@ function renderHead(input: PlayerDialogInput): string {
             <span class="chip chip--pos${input.position}">${input.positionLabel}</span>
             <span class="pd-club">${escapeHtml(club)}</span>
             <span class="pd-status${fit ? '' : ' pd-status--out'}" title="${statusTitle}" aria-label="${statusTitle}"></span>
+            ${renderNewsLink(fullName, club, fit ? '' : input.statusText)}
           </span>
-          ${renderNewsLink(fullName, club, fit ? '' : input.statusText)}
         </span>
         <button type="button" class="dialog-close pd-close" data-dialog-close aria-label="Schließen">×</button>
       </div>
@@ -211,7 +211,7 @@ function renderNewsLink(fullName: string, club: string, statusText: string): str
     ? `Nachrichten zum Ausfall von ${fullName} suchen`
     : `Nachrichten zu ${fullName} suchen`;
   return `<a class="pd-news" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"
-             title="${escapeHtml(title)}">News suchen</a>`;
+             title="${escapeHtml(title)}">News</a>`;
 }
 
 // ---------- Score ----------
@@ -397,7 +397,7 @@ function renderSale(insight: PlayerInsight): string {
           <span class="pd-cell-note">Erlös minus Kreditlinie</span>
         </span>
         <span class="pd-cell">
-          <span class="pd-cell-label">Rahmen danach</span>
+          <span class="pd-cell-label">Spielraum danach</span>
           <span class="pd-cell-value${signClass(sale.headroomAfter)}">${formatMio(sale.headroomAfter)}</span>
           <span class="pd-cell-note">jetzt ${formatMio(sale.headroomNow)}</span>
         </span>
