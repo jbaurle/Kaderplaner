@@ -3,6 +3,8 @@
   K auf Leiste: der bekannte Buchstabe, aber er steht auf der grünen Zeile der
   Tabelle. Kachel wie in der App, Slate mit 20 Prozent Radius. Der Buchstabe ist
   gezeichnet, nicht gesetzt, damit er ohne Inter überall gleich aussieht.
+  Die Leiste trägt dasselbe Grün wie Anmelden und Laden, das Token `action`
+  mit #047857: Marke und auslösender Knopf sprechen damit dieselbe Farbe.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect width="100" height="100" rx="20" fill="#1f2937"/>
@@ -11,5 +13,5 @@
     <path d="M32 46 L64 20"/>
     <path d="M32 44 L66 68"/>
   </g>
-  <rect x="20" y="76" width="60" height="10" rx="5" fill="#34d399"/>
+  <rect x="20" y="76" width="60" height="10" rx="5" fill="#047857"/>
 </svg>
