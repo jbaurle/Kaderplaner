@@ -27,6 +27,7 @@ function row(overrides: Partial<PlanningRow> & { id: string }): PlanningRow {
     status: overrides.status ?? 0,
     probability: overrides.probability ?? 0,
     imagePath: overrides.imagePath ?? '',
+    listing: overrides.listing ?? null,
     flags: overrides.flags ?? { S1: false, S2: false, S3: false, S4: false },
   };
 }

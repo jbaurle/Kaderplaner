@@ -440,6 +440,12 @@
   outline-offset: 2px;
 }
 
+/* Blau heisst: der Spieler steht im Transfermarkt. Nur die Farbe, der
+   gestrichelte Unterstrich bleibt wie bei jedem anderen Namen. */
+.planning-shell .name-btn--listed {
+  color: var(--market);
+}
+
 /*
  * Untergrenze der Namensspalte: acht Zeichen plus die Breite des Wappens.
  * Ohne sie schrumpft der Name so weit, dass die vollen Beträge auch dann noch
@@ -1438,6 +1444,14 @@ body.is-dialog-open {
   text-decoration-thickness: 1px;
 }
 
+/* Wie der Name in der Tabelle: blau, gestrichelt unterstrichen. */
+.help-sample-listed {
+  color: var(--market);
+  text-decoration: underline dashed;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
 /* ---------- Ligaauswahl im Overlay ---------- */
 
 .league-choice {
@@ -2099,6 +2113,73 @@ body.is-dialog-open {
   text-align: center;
   font-size: 10px;
   color: var(--text-muted);
+}
+
+/*
+ * Das eigene Angebot im Transfermarkt, als Streifen unter den Beträgen. Er
+ * darf umbrechen: auf schmalen Geräten rutscht der Gebotsknopf in die zweite
+ * Zeile, statt den Text zu quetschen.
+ */
+.pd-market {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 6px 8px;
+  border: 1px solid var(--market-border);
+  border-radius: var(--radius-sm);
+  background: var(--market-bg);
+  font-size: 11.5px;
+  color: var(--market);
+}
+
+.pd-market-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--market);
+}
+
+.pd-market-text {
+  /* Der Text behält seine Zeile, der Gebotsknopf rutscht darunter, wenn es
+     eng wird. Ohne die Basis quetscht der Knopf den Text und die Angaben
+     brechen mitten im Wort um. */
+  flex: 1 1 13rem;
+}
+
+.pd-market-text > span {
+  white-space: nowrap;
+}
+
+.pd-market-text b {
+  font-weight: 600;
+}
+
+/* Gleicher Zuschnitt wie die Chips im Kopf, damit er als Knopf zu erkennen
+   ist, ohne den Streifen zu überstrahlen. */
+.pd-market-offers {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--market-border);
+  border-radius: 999px;
+  background: var(--card);
+  font: inherit;
+  font-weight: 600;
+  color: var(--market);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .pd-market-offers:hover {
+    border-color: var(--market);
+  }
+}
+
+.pd-market-offers:focus-visible {
+  outline: 2px solid var(--market);
+  outline-offset: 1px;
 }
 
 .pd-body {

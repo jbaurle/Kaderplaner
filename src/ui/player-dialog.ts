@@ -12,7 +12,7 @@
 
 import type { PlayerId, PositionCode } from '../api/types.js';
 import type { ScoreDetail } from '../compute/optimizer.js';
-import type { PositionLabel } from '../compute/planning.js';
+import type { MarketListing, PositionLabel } from '../compute/planning.js';
 import type { MatchdayEntry, PlayerInsight } from '../compute/player-insight.js';
 import {
   escapeHtml,
@@ -47,6 +47,10 @@ export interface PlayerDialogInput {
   mvgl: number;
   /** Score und Teilwerte, null solange kein Lauf durch ist. */
   score: { score: number; detail: ScoreDetail } | null;
+  /** Das eigene Angebot im Transfermarkt, null wenn er nicht drin steht. */
+  listing: MarketListing | null;
+  /** Das höchste fremde Gebot, 0 wenn keins vorliegt. */
+  bestOffer: number;
   insight: PlayerInsight;
 }
 
@@ -189,8 +193,70 @@ function renderHead(input: PlayerDialogInput): string {
         <span class="pd-value"><span>G/V seit Kauf</span><b class="${input.mvgl < 0 ? 'pd-neg' : 'pd-pos'}">${formatSignedMio(input.mvgl)}</b></span>
       </div>
       <p class="pd-unit">Alle Beträge in Mio. €</p>
+      ${renderMarket(input)}
     </header>
   `;
+}
+
+/**
+ * Das eigene Angebot im Transfermarkt, eine Zeile unter den Beträgen. Sie
+ * steht nur da, wenn er wirklich drin steht: der aufgerufene Preis, sein
+ * Abstand zum Marktwert und, falls Kickbase eine nennt, die Restlaufzeit.
+ *
+ * Liegen Gebote, führt der Knopf rechts in den Gebotsdialog. Er trägt
+ * dasselbe `data-offers` wie der Betrag in der Tabelle, `wireModal` in
+ * `planning-page.ts` hängt sich daran.
+ */
+function renderMarket(input: PlayerDialogInput): string {
+  const listing = input.listing;
+  if (!listing) return '';
+
+  const overMarket = listing.price - input.marketValue;
+  // Ohne eigenen Preis meldet Kickbase den Marktwert. Dann steht das auch da:
+  // "aufgerufen 25,62" liest sich sonst wie eine Entscheidung.
+  const price =
+    overMarket === 0
+      ? 'zum Marktwert'
+      : `aufgerufen ${formatMio(listing.price)} (${formatSignedMio(overMarket)})`;
+  const count = listing.offerCount;
+  const offersBtn =
+    count > 0
+      ? `<button type="button" class="pd-market-offers" data-offers="${escapeHtml(input.playerId)}"
+                 title="Alle Gebote ansehen">${count === 1 ? '1 Gebot' : `${count} Gebote`} · ${formatMio(input.bestOffer)}</button>`
+      : '';
+
+  const remaining = remainingLabel(listing.expiresInSeconds);
+  const parts = [price, ...(remaining ? [remaining] : [])]
+    .map((part) => `<span>${part}</span>`)
+    .join(' · ');
+
+  return `
+      <div class="pd-market">
+        <span class="pd-market-dot" aria-hidden="true"></span>
+        <span class="pd-market-text"><b>Im Markt</b> · ${parts}</span>
+        ${offersBtn}
+      </div>
+  `;
+}
+
+/**
+ * Restlaufzeit in Worten, leer wenn keine bekannt ist.
+ *
+ * Zu eigenen Angeboten liefert Kickbase kein `exs`, und richtig so: sie laufen
+ * nicht ab, sondern stehen, bis man sie zurückzieht oder ein Gebot annimmt.
+ * Die Zeile lässt die Angabe dann weg, statt "abgelaufen" zu behaupten.
+ *
+ * Unter einer Stunde steht keine Zahl mehr da: der Wert stammt aus der letzten
+ * Marktabfrage und läuft nicht mit, "noch 12 min" wäre nach zwölf Minuten
+ * Ansehens falsch.
+ */
+function remainingLabel(seconds: number): string {
+  if (seconds <= 0) return '';
+  const hours = Math.floor(seconds / 3600);
+  if (hours < 1) return 'läuft bald ab';
+  if (hours < 24) return `noch ${hours} h`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? 'noch 1 Tag' : `noch ${days} Tage`;
 }
 
 /**

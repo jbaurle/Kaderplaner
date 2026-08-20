@@ -609,6 +609,10 @@ function renderPlayerRow(
   activeSlot: ResolvedScenarioSlot,
 ): string {
   const nameCls = row.isInLineup ? 'col-name col-name--lineup' : 'col-name';
+  // Blau heisst: steht im Transfermarkt. Der Preis und die Gebote stehen im
+  // Spielerdialog, in der Zeile ist dafür kein Platz.
+  const listedCls = row.listing ? ' name-btn--listed' : '';
+  const listedTitle = row.listing ? ' title="Steht im Transfermarkt"' : '';
   const gainLossCls = signColorClass(row.gainLoss);
 
   const scenCells = ALL_SLOTS.map((slot) => {
@@ -636,7 +640,7 @@ function renderPlayerRow(
 
   return `
     <tr>
-      <td class="${nameCls}" data-player="${escapeHtml(row.id)}"><button type="button" class="name-text name-btn">${escapeHtml(row.name)}</button>${renderTeamLogo(row.teamId, opponents.teams)}</td>
+      <td class="${nameCls}" data-player="${escapeHtml(row.id)}"><button type="button" class="name-text name-btn${listedCls}"${listedTitle}>${escapeHtml(row.name)}</button>${renderTeamLogo(row.teamId, opponents.teams)}</td>
       <td class="col-pos"><span class="chip chip--pos${row.position}">${escapeHtml(row.positionLabel)}</span></td>
       <td class="num col-mv">${renderSaleValue(row)}${mvglLine(row.gainLoss)}</td>
       ${scenCells}

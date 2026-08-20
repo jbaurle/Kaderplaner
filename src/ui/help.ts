@@ -92,6 +92,15 @@ export const FEATURES_HELP_BODY = `
       Szenariospalten und die Zeile <strong>Verkäufe</strong>.
     </dd>
 
+    <dt>Im Transfermarkt</dt>
+    <dd>
+      Ein <span class="help-sample-listed">blauer Name</span> heißt: den
+      Spieler hast du selbst auf den Markt gestellt. Der Spielerdialog zeigt
+      dann oben, was du aufgerufen hast, wie weit das vom Marktwert weg ist
+      und wie lange das Angebot noch läuft. Liegen Gebote, führt der Knopf
+      daneben direkt zu ihnen.
+    </dd>
+
     <dt>Gebote sehen</dt>
     <dd>
       Ein <span class="help-sample-offer">grüner Betrag</span> in der

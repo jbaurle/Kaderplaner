@@ -14,6 +14,15 @@
   --warning-text: #78350f;
   --success: #047857;
 
+  /*
+   * Transfermarkt: eigene Angebote. Ein Blau, weil Grün und Rot in den
+   * Beträgen schon Gewinn und Verlust heissen und eine Wertung hierher
+   * nicht gehört.
+   */
+  --market: #2563eb;
+  --market-bg: #eff6ff;
+  --market-border: #bfdbfe;
+
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.06);
   --radius: 8px;
   --radius-sm: 6px;

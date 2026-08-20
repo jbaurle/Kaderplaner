@@ -21,7 +21,7 @@ import type {
   PlayerId,
   SquadPlayer,
 } from '../api/types.js';
-import { computePlanning, type PlanningView } from '../compute/planning.js';
+import { computePlanning, type MarketListing, type PlanningView } from '../compute/planning.js';
 import {
   computeScores,
   type ScoreResult,
@@ -260,6 +260,25 @@ export class PlanningPage {
     return out;
   }
 
+  /**
+   * Die eigenen Angebote im Transfermarkt. Auf dem Markt stehen auch die
+   * eigenen Spieler, und nur die treffen den Kader: ein Kaderspieler, der
+   * dort auftaucht, ist einer, den man selbst eingestellt hat.
+   */
+  private listings(): Record<PlayerId, MarketListing> {
+    const squadIds = new Set((this.state.squad ?? []).map((p) => p.id));
+    const out: Record<PlayerId, MarketListing> = {};
+    for (const player of this.state.market) {
+      if (!squadIds.has(player.id)) continue;
+      out[player.id] = {
+        price: player.price,
+        expiresInSeconds: player.expiresInSeconds,
+        offerCount: player.offers.filter((o) => !o.isMine).length,
+      };
+    }
+    return out;
+  }
+
   /** Die fremden Gebote auf einen Spieler, absteigend. Leer, wenn keine da sind. */
   private offersFor(playerId: PlayerId): MarketOffer[] {
     const player = this.state.market.find((p) => p.id === playerId);
@@ -386,6 +405,7 @@ export class PlanningPage {
         flags: row.flags,
       })),
       bestOffers: this.bestOffers(),
+      listings: this.listings(),
     });
 
     return { view, transferRows };
@@ -733,6 +753,8 @@ export class PlanningPage {
       saleValue: row.saleValue,
       mvgl: row.mvgl,
       score: scores?.byPlayer[playerId] ?? null,
+      listing: row.listing,
+      bestOffer: row.bestOffer,
       insight,
     });
   }
@@ -746,6 +768,15 @@ export class PlanningPage {
     // Mehrere Schliesser: das Kreuz im Kopf und die bereits offene Liga.
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-dialog-close]')) {
       el.addEventListener('click', () => this.closeModal());
+    }
+
+    // Der Knopf im Marktstreifen des Spielerdialogs. Er löst den Spieler-
+    // dialog durch den Gebotsdialog ab, wie der grüne Betrag in der Tabelle.
+    for (const el of backdrop.querySelectorAll<HTMLElement>('[data-offers]')) {
+      el.addEventListener('click', () => {
+        const id = el.dataset['offers'];
+        if (id) this.openModal({ kind: 'offers', playerId: id });
+      });
     }
 
     // Die offene Liga trägt keine Id, ein Klick darauf lädt also nichts neu.

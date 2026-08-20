@@ -27,6 +27,20 @@ export interface ResolvedScenarioFlags {
 
 export type PositionLabel = 'TW' | 'ABW' | 'MF' | 'ANG';
 
+/**
+ * Ein eigenes Angebot im Transfermarkt. Es steht nur an Kaderspielern: fremde
+ * Spieler auf dem Markt kommen im Kader nicht vor, ein Kaderspieler dort ist
+ * also einer, den man selbst eingestellt hat.
+ */
+export interface MarketListing {
+  /** Aufgerufener Preis. Gleich dem Marktwert, wenn keiner gesetzt wurde. */
+  price: number;
+  /** Restlaufzeit in Sekunden, Stand der letzten Marktabfrage. */
+  expiresInSeconds: number;
+  /** Zahl der fremden Gebote, das eigene zählt hier nie mit. */
+  offerCount: number;
+}
+
 export interface PlanningRow {
   id: PlayerId;
   name: string;
@@ -56,6 +70,8 @@ export interface PlanningRow {
   probability: number;
   /** Bildpfad relativ zum CDN, leer wenn Kickbase keins führt. */
   imagePath: string;
+  /** Das eigene Angebot im Transfermarkt, null wenn er nicht drin steht. */
+  listing: MarketListing | null;
   flags: ResolvedScenarioFlags;
 }
 
@@ -146,6 +162,11 @@ export interface ComputePlanningInput {
    * Eintrag, zählt der Marktwert.
    */
   bestOffers?: Readonly<Record<PlayerId, number>>;
+  /**
+   * Die eigenen Angebote im Transfermarkt, je Spieler eins. Fehlt ein
+   * Eintrag, steht er nicht im Markt.
+   */
+  listings?: Readonly<Record<PlayerId, MarketListing>>;
 }
 
 const POSITION_LABELS: Record<PositionCode, PositionLabel> = {
@@ -174,7 +195,10 @@ export function computePlanning(input: ComputePlanningInput): PlanningView {
   });
 
   const bestOffers = input.bestOffers ?? {};
-  const rows: PlanningRow[] = sorted.map((p) => buildRow(p, scenarios, bestOffers[p.id] ?? 0));
+  const listings = input.listings ?? {};
+  const rows: PlanningRow[] = sorted.map((p) =>
+    buildRow(p, scenarios, bestOffers[p.id] ?? 0, listings[p.id] ?? null),
+  );
   const totalGainLoss = rows.reduce((sum, row) => sum + row.gainLoss, 0);
 
   const transfers = input.transfers ?? [];
@@ -217,6 +241,7 @@ function buildRow(
   player: SquadPlayer,
   scenarios: ScenarioState,
   bestOffer: number,
+  listing: MarketListing | null,
 ): PlanningRow {
   const userFlags = scenarios.byPlayer[player.id] ?? EMPTY_FLAGS;
   const saleValue = Math.max(player.marketValue, bestOffer);
@@ -237,6 +262,7 @@ function buildRow(
     status: player.status,
     probability: player.probability,
     imagePath: player.imagePath,
+    listing,
     flags: {
       S1: userFlags.S1,
       S2: userFlags.S2,
