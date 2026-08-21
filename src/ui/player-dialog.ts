@@ -255,7 +255,9 @@ function remainingLabel(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   if (hours < 1) return 'läuft bald ab';
   if (hours < 24) return `noch ${hours} h`;
-  const days = Math.round(hours / 24);
+  // Abgerundet, nicht gerundet: aus 36 Stunden würden sonst "noch 2 Tage",
+  // und die Angabe verspräche mehr Zeit, als das Angebot hat.
+  const days = Math.floor(hours / 24);
   return days === 1 ? 'noch 1 Tag' : `noch ${days} Tage`;
 }
 
