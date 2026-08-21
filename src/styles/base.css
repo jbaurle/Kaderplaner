@@ -609,7 +609,18 @@ button {
 }
 
 .lp-slide--wide .lp-slide-img {
-  object-position: 50% 12%;
+  /* Die Karte in der Datei sitzt nicht mittig: links bleibt ein grauer
+     Rand, rechts endet sie fast an der Bildkante (App-Kante, siehe
+     object-position weiter unten bei .lp-shot-img). 50% zeigt dadurch links
+     Leerraum und schneidet rechts Spalten ab — ganz nach rechts vermeidet
+     beides. */
+  object-position: 100% 12%;
+  /* Reicht allein nicht: die Karte ist im Original schmaler als der
+     Ausschnitt breit ist, ein Rest grauer Rand links bleibt sonst stehen.
+     Der Zoom wächst von der rechten Kante aus — die bleibt exakt an der
+     App-Kante stehen, nur links kommt mehr weg. */
+  transform: scale(1.18);
+  transform-origin: right top;
 }
 
 .lp-slide--offers .lp-slide-img {
@@ -617,12 +628,10 @@ button {
 }
 
 .lp-slide--tall .lp-slide-img {
-  /* Die Breite passt exakt (object-fit:cover deckt sie ohne Rest), nur die
-     Höhe hat Spielraum — ein paar Prozent vom oberen Rand weg schieben den
-     eigenen abgerundeten Rand der Dialog-Screenshots aus dem Zuschnitt,
-     ohne links oder rechts etwas zu verlieren. Ein transform:scale() vorher
-     schnitt stattdessen unnötig Avatar und Titel links ab. */
-  object-position: 50% 6%;
+  /* Neue Aufnahmen (21.08.2026) haben schon eigenen Rand eingebaut, kein
+     Zoom mehr nötig. 65% X zeigt mehr von der rechten Seite: dort steht
+     das Schliessen-Kreuz und der letzte Wert, 50% schnitt sie an. */
+  object-position: 65% 2%;
 }
 
 .lp-badge {
@@ -948,6 +957,10 @@ button {
     gap: 5px;
     font-size: 10.5px;
     white-space: nowrap;
+    /* `margin-top: auto` schiebt den Footer sonst ans untere Fensterende —
+       richtig auf der breiten Seite mit viel Inhalt, am Handy reisst es
+       eine grosse Lücke unters Kleingedruckte auf. */
+    margin-top: 16px;
   }
 }
 
