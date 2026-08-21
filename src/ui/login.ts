@@ -23,13 +23,30 @@ const REPO_URL = 'https://github.com/jbaurle/Kaderplaner';
 
 export interface LoginViewProps {
   prefilledEmail: string | null;
+  /**
+   * Grund für die Rückkehr hierher, etwa eine abgelaufene Sitzung. Steht im
+   * Anmeldefeld anstelle der üblichen Zeile darunter und schaltet am Handy
+   * gleich auf den Reiter mit dem Formular: wer eben noch drin war, braucht
+   * keine Vorstellung der App mehr.
+   */
+  notice?: string | null;
   onSubmit: (email: string, password: string) => Promise<void>;
 }
 
 export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
+  const notice = props.notice ?? '';
+  const startTab = notice ? 'login' : 'info';
+  const tab = (target: string) => ({
+    active: target === startTab ? ' is-active' : '',
+    selected: String(target === startTab),
+    index: target === startTab ? '0' : '-1',
+  });
+  const infoTab = tab('info');
+  const loginTab = tab('login');
+
   host.innerHTML = `
     <main class="lp-page">
-      <div class="lp-hero" data-tab="info">
+      <div class="lp-hero" data-tab="${startTab}">
 
         <header class="lp-head">
           <h1 class="lp-title">
@@ -43,14 +60,16 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           Bilder und Text, ab 720px zeigt die Bühne beides zugleich und die
           Reiter bleiben aus. "Was die App kann" steht zuerst und aktiv: wer
           neu hier ist, sieht erst den Beleg, bevor er sein Passwort eintippt.
+          Kommt jemand mit einem Hinweis zurück, etwa nach abgelaufener
+          Sitzung, steht stattdessen das Formular vorne.
         -->
         <div class="lp-tabs" role="tablist">
-          <button type="button" class="lp-tab is-active" role="tab" id="lp-tab-info"
-                  aria-selected="true" aria-controls="lp-panel-info" data-tab-target="info" tabindex="0">
+          <button type="button" class="lp-tab${infoTab.active}" role="tab" id="lp-tab-info"
+                  aria-selected="${infoTab.selected}" aria-controls="lp-panel-info" data-tab-target="info" tabindex="${infoTab.index}">
             Was die App kann
           </button>
-          <button type="button" class="lp-tab" role="tab" id="lp-tab-login"
-                  aria-selected="false" aria-controls="login-form" data-tab-target="login" tabindex="-1">
+          <button type="button" class="lp-tab${loginTab.active}" role="tab" id="lp-tab-login"
+                  aria-selected="${loginTab.selected}" aria-controls="login-form" data-tab-target="login" tabindex="${loginTab.index}">
             Anmelden
           </button>
         </div>
@@ -58,7 +77,11 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <div class="lp-showcase">
           <form class="lp-panel" id="login-form" role="tabpanel" aria-labelledby="lp-tab-login" novalidate>
             <h2 class="lp-panel-title">Anmelden</h2>
-            <p class="lp-panel-note">Kostenlos mit deinem Kickbase-Konto, ohne eigenes Konto hier.</p>
+            <p class="lp-panel-note"${notice ? ' role="status"' : ''}>${
+              notice
+                ? escapeHtml(notice)
+                : 'Kostenlos mit deinem Kickbase-Konto, ohne eigenes Konto hier.'
+            }</p>
             <label class="field">
               <span class="field-label">E-Mail</span>
               <input type="email" name="email" class="field-input" required autocomplete="username" autofocus

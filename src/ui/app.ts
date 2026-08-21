@@ -19,7 +19,7 @@ export interface AppOptions {
 }
 
 type View =
-  | { kind: 'login'; prefilledEmail: string | null }
+  | { kind: 'login'; prefilledEmail: string | null; notice?: string }
   | { kind: 'leagues'; leagues: League[] }
   | { kind: 'planning'; leagueId: LeagueId };
 
@@ -65,6 +65,7 @@ export class App {
       case 'login':
         renderLogin(this.host, {
           prefilledEmail: this.view.prefilledEmail,
+          notice: this.view.notice ?? null,
           onSubmit: (email, password) => this.handleLogin(email, password),
         });
         break;
@@ -138,12 +139,21 @@ export class App {
     this.render();
   }
 
+  /**
+   * Kickbase hat das Token verworfen. Zurück zur Anmeldung, aber mit einem
+   * Satz dazu: ohne ihn wirkt der Sprung mitten aus der Arbeit wie ein
+   * Absturz. Kein Fehler in Rot, denn niemand hat etwas falsch gemacht, das
+   * Token gilt nur begrenzt.
+   */
   private handleUnauthorized(): void {
     const lastEmail = session.loadSession()?.email ?? null;
     session.clearSession();
     this.client.setToken(null);
-    // Session abgelaufen: still zurück zum Login, ohne Fehlermeldung.
-    this.view = { kind: 'login', prefilledEmail: lastEmail };
+    this.view = {
+      kind: 'login',
+      prefilledEmail: lastEmail,
+      notice: 'Deine Sitzung ist abgelaufen. Bitte melde dich neu an.',
+    };
     this.render();
   }
 }
