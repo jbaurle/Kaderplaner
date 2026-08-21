@@ -13,6 +13,7 @@
  */
 
 import type { PlayerId, PositionCode, SquadPlayer } from '../api/types.js';
+import { squadFormationGap } from './lineup.js';
 import type { ScenarioFlags, ScenarioSlot, ScenarioState } from '../state/planning.js';
 
 export type ResolvedScenarioSlot = ScenarioSlot | 'S4';
@@ -328,6 +329,18 @@ function summarize(
   };
 }
 
+/**
+ * Was der übrig gebliebene Kader für eine gültige Elf noch braucht.
+ *
+ * Zuerst die Untergrenzen, die für jede Formation gelten: elf Spieler, ein
+ * Torwart, 3 ABW, 2 MF, 1 ANG. Sie treffen die häufigen Fälle und sagen als
+ * Meldung genau, was fehlt.
+ *
+ * Erfüllt der Kader sie alle, ist die Frage damit noch nicht beantwortet: die
+ * zehn Formationen sind kein Produkt aus Ober- und Untergrenzen. 6 ABW, 3 MF
+ * und 1 ANG hält jede Grenze ein, und trotzdem passt keine einzige. Deshalb
+ * zum Schluss die Prüfung gegen die Liste selbst.
+ */
 function getFormationIssues(posCounts: PositionCounts, totalKept: number): string[] {
   const issues: string[] = [];
   if (totalKept < 11) issues.push(`nur ${totalKept}/11 Spieler`);
@@ -335,5 +348,6 @@ function getFormationIssues(posCounts: PositionCounts, totalKept: number): strin
   if (posCounts.ABW < 3) issues.push(`ABW ${posCounts.ABW}/3`);
   if (posCounts.MF < 2) issues.push(`MF ${posCounts.MF}/2`);
   if (posCounts.ANG < 1) issues.push(`ANG ${posCounts.ANG}/1`);
-  return issues;
+  if (issues.length > 0) return issues;
+  return squadFormationGap(posCounts);
 }

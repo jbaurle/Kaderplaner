@@ -215,26 +215,39 @@ describe('computePlanning', () => {
       expect(view.summaries.S2.totalKept).toBe(6);
     });
 
-    it('marks a scenario valid when the kept squad meets the minimum formation rules', () => {
+    it('marks a scenario valid when the kept squad fits a formation', () => {
       const view = computePlanning({
         budget: 0,
         squad: [
           player({ id: 'tw', position: 1 }),
-          player({ id: 'abw1', position: 2 }),
-          player({ id: 'abw2', position: 2 }),
-          player({ id: 'abw3', position: 2 }),
-          player({ id: 'mf1', position: 3 }),
-          player({ id: 'mf2', position: 3 }),
-          player({ id: 'mf3', position: 3 }),
-          player({ id: 'ang1', position: 4 }),
-          player({ id: 'ang2', position: 4 }),
-          player({ id: 'ang3', position: 4 }),
-          player({ id: 'ang4', position: 4 }),
+          ...Array.from({ length: 4 }, (_, i) => player({ id: `abw${i}`, position: 2 })),
+          ...Array.from({ length: 4 }, (_, i) => player({ id: `mf${i}`, position: 3 })),
+          ...Array.from({ length: 2 }, (_, i) => player({ id: `ang${i}`, position: 4 })),
         ],
         scenarios: NO_SCENARIOS,
       });
 
       expect(view.summaries.S1.isFormationValid).toBe(true);
+    });
+
+    it('meldet 3-3-4, die Formation, die es nicht gibt', () => {
+      // Elf Spieler, jede Untergrenze erfüllt, und trotzdem passt keine der
+      // zehn: 3-3-4 steht nicht in der Liste. Ein Abwehrspieler mehr, und
+      // 4-2-4 ginge auf.
+      const view = computePlanning({
+        budget: 0,
+        squad: [
+          player({ id: 'tw', position: 1 }),
+          ...Array.from({ length: 3 }, (_, i) => player({ id: `abw${i}`, position: 2 })),
+          ...Array.from({ length: 3 }, (_, i) => player({ id: `mf${i}`, position: 3 })),
+          ...Array.from({ length: 4 }, (_, i) => player({ id: `ang${i}`, position: 4 })),
+        ],
+        scenarios: NO_SCENARIOS,
+      });
+
+      expect(view.summaries.S1.totalKept).toBe(11);
+      expect(view.summaries.S1.isFormationValid).toBe(false);
+      expect(view.summaries.S1.formationIssues).toEqual(['ABW 3/4']);
     });
 
     it('marks a scenario invalid when no goalkeeper is kept', () => {
@@ -314,6 +327,26 @@ describe('computePlanning', () => {
 
       expect(view.summaries.S1.isFormationValid).toBe(false);
       expect(view.summaries.S1.formationIssues).toEqual(['ABW 1/3', 'MF 1/2']);
+    });
+
+    it('nennt die fehlende Position, wenn jede Untergrenze passt und trotzdem keine Formation aufgeht', () => {
+      // 1 TW, 6 ABW, 3 MF, 1 ANG: elf Spieler, jede Untergrenze erfüllt, und
+      // keine der zehn Formationen kommt damit zustande. Am nächsten dran ist
+      // 5-3-2, dafür fehlt ein Angreifer.
+      const view = computePlanning({
+        budget: 0,
+        squad: [
+          player({ id: 'tw', position: 1 }),
+          ...Array.from({ length: 6 }, (_, i) => player({ id: `abw${i}`, position: 2 })),
+          ...Array.from({ length: 3 }, (_, i) => player({ id: `mf${i}`, position: 3 })),
+          player({ id: 'ang1', position: 4 }),
+        ],
+        scenarios: NO_SCENARIOS,
+      });
+
+      expect(view.summaries.S1.totalKept).toBe(11);
+      expect(view.summaries.S1.isFormationValid).toBe(false);
+      expect(view.summaries.S1.formationIssues).toEqual(['ANG 1/2']);
     });
 
     it('keeps S1-S3 independent of each other', () => {

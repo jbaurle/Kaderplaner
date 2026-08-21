@@ -7,6 +7,7 @@ import {
   explainBlock,
   isReachable,
   lineupIssues,
+  squadFormationGap,
   type PositionCounts,
 } from '../src/compute/lineup.js';
 import type { PositionLabel } from '../src/compute/optimizer.js';
@@ -118,5 +119,29 @@ describe('explainBlock', () => {
 
   it('sagt beim Torwart, dass schon einer steht', () => {
     expect(explainBlock(counts(1, 3, 3, 2), 'TW')).toContain('Torwart');
+  });
+});
+
+describe('squadFormationGap', () => {
+  it('meldet nichts, solange eine Formation aufgeht', () => {
+    expect(squadFormationGap(counts(1, 4, 4, 2))).toEqual([]);
+  });
+
+  it('stört sich nicht an Überzahl', () => {
+    expect(squadFormationGap(counts(2, 8, 7, 5))).toEqual([]);
+  });
+
+  it('nennt den Torwart zuerst', () => {
+    expect(squadFormationGap(counts(0, 5, 4, 2))).toEqual(['TW 0/1']);
+  });
+
+  it('findet die Lücke, die keine Untergrenze zeigt', () => {
+    // 6 ABW, 3 MF, 1 ANG hält jede Untergrenze ein. Am nächsten liegt 5-3-2,
+    // dafür fehlt ein Angreifer.
+    expect(squadFormationGap(counts(1, 6, 3, 1))).toEqual(['ANG 1/2']);
+  });
+
+  it('zählt bei mehreren Lücken alle auf', () => {
+    expect(squadFormationGap(counts(1, 3, 1, 1))).toEqual(['ABW 3/4', 'MF 1/4', 'ANG 1/2']);
   });
 });

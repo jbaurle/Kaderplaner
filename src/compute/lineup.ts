@@ -104,6 +104,42 @@ function minStillNeeded(counts: PositionCounts, pos: OutfieldLabel): number {
   return Number.isFinite(min) ? min : counts[pos];
 }
 
+/**
+ * Fehlbestand eines Kaders zur nächstgelegenen Formation. Leere Liste heisst:
+ * mindestens eine der zehn geht auf.
+ *
+ * Nicht mit {@link isReachable} zu verwechseln: dort ist eine Elf im Aufbau
+ * gemeint, zu viele auf einer Position sind ein Ausschlussgrund. Hier ist der
+ * Vorrat gemeint, aus dem elf ausgewählt werden, da stört Überzahl nicht.
+ *
+ * Mindestzahlen je Position reichen für diese Frage nicht: die Liste mischt
+ * sie. Drei Abwehrspieler gibt es nur mit drei Angreifern, sechs Mittelfeld
+ * nur mit einem. Wer 6 ABW, 3 MF und 1 ANG behält, erfüllt jede Untergrenze
+ * und bekommt trotzdem keine der zehn Formationen zusammen.
+ *
+ * Sind mehrere Formationen gleich nah, gewinnt die erste aus der Liste. Der
+ * Hinweis nennt damit einen Weg, nicht den einzigen.
+ */
+export function squadFormationGap(counts: PositionCounts): string[] {
+  if (counts.TW < 1) return [`TW ${counts.TW}/1`];
+
+  let best: { total: number; parts: string[] } | null = null;
+  for (const shape of SHAPES) {
+    const parts: string[] = [];
+    let total = 0;
+    for (const pos of OUTFIELD) {
+      const short = shape[pos] - counts[pos];
+      if (short > 0) {
+        parts.push(`${pos} ${counts[pos]}/${shape[pos]}`);
+        total += short;
+      }
+    }
+    if (total === 0) return [];
+    if (!best || total < best.total) best = { total, parts };
+  }
+  return best ? best.parts : [];
+}
+
 /** Kurztexte für den Chip im Kopf. Leere Liste heisst: die Elf steht. */
 export function lineupIssues(counts: PositionCounts): string[] {
   const issues: string[] = [];
