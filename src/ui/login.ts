@@ -101,13 +101,13 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           <div class="lp-cards">
             <div class="lp-inset lp-inset--player">
               <img class="lp-inset-img" src="/images/player-dialog.webp"
-                   width="536" height="555" loading="lazy" decoding="async"
+                   width="582" height="615" loading="lazy" decoding="async"
                    alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
             </div>
 
             <div class="lp-inset lp-inset--lineup">
               <img class="lp-inset-img" src="/images/lineup.webp"
-                   width="427" height="738" loading="lazy" decoding="async"
+                   width="528" height="818" loading="lazy" decoding="async"
                    alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
             </div>
           </div>
@@ -153,7 +153,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <span class="lp-badge lp-badge--gold">Marktwert</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="/images/player-dialog.webp"
-                       width="536" height="555" loading="lazy" decoding="async"
+                       width="582" height="615" loading="lazy" decoding="async"
                        alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
                 </div>
                 <h3 class="lp-slide-title">Spielerdialog</h3>
@@ -163,7 +163,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <span class="lp-badge">Aufstellung</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="/images/lineup.webp"
-                       width="427" height="738" loading="lazy" decoding="async"
+                       width="528" height="818" loading="lazy" decoding="async"
                        alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
                 </div>
                 <h3 class="lp-slide-title">Aufstellung</h3>
