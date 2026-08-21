@@ -423,10 +423,17 @@ button {
    * nicht mittig auf dem Bild.
    */
   --lp-panel-pull: calc(var(--lp-overhang) + clamp(10px, 5cqw, 72px));
-  /* Platz unter der Anmeldekarte, dort liegt der Spielerdialog. */
-  --lp-player-room: clamp(140px, 24cqw, 280px);
-  /* Streifen über dem Bild, um den die Aufstellung oben übersteht. */
-  --lp-lineup-room: clamp(18px, 3cqw, 34px);
+  /*
+   * Platz unter der Anmeldekarte, dort liegt der Spielerdialog. Zusätzlich an
+   * `vh` gedeckelt, nicht nur an der Breite: auf einem breiten, aber knappen
+   * Laptop-Fenster (etwa 1440×820) hängt `cqw` sonst am Deckel (280px), ohne
+   * Rücksicht auf die Fensterhöhe — die Bühne wird höher als der Bildschirm
+   * und die Fusszeile verschwindet unter der Kante.
+   */
+  --lp-player-room: clamp(90px, min(22cqw, 18vh), 280px);
+  /* Streifen über dem Bild, um den die Aufstellung oben übersteht. Dieselbe
+     Rücksicht auf die Fensterhöhe wie oben. */
+  --lp-lineup-room: clamp(14px, min(3cqw, 4vh), 34px);
 
   /*
    * Gedeckelt und mittig: ohne Deckel zieht das Bild auf einem breiten
