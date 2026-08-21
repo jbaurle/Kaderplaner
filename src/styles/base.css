@@ -424,16 +424,17 @@ button {
    */
   --lp-panel-pull: calc(var(--lp-overhang) + clamp(10px, 5cqw, 72px));
   /*
-   * Platz unter der Anmeldekarte, dort liegt der Spielerdialog. Zusätzlich an
-   * `vh` gedeckelt, nicht nur an der Breite: auf einem breiten, aber knappen
-   * Laptop-Fenster (etwa 1440×820) hängt `cqw` sonst am Deckel (280px), ohne
-   * Rücksicht auf die Fensterhöhe — die Bühne wird höher als der Bildschirm
-   * und die Fusszeile verschwindet unter der Kante.
+   * Platz unter der Anmeldekarte, dort liegt der Spielerdialog. Rein an der
+   * Breite bemessen, nicht an `vh`: ein vh-Deckel klang nach der richtigen
+   * Idee gegen eine zu tiefe Fusszeile, kollidierte aber mit der Karte, die
+   * an diesem Platz haengt — die Karte braucht den vollen Raum unabhängig
+   * von der Fensterhöhe. Die Fusszeile hängt seit `.lp-foot` inzwischen
+   * ohnehin an einem festen Abstand zur Bühne, nicht mehr an der
+   * Fensterhöhe, das Problem ist von dort aus gelöst.
    */
-  --lp-player-room: clamp(90px, min(22cqw, 18vh), 280px);
-  /* Streifen über dem Bild, um den die Aufstellung oben übersteht. Dieselbe
-     Rücksicht auf die Fensterhöhe wie oben. */
-  --lp-lineup-room: clamp(14px, min(3cqw, 4vh), 34px);
+  --lp-player-room: clamp(140px, 24cqw, 280px);
+  /* Streifen über dem Bild, um den die Aufstellung oben übersteht. */
+  --lp-lineup-room: clamp(18px, 3cqw, 34px);
 
   /*
    * Gedeckelt und mittig: ohne Deckel zieht das Bild auf einem breiten
@@ -1008,8 +1009,15 @@ button {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 6px 10px;
-  /* Bleibt unten, auch wenn die Seite kürzer ist als das Fenster. */
-  margin-top: auto;
+  /*
+   * Folgt direkt auf die Bühne, mit etwas Luft, statt ans Fensterende
+   * gepinnt zu sein. `margin-top: auto` zog die Fusszeile sonst an den
+   * unteren Rand des min-height:100vh-Containers — auf einem breiten,
+   * aber knappen Fenster (Laptop, Tablet quer) landete sie ausserhalb
+   * des sichtbaren Bereichs, auf einem hohen Fenster riss es eine grosse
+   * Lücke auf. Ein fester Abstand ist unabhängig von der Fensterhöhe.
+   */
+  margin-top: 40px;
   padding-top: 10px;
   font-size: 12px;
   color: var(--text-muted);
@@ -1161,7 +1169,9 @@ button {
   .lp-panel {
     position: relative;
     z-index: 1;
-    width: clamp(280px, 66%, 396px);
+    /* Deckel angehoben: bei sehr breiten Fenstern (1600px+) wirkte die Karte
+       neben der grossen Bühne verloren schmal. */
+    width: clamp(280px, 66%, 460px);
     /* Hängt links über die Bildkante hinaus, damit die Karte als eigene
        Fläche liest und nicht als Teil des Screenshots. */
     margin: var(--lp-panel-inset) 0 0 calc(-1 * var(--lp-panel-pull));
