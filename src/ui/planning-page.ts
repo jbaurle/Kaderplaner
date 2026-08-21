@@ -899,9 +899,9 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
       <span class="amount-hint">Beträge in Mio. €</span>
       <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
-        <button type="button" data-modal="score">Was ist der Score?</button>
+        <button type="button" data-modal="score">Wie der Score entsteht</button>
         <span class="legend-sep" aria-hidden="true">·</span>
-        <button type="button" data-modal="features">Was kann die App?</button>
+        <button type="button" data-modal="features">Was die App kann</button>
       </span>
       ${LEGAL_LINKS}
     </p>

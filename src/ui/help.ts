@@ -171,8 +171,6 @@ export const FEATURES_HELP_BODY = `
       nebeneinander.</li>
     <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
       BANK, <strong>×</strong> räumt die Spalte ab.</li>
-    <li>Ein Tipp auf einen <strong>Spielernamen</strong> öffnet den
-      Spielerdialog.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
     <li>Der <strong>Mond</strong> im Kopf schaltet auf Dunkel und zurück. Die
       Wahl gilt für diesen Browser und steht beim nächsten Besuch wieder so

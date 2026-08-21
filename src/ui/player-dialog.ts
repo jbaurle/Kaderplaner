@@ -431,7 +431,7 @@ function renderMatchdays(insight: PlayerInsight): string {
         <span class="pd-half pd-half--ahead">${aheadCells}</span>
       </div>
       <p class="pd-legend">
-        H Heim, A auswärts.${ranked ? ' Pfeil hoch heisst schwacher Gegner, runter starker.' : ''}
+        H Heim, A auswärts.${ranked ? ' Pfeil hoch heißt schwacher Gegner, runter starker.' : ''}
       </p>
     </section>
   `;

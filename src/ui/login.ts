@@ -80,7 +80,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             <p class="lp-panel-note"${notice ? ' role="status"' : ''}>${
               notice
                 ? escapeHtml(notice)
-                : 'Kostenlos mit deinem Kickbase-Konto, ohne eigenes Konto hier.'
+                : 'Kostenlos, mit deinem Kickbase-Konto. Ein eigenes brauchst du hier nicht.'
             }</p>
             <label class="field">
               <span class="field-label">E-Mail</span>
@@ -167,7 +167,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="/images/offers-dialog.webp"
                        width="560" height="453" loading="lazy" decoding="async"
-                       alt="Der Gebotsdialog: das höchste Gebot gross, darunter alle Gebote mit Manager und Betrag.">
+                       alt="Der Gebotsdialog: das höchste Gebot groß, darunter alle Gebote mit Manager und Betrag.">
                 </div>
                 <h3 class="lp-slide-title">Gebote</h3>
                 <p class="lp-slide-text">Alle Gebote auf einen Blick, das höchste zuerst.</p>
