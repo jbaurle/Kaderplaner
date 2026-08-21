@@ -184,8 +184,10 @@ export const FEATURES_HELP_BODY = `
   <h3>Was gespeichert wird</h3>
   <p>
     Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus
-    dem Browser an. Anmeldung, Szenarien und Aufstellungsentwurf liegen nur im
-    localStorage dieses Browsers.
+    dem Browser an. Im localStorage dieses Browsers liegen Anmeldung, Szenarien,
+    Aufstellungsentwurf, die Wahl zwischen Hell und Dunkel und ein
+    Zwischenspeicher mit Spielerdetails und Tabelle, damit nicht jeder Klick neu
+    abruft.
   </p>
 
   <p class="help-note">
