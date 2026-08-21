@@ -24,6 +24,7 @@
  * geht er als Formation plus Id-Liste an Kickbase, siehe `submit`.
  */
 
+import { ERROR_CODES, KickbaseError } from '../api/kickbase.js';
 import type { PlayerId } from '../api/types.js';
 import type { PositionLabel } from '../compute/optimizer.js';
 import {
@@ -1249,10 +1250,20 @@ function idKey(ids: readonly PlayerId[]): string {
   return [...ids].sort().join(',');
 }
 
-/** Was der Benutzer von einem gescheiterten Aufruf zu sehen bekommt. */
+/**
+ * Warum das Senden nicht geklappt hat, als Halbsatz hinter "Senden
+ * fehlgeschlagen:". Kickbases eigener Grund steht englisch im Body, etwa
+ * "InvalidData"; durchgereicht stünde er mitten in einer deutschen Zeile.
+ * Was wir kennen, steht deutsch da, alles andere nennt wenigstens den Status.
+ */
 function errorText(error: unknown): string {
-  const message = error instanceof Error ? error.message : '';
-  return message || 'unbekannter Fehler';
+  if (error instanceof KickbaseError) {
+    if (error.status === 0) return 'keine Verbindung zu Kickbase';
+    if (error.isUnauthorized) return 'die Sitzung ist abgelaufen';
+    if (error.code === ERROR_CODES.invalidData) return 'Kickbase nimmt diese Elf nicht an';
+    return `Kickbase antwortet mit ${error.status}`;
+  }
+  return 'unbekannter Fehler';
 }
 
 /**

@@ -10,6 +10,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
+import { KickbaseError } from '../src/api/kickbase.js';
 import { LineupPage, type LineupPlayer } from '../src/ui/lineup-page.js';
 import type { PositionLabel } from '../src/compute/optimizer.js';
 
@@ -96,5 +97,60 @@ describe('LineupPage: Reihenfolge', () => {
   it('uebernimmt die gespeicherte Folge beim Oeffnen', () => {
     const { layer } = open(['b', 'c', 'a']);
     expect(rowNames(layer, 'ABW')).toEqual(['Bauer', 'Conrad', 'Abele']);
+  });
+});
+
+/**
+ * Kickbase nennt den Grund englisch im Body. Die Zeile unter der Bank
+ * übersetzt, was wir kennen, statt "InvalidData" mitten in einen deutschen
+ * Satz zu setzen.
+ */
+describe('Fehler beim Senden', () => {
+  const ELEVEN: LineupPlayer[] = [
+    player('tw', 'Trapp', 'TW'),
+    ...['a', 'b', 'c', 'd'].map((id) => player(id, `Abw ${id}`, 'ABW')),
+    ...['e', 'f', 'g', 'h'].map((id) => player(id, `Mf ${id}`, 'MF')),
+    ...['i', 'j'].map((id) => player(id, `Ang ${id}`, 'ANG')),
+  ];
+
+  async function submitFailing(error: unknown): Promise<string> {
+    const page = new LineupPage({
+      players: ELEVEN,
+      budget: 0,
+      scores: {},
+      bestEleven: null,
+      initialIds: ELEVEN.map((p) => p.id),
+      onChange: () => {},
+      onSubmit: () => Promise.reject(error),
+      onClose: () => {},
+    });
+    page.open();
+    const layer = document.querySelector<HTMLElement>('.lineup-layer');
+    if (!layer) throw new Error('Ebene fehlt');
+    click(layer, '[data-action="submit"]');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const note = document.querySelector<HTMLElement>('.lineup-note');
+    return note?.textContent ?? '';
+  }
+
+  it('uebersetzt den fachlichen Code, statt ihn durchzureichen', async () => {
+    const text = await submitFailing(new KickbaseError(500, 'InvalidData', 6));
+    expect(text).toContain('Kickbase nimmt diese Elf nicht an');
+    expect(text).not.toContain('InvalidData');
+  });
+
+  it('nennt beim Netzwerkfehler die Verbindung', async () => {
+    const text = await submitFailing(new KickbaseError(0, 'Netzwerkfehler: failed to fetch'));
+    expect(text).toContain('keine Verbindung zu Kickbase');
+  });
+
+  it('sagt bei 403, dass die Sitzung abgelaufen ist', async () => {
+    const text = await submitFailing(new KickbaseError(403, 'Forbidden'));
+    expect(text).toContain('Sitzung ist abgelaufen');
+  });
+
+  it('nennt sonst wenigstens den Status', async () => {
+    const text = await submitFailing(new KickbaseError(503, 'Service Unavailable'));
+    expect(text).toContain('503');
   });
 });
