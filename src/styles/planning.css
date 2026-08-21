@@ -170,6 +170,12 @@
     color: var(--error);
     border-color: var(--border-strong);
   }
+
+  /* Der Umschalter loggt niemanden aus — kein Rot beim Draufzeigen. */
+  .icon-btn--theme:hover {
+    color: var(--text-strong);
+    border-color: var(--border-strong);
+  }
 }
 
 .icon-btn::after {
@@ -652,7 +658,7 @@
   gap: 2px;
   padding: 3px;
   margin-bottom: 8px;
-  background: #eef1f6;
+  background: var(--scen-switch-bg);
   border-radius: var(--radius);
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
 }
@@ -786,7 +792,7 @@
 }
 
 .planning-summary {
-  background: #f7f8fa;
+  background: var(--summary-bg);
 }
 
 /* Higher specificity — wins over `.planning-table thead td` (which
@@ -798,7 +804,7 @@
   font-size: inherit;
   font-weight: 600;
   color: var(--text);
-  background: #f7f8fa;
+  background: var(--summary-bg);
 }
 
 .planning-table thead .planning-summary th.summary-label {
@@ -829,7 +835,7 @@
   font-size: inherit;
   font-weight: 600;
   color: var(--text);
-  background: #f7f8fa;
+  background: var(--summary-bg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -862,17 +868,17 @@
 
 .planning-table tbody tr:nth-child(even),
 .planning-table tfoot tr.is-alt {
-  background: #f9fafc;
+  background: var(--row-even);
 }
 
 .planning-table tbody tr:hover {
-  background: #eef2f7;
+  background: var(--row-hover);
 }
 
 /* ---------- Footer (totals + player count) ---------- */
 
 .planning-table tfoot .planning-footer td {
-  background: #f7f8fa;
+  background: var(--summary-bg);
   border-top: 1px solid var(--border-strong);
   border-bottom: 0;
   font-size: inherit;
@@ -903,7 +909,7 @@
 }
 
 .planning-table tfoot .formation-status-cell--invalid {
-  background: #fee2e2;
+  background: var(--error-bg);
   color: var(--error);
   font-weight: 600;
   font-size: 12px;
@@ -928,7 +934,7 @@
 }
 
 .formation-issue-chip--count {
-  background: #fee2e2;
+  background: var(--error-bg);
   color: var(--error);
   box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25);
 }
@@ -969,23 +975,33 @@
   display: inline-block;
   padding: 1px 7px;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: var(--border);
   font-size: 11px;
   font-weight: 600;
   color: var(--text-strong);
 }
 
+/*
+ * Eigene Textfarbe je Chip, nicht nur `--text-strong` von oben geerbt:
+ * im Dunkel-Modus wird der Hintergrund zu einer schwachen Tönung statt
+ * einer hellen Pastellfläche, darauf braucht jede Position ihren
+ * eigenen hellen Text statt fast-weiss auf fast-hell.
+ */
 .chip--pos1 {
-  background: #fde68a;
+  background: var(--chip-tw-bg);
+  color: var(--chip-tw-text);
 }
 .chip--pos2 {
-  background: #bfdbfe;
+  background: var(--chip-abw-bg);
+  color: var(--chip-abw-text);
 }
 .chip--pos3 {
-  background: #d1fae5;
+  background: var(--chip-mf-bg);
+  color: var(--chip-mf-text);
 }
 .chip--pos4 {
-  background: #fecaca;
+  background: var(--chip-ang-bg);
+  color: var(--chip-ang-text);
 }
 
 /* ---------- Scenario cells ---------- */
@@ -1562,8 +1578,10 @@ body.is-dialog-open {
 .table-footline .formation-chip {
   padding: 0 6px;
   font-size: 10px;
-  background: #d9ead3;
-  border-color: #b6d4a5;
+  /* Dieselbe Farbe wie die Top-11-Markierung in der Tabelle: die
+     Legende ist die Farbprobe dafuer. */
+  background: var(--top11-bg);
+  border-color: var(--success);
 }
 
 /* Solange nichts gerechnet ist, gibt es keine grünen Zellen: dann bleibt
@@ -1702,7 +1720,7 @@ body.is-dialog-open {
 }
 
 .score-cell--top11 {
-  background: #d9ead3;
+  background: var(--top11-bg);
 }
 
 /* Während der Lauf noch draussen hängt, bleibt die Spalte nicht leer: ein
@@ -1941,9 +1959,8 @@ body.is-dialog-open {
      passen, haengt an seiner Breite, nicht an der des Fensters. */
   container-type: inline-size;
   overflow: hidden;
-  --grade-good: #6ba368;
-  --grade-mid: #d2a04c;
-  --grade-weak: #c07373;
+  /* --grade-* kommen jetzt aus :root/base.css, damit der Dunkel-Modus sie
+     mit umschreiben kann — hier nicht mehr lokal festlegen. */
 }
 
 .pd-head {

@@ -11,6 +11,22 @@
     <title>Kickbase Kaderplaner</title>
 
     <!--
+      Setzt den Dunkel-Modus, bevor irgendetwas gezeichnet wird — sonst
+      blitzt die Seite hell auf und springt danach um. Das echte Umschalten
+      übernimmt src/ui/theme.ts, hier nur der gespeicherte Stand vorab.
+      Derselbe Schlüssel wie storage/local.ts (Namespace "kb.").
+    -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('kb.theme') === '"dark"') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!--
       Vorschaukarte in WhatsApp, Slack, X und Co. Absolute Adressen, denn die
       Crawler lösen relative Pfade nicht auf. Das Bild liegt in `public/` und
       wandert damit unverändert nach `dist/`.

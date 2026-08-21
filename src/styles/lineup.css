@@ -142,7 +142,7 @@ body.is-lineup-open {
  * Spieler") sagt das Gegenteil.
  */
 .btn--go:disabled {
-  background: #eef2f4;
+  background: var(--row-even);
   color: var(--text-muted);
   border-color: var(--border-strong);
   cursor: not-allowed;
@@ -151,17 +151,18 @@ body.is-lineup-open {
 /*
  * Schon gesendet: grün getönt statt grau. Grau hiesse "geht noch nicht",
  * hier heisst es "ist erledigt". Der Zustand hält nur bis zur nächsten
- * Änderung an der Elf.
+ * Änderung an der Elf. Dieselbe Tönung wie die Top-11-Markierung in der
+ * Tabelle, nicht extra erfunden.
  */
 .btn--go:disabled.is-sent {
-  background: #e6f4ee;
+  background: var(--action-bg);
   color: var(--success);
-  border-color: #b6d4c6;
+  border-color: var(--success);
 }
 
 .lineup-chip--ok {
-  background: #d9ead3;
-  border-color: #b6d4a5;
+  background: var(--top11-bg);
+  border-color: var(--success);
 }
 
 .lineup-chip--part {
@@ -176,11 +177,13 @@ body.is-lineup-open {
   color: var(--warning-text);
 }
 
-/* "4-3-3 → 4-2-4" während des Ziehens. */
+/* "4-3-3 → 4-2-4" während des Ziehens. Dieselbe Blau-Familie wie die
+   Transfermarkt-Angebote (--market): beides ist ein neutraler Hinweis,
+   keine Wertung. */
 .lineup-chip--preview {
-  background: #e8eefc;
-  border-color: #b9c8ee;
-  color: #1e3a8a;
+  background: var(--market-bg);
+  border-color: var(--market-border);
+  color: var(--market);
 }
 
 /* ---------- Rasen ---------- */
@@ -923,14 +926,14 @@ body.is-lineup-open {
 
 .lineup-note.is-ok {
   color: var(--success);
-  background: #e6f4ee;
+  background: var(--action-bg);
   border-radius: var(--radius-sm);
   padding: 6px 8px;
 }
 
 .lineup-note.is-error {
   color: var(--error);
-  background: #fee2e2;
+  background: var(--error-bg);
   border-radius: var(--radius-sm);
   padding: 6px 8px;
 }

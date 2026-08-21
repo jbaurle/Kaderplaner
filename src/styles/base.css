@@ -47,6 +47,104 @@
 
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono-nums: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  /*
+   * Kadertabelle: Zebra-Streifen, Kopf-/Summenzeilen, Szenario-Umschalter.
+   * Waren bisher feste Werte in planning.css, jetzt Token, damit der
+   * Dunkel-Modus unten sie umschreiben kann.
+   */
+  --row-even: #f9fafc;
+  --row-hover: #eef2f7;
+  --summary-bg: #f7f8fa;
+  --scen-switch-bg: #eef1f6;
+  --error-bg: #fee2e2;
+  --top11-bg: #d9ead3;
+
+  /* Positions-Chips (TW/ABW/MF/ANG), siehe src/ui/chips.ts. */
+  --chip-tw-bg: #fde68a;
+  --chip-tw-text: #713f12;
+  --chip-abw-bg: #bfdbfe;
+  --chip-abw-text: #1e3a5f;
+  --chip-mf-bg: #d1fae5;
+  --chip-mf-text: #065f46;
+  --chip-ang-bg: #fecaca;
+  --chip-ang-text: #7f1d1d;
+
+  /* Score-Ampel im Spielerdialog (Form/S11/Verfügbarkeit-Balken). */
+  --grade-good: #6ba368;
+  --grade-mid: #d2a04c;
+  --grade-weak: #c07373;
+
+  /*
+   * Prognose-Badges in der Aufstellung (wird er wohl spielen?) sind
+   * absichtlich KEIN Token: sie sind immer weisse Schrift auf voller
+   * Farbfläche, auf dem Feld oder der Bank-Kachel — sie berühren nie den
+   * Seitenhintergrund. Ein hellerer Dunkel-Wert würde nur den
+   * Weiss-auf-Fläche-Kontrast verschlechtern, siehe lineup.css .s11--*.
+   */
+}
+
+/*
+ * ==================================================================
+ * Dunkel-Modus: eigener Umschalter (siehe theme-toggle.ts), kein
+ * prefers-color-scheme. Deckt dieselben Tokens ab wie oben, nur die
+ * Werte ändern sich — Komponenten greifen weiter auf dieselben
+ * Variablennamen zu und merken nichts vom Umschalten.
+ *
+ * --action bleibt bewusst gleich: der Knopf-Hintergrund mit weisser
+ * Schrift braucht in beiden Modi denselben dunklen, satten Ton, sonst
+ * reisst der Kontrast (siehe Startseiten-Karussell, derselbe Fehler
+ * schon einmal gemacht und korrigiert). Helle Akzente fuers Dunkle
+ * bekommen eigene Tokens (--success, --chip-*-text, --grade-*, --s11-*),
+ * nicht denselben Wert invertiert.
+ * ================================================================== */
+html[data-theme='dark'] {
+  --bg: #12181c;
+  --card: #1b2328;
+  --text: #dbe3e7;
+  --text-muted: #8996a1;
+  --text-strong: #f4f7f8;
+  --border: #2b353c;
+  --border-strong: #3f4b54;
+  --primary: #3a4650;
+  --primary-hover: #46545f;
+  --primary-active: #2c363e;
+
+  --action-bg: rgba(62, 207, 142, 0.14);
+  --success: #3ecf8e;
+  --error: #f87171;
+  --error-bg: rgba(248, 113, 113, 0.14);
+  --warning-bg: rgba(217, 131, 36, 0.16);
+  --warning-text: #eab255;
+
+  --market: #60a5fa;
+  --market-bg: rgba(96, 165, 250, 0.12);
+  --market-border: #2c4a6e;
+
+  --gold: #eab255;
+  --gold-bg: rgba(234, 178, 85, 0.14);
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  --row-even: #1f282e;
+  --row-hover: #253038;
+  --summary-bg: #1f282e;
+  --scen-switch-bg: #1f282e;
+  --top11-bg: rgba(62, 207, 142, 0.16);
+
+  --chip-tw-bg: rgba(253, 230, 138, 0.16);
+  --chip-tw-text: #fbbf24;
+  --chip-abw-bg: rgba(96, 165, 250, 0.16);
+  --chip-abw-text: #93c5fd;
+  --chip-mf-bg: rgba(110, 231, 183, 0.16);
+  --chip-mf-text: #6ee7b7;
+  --chip-ang-bg: rgba(252, 165, 165, 0.16);
+  --chip-ang-text: #fca5a5;
+
+  --grade-good: #7cc47a;
+  --grade-mid: #e0b563;
+  --grade-weak: #d98888;
+
 }
 
 *,
@@ -291,7 +389,7 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font: inherit;
-  background: #fff;
+  background: var(--card);
   color: var(--text);
   transition: border-color 0.15s, outline-color 0.15s;
 }
@@ -1162,6 +1260,6 @@ button {
 }
 
 .league-button:hover {
-  background: #eef2f7;
+  background: var(--row-hover);
   border-color: var(--border-strong);
 }

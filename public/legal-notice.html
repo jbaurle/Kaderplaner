@@ -7,6 +7,16 @@
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
+  <!-- Siehe index.html: setzt den Dunkel-Modus vor dem ersten Bildaufbau. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('kb.theme') === '"dark"') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div class="wrap">

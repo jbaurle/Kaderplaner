@@ -19,6 +19,25 @@
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
+/*
+ * Derselbe Umschalter wie die App (`src/ui/theme.ts`), hier nur ohne
+ * eigenen Knopf: die Rechtsseiten sind statisches HTML ohne Kopfzeile mit
+ * Konto/Aufstellung, sie übernehmen nur den gespeicherten Stand. Das
+ * Inline-Script in jeder Seite setzt `data-theme` vor dem ersten Bildaufbau,
+ * genau wie in index.html.
+ */
+:root[data-theme='dark'] {
+  --bg: #12181c;
+  --card: #1b2328;
+  --text: #dbe3e7;
+  --text-muted: #8996a1;
+  --text-strong: #f4f7f8;
+  --border: #2b353c;
+  --primary: #9fb0bb;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
 *,
 *::before,
 *::after {
