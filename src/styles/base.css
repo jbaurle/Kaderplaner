@@ -17,6 +17,7 @@
   --action: #047857;
   --action-hover: #036349;
   --action-active: #02513c;
+  --action-bg: rgba(4, 120, 87, 0.12);
   --error: #b91c1c;
   --warning-bg: #fef3c7;
   --warning-text: #78350f;
@@ -30,6 +31,14 @@
   --market: #2563eb;
   --market-bg: #eff6ff;
   --market-border: #bfdbfe;
+
+  /*
+   * Nur fürs Marktwert-Kärtchen auf der Startseite: eigener Ton, damit er
+   * sich vom Aktionsgrün abhebt. Kein reines Gold: bei 11px Schrift auf
+   * hellem Grund kam #b8791f nur auf ~3.4:1, dieser Ton auf 5.8:1.
+   */
+  --gold: #8a5c17;
+  --gold-bg: rgba(138, 92, 23, 0.12);
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.06);
   --radius: 8px;
@@ -244,13 +253,6 @@ button {
   color: var(--text);
 }
 
-.auth-small {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-
 .auth-legal {
   display: flex;
   gap: 10px;
@@ -316,7 +318,7 @@ button {
   --lp-gutter: clamp(12px, 2.4cqw, 28px);
   --lp-column-gap: clamp(24px, 4.4cqw, 48px);
   --lp-overhang: clamp(12px, 3.4cqw, 38px);
-  --lp-panel-inset: clamp(20px, 4.6cqw, 52px);
+  --lp-panel-inset: clamp(12px, 2.2cqw, 28px);
   /*
    * Wie weit die Anmeldekarte über die linke Bildkante hängt. Deutlich mehr
    * als der Überhang der Bühne: die Karte soll mittig auf der Seite stehen,
@@ -384,16 +386,44 @@ button {
   height: 1.15em;
 }
 
-.lp-kicker {
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-muted);
+/* ---------- Reiter (nur am Handy) ---------- */
+
+/* Ab 720px zeigt die Bühne Formular, Bild und Text nebeneinander, dort
+   bleiben die Reiter aus. Siehe die @container-Regel unten. */
+.lp-tabs {
+  display: none;
+  gap: 2px;
+  padding: 3px;
+  background: var(--card);
+  border-radius: 999px;
+  box-shadow: var(--shadow-card);
 }
 
-.lp-kicker b {
+.lp-tab {
+  flex: 1;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.lp-tab.is-active {
+  background: var(--action);
+  color: #fff;
+}
+
+.lp-tab[aria-selected="false"]:hover {
+  color: var(--text-strong);
+}
+
+.lp-tab:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
 }
 
 /* ---------- Bild und Anmeldekarte ---------- */
@@ -504,6 +534,199 @@ button {
   border-radius: var(--radius-sm);
 }
 
+/*
+ * ---------- Karussell (nur am Handy) ----------
+ *
+ * Ersetzt am Handy die drei Absätze unten durch dieselben drei Bilder wie
+ * oben auf der breiten Seite, mit Kärtchen zum Durchwischen statt Fliess-
+ * text. `.lp-carousel-wrap` ist per Default unsichtbar: sichtbar wird sie
+ * nur unter 720px und nur im Reiter "Was die App kann", siehe die
+ * @container-Regel unten. Auf der breiten Seite bleibt sie ganz aus dem
+ * Layout, ohne dass hier irgendetwas mit den echten Bild-Ausschnitten
+ * oben kollidiert.
+ */
+.lp-carousel-wrap {
+  display: none;
+}
+
+.lp-carousel-sub {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.lp-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  /* Verhindert nur, dass ein Ueberzug hier auch die Seite mitscrollt — löst
+     NICHT die iOS-Safari-Zurueck-Geste an der linken Bildschirmkante, die
+     liegt vor jeder Web-Scroll-Logik. Bleibt ein Restrisiko, nur am echten
+     Gerät zu prüfen. */
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 0 2px 4px;
+  margin: 0 -2px;
+  scrollbar-width: none;
+}
+
+.lp-carousel:not(.is-at-end) {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+}
+
+.lp-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.lp-slide {
+  flex: none;
+  width: 78%;
+  max-width: 268px;
+  scroll-snap-align: start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+}
+
+.lp-slide-img {
+  display: block;
+  width: 100%;
+  height: 186px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 11px;
+}
+
+.lp-slide--wide .lp-slide-img {
+  object-position: 50% 12%;
+}
+
+.lp-slide--tall .lp-slide-img {
+  object-position: top;
+}
+
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--action);
+  background: var(--action-bg);
+}
+
+.lp-badge--gold {
+  color: var(--gold);
+  background: var(--gold-bg);
+}
+
+.lp-slide-title {
+  margin: 0 0 4px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.lp-slide-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.lp-swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  min-height: 16px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  transition: opacity 0.15s;
+}
+
+.lp-swipe-arrow {
+  display: inline-block;
+  animation: lp-swipe-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes lp-swipe-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.lp-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.lp-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--text-muted);
+  opacity: 0.35;
+}
+
+.lp-dot.is-active {
+  background: var(--action);
+  opacity: 1;
+  width: 18px;
+  transition: width 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-swipe-arrow {
+    animation: none;
+  }
+  .lp-swipe-hint,
+  .lp-dot,
+  .lp-dot.is-active {
+    transition: none;
+  }
+}
+
+.lp-carousel-cta {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 13px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--action);
+  color: #fff;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lp-carousel-cta:hover {
+  background: var(--action-hover);
+}
+
+.lp-carousel-cta:focus-visible {
+  outline: 2px solid var(--text-strong);
+  outline-offset: 2px;
+}
+
 /* ---------- Beschreibung und Fusszeile ---------- */
 
 .lp-intro {
@@ -522,7 +745,7 @@ button {
   display: inline-flex;
   align-items: baseline;
   gap: 6px;
-  margin-top: 2px;
+  margin-top: 14px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -544,6 +767,16 @@ button {
   font-weight: 400;
 }
 
+/* Der Hinweis auf Kickbase und die Bildrechte, mit Abstand unter dem Link
+   zur Hilfe: er gehört zum Kleingedruckten, nicht zur Fusszeile mit den
+   Rechtslinks. */
+.lp-legal {
+  margin: 34px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
 .lp-foot {
   display: flex;
   flex-wrap: wrap;
@@ -554,6 +787,33 @@ button {
   padding-top: 10px;
   font-size: 12px;
   color: var(--text-muted);
+}
+
+/*
+ * Unter 720px schaltet der Reiter zwischen Formular und „Was die App
+ * kann" um: die Karte hinter dem einen, das Karussell hinter dem anderen.
+ * Die drei Absätze (`.lp-body`/`.lp-more`) sind hier ganz aus, das
+ * Karussell übernimmt ihre Rolle mit denselben Bildern. `.lp-legal` bleibt
+ * in beiden Zuständen stehen, das Kleingedruckte soll nicht am Reiter
+ * hängen.
+ */
+@container (max-width: 719.98px) {
+  .lp-tabs {
+    display: flex;
+  }
+
+  .lp-body,
+  .lp-more {
+    display: none;
+  }
+
+  .lp-hero[data-tab="info"] .lp-carousel-wrap {
+    display: block;
+  }
+
+  .lp-hero[data-tab="info"] .lp-panel {
+    display: none;
+  }
 }
 
 .lp-foot a {
@@ -573,28 +833,33 @@ button {
   .lp-hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
-    grid-template-rows: auto auto;
+    /* `1fr` bei der Beschreibung, nicht `auto`: der Überhang, den die Bühne
+       über beide Zeilen braucht, geht sonst zur Hälfte an die Kopfzeile und
+       drückt die Beschreibung nach unten weg. */
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       "head shot"
       "intro shot";
     /* Die Karte hängt weit über die Bildkante, ihr ganzer Zug kommt zum
        Spaltenabstand dazu. Sonst liegt sie auf dem Text daneben. */
     column-gap: calc(var(--lp-column-gap) + var(--lp-panel-pull));
-    row-gap: 16px;
+    /* Knapp: Titel und Beschreibung stehen als ein Block links, nicht als
+       zwei getrennte Absätze. */
+    row-gap: clamp(20px, 2.6cqw, 32px);
   }
 
-  /* Kopf unten, Beschreibung oben: zusammen stehen die beiden Blöcke damit
-     mittig neben dem Bild. Der Abstand hebt sie als Paar an, sonst sitzt der
-     Titel auf halber Höhe und die obere Hälfte der Seite steht leer. */
+  /* Der Titel beginnt auf der Höhe der oberen Bildkante: derselbe Streifen,
+     um den die Bühne nach unten gerückt ist. Beschreibung direkt darunter. */
   .lp-head {
     grid-area: head;
-    align-self: end;
-    margin-bottom: clamp(12px, 4.5cqw, 64px);
+    align-self: start;
+    margin-top: var(--lp-lineup-room);
   }
 
   .lp-intro {
     grid-area: intro;
     align-self: start;
+    margin-top: 10px;
   }
 
   .lp-showcase {
@@ -624,10 +889,10 @@ button {
    * fallen der Kopf der App und die Summenzeile weg, der Rest steht dafür fast
    * in Originalgrösse da.
    *
-   * Rechts endet der Ausschnitt an der Kante der App: der Inhalt reicht im
-   * Screenshot bis Pixel 1250 von 1407, dahinter liegt nur noch der
-   * Rollbalken. 83 % stellen die Kante an den Rand, damit die Spalte mit
-   * Wappen und Pfeil ganz zu sehen ist.
+   * Rechts endet der Ausschnitt an der Kante der App: die Datei ist genau dort
+   * beschnitten, hinter der Spalte mit Wappen und Pfeil. `100%` legt diese
+   * Kante an den Rahmenrand, und zwar bei jeder Breite: ein Prozentwert
+   * dazwischen wandert, weil er am Überhang hängt und der mit der Seite wächst.
    */
   .lp-shot-img {
     position: absolute;
@@ -637,7 +902,7 @@ button {
     height: 130%;
     margin: 0;
     object-fit: cover;
-    object-position: 83% 0;
+    object-position: 100% 0;
   }
 
   .lp-panel {

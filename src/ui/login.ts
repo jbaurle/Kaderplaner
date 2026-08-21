@@ -29,20 +29,36 @@ export interface LoginViewProps {
 export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
   host.innerHTML = `
     <main class="lp-page">
-      <div class="lp-hero">
+      <div class="lp-hero" data-tab="info">
 
         <header class="lp-head">
           <h1 class="lp-title">
             <img class="lp-mark" src="/favicon.svg" alt="" width="40" height="40">
             Kickbase Kaderplaner
           </h1>
-          <p class="lp-kicker"><b>Inoffizielles Fan-Tool.</b> Kein Angebot von Kickbase.</p>
         </header>
 
+        <!--
+          Nur am Handy sichtbar: dort ist neben dem Formular kein Platz für
+          Bilder und Text, ab 720px zeigt die Bühne beides zugleich und die
+          Reiter bleiben aus. "Was die App kann" steht zuerst und aktiv: wer
+          neu hier ist, sieht erst den Beleg, bevor er sein Passwort eintippt.
+        -->
+        <div class="lp-tabs" role="tablist">
+          <button type="button" class="lp-tab is-active" role="tab" id="lp-tab-info"
+                  aria-selected="true" aria-controls="lp-panel-info" data-tab-target="info" tabindex="0">
+            Was die App kann
+          </button>
+          <button type="button" class="lp-tab" role="tab" id="lp-tab-login"
+                  aria-selected="false" aria-controls="login-form" data-tab-target="login" tabindex="-1">
+            Anmelden
+          </button>
+        </div>
+
         <div class="lp-showcase">
-          <form class="lp-panel" id="login-form" novalidate>
+          <form class="lp-panel" id="login-form" role="tabpanel" aria-labelledby="lp-tab-login" novalidate>
             <h2 class="lp-panel-title">Anmelden</h2>
-            <p class="lp-panel-note">Mit deinem Kickbase-Konto, ohne eigenes Konto hier.</p>
+            <p class="lp-panel-note">Kostenlos mit deinem Kickbase-Konto, ohne eigenes Konto hier.</p>
             <label class="field">
               <span class="field-label">E-Mail</span>
               <input type="email" name="email" class="field-input" required autocomplete="username" autofocus
@@ -58,7 +74,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             <ul class="auth-proof">
               <li>
                 <span class="tick" aria-hidden="true">✓</span>
-                <span>Dein Passwort geht direkt an Kickbase. Wir haben keinen Server, der es sehen könnte.</span>
+                <span>Dein Passwort geht direkt an Kickbase. Kein Server dazwischen, der mitliest.</span>
               </li>
               <li>
                 <span class="tick" aria-hidden="true">✓</span>
@@ -69,13 +85,11 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <span>Der Code liegt offen auf <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub</a>.</span>
               </li>
             </ul>
-            <p class="auth-small">Kaderplaner steht in keiner Verbindung zu Kickbase.
-              Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
           </form>
 
           <div class="lp-shot">
             <img class="lp-shot-img" src="/images/table-desktop.webp"
-                 width="1356" height="765" decoding="async"
+                 width="2451" height="1636" decoding="async"
                  alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
           </div>
 
@@ -100,6 +114,46 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         </div>
 
         <div class="lp-intro">
+          <!--
+            Nur am Handy sichtbar, siehe die @container-Regel in base.css:
+            ersetzt dort die drei Absätze durch drei Karten zum Durchwischen,
+            mit denselben Bildern wie oben auf der breiten Seite.
+          -->
+          <div class="lp-carousel-wrap" role="tabpanel" id="lp-panel-info" aria-labelledby="lp-tab-info">
+            <p class="lp-carousel-sub">Drei Blicke in die App, mit einem erfundenen Kader.</p>
+            <div class="lp-carousel" role="region" aria-roledescription="Karussell" aria-label="Screenshots der App">
+              <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 3">
+                <span class="lp-badge">Score 0–100 %</span>
+                <img class="lp-slide-img" src="/images/table-desktop.webp"
+                     width="2451" height="1636" loading="lazy" decoding="async"
+                     alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
+                <h3 class="lp-slide-title">Kadertabelle</h3>
+                <p class="lp-slide-text">Score je Spieler, vier Spalten zum Durchspielen.</p>
+              </div>
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="2 von 3">
+                <span class="lp-badge lp-badge--gold">Marktwert</span>
+                <img class="lp-slide-img" src="/images/player-dialog.webp"
+                     width="946" height="1140" loading="lazy" decoding="async"
+                     alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
+                <h3 class="lp-slide-title">Spielerdialog</h3>
+                <p class="lp-slide-text">Score, Spieltage, was ein Verkauf am Spielraum ändert.</p>
+              </div>
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 3">
+                <span class="lp-badge">Aufstellung</span>
+                <img class="lp-slide-img" src="/images/lineup.webp"
+                     width="531" height="1086" loading="lazy" decoding="async"
+                     alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
+                <h3 class="lp-slide-title">Aufstellung</h3>
+                <p class="lp-slide-text">Auf dem Feld zusammengestellt, an Kickbase zurück.</p>
+              </div>
+            </div>
+            <p class="lp-swipe-hint" id="lp-swipe-hint"><span class="lp-swipe-arrow" aria-hidden="true">→</span> wischen für mehr</p>
+            <div class="lp-dots" id="lp-dots">
+              <span class="lp-dot is-active"></span><span class="lp-dot"></span><span class="lp-dot"></span>
+            </div>
+            <button type="button" class="lp-carousel-cta" id="lp-carousel-cta">Jetzt anmelden</button>
+          </div>
+
           <p class="lp-body">
             Jeder Spieler bekommt einen Score für den nächsten Spieltag, 0 bis 100 %.
           </p>
@@ -118,6 +172,8 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             Was die App kann
             <span class="lp-more-arrow" aria-hidden="true">→</span>
           </a>
+          <p class="lp-legal">Inoffizielles Fan-Tool, keine Verbindung zu Kickbase.
+            Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
         </div>
 
       </div>
@@ -137,6 +193,78 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
   if (!form || !errorEl || !submitButton) {
     throw new Error('renderLogin: required elements missing after innerHTML.');
   }
+
+  const hero = host.querySelector<HTMLElement>('.lp-hero');
+  const tabButtons = host.querySelectorAll<HTMLButtonElement>('.lp-tab');
+
+  function activateTab(target: string): void {
+    if (!hero) return;
+    hero.dataset.tab = target;
+    tabButtons.forEach((b) => {
+      const selected = b.dataset.tabTarget === target;
+      b.classList.toggle('is-active', selected);
+      b.setAttribute('aria-selected', String(selected));
+      b.setAttribute('tabindex', selected ? '0' : '-1');
+    });
+  }
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button.dataset.tabTarget) activateTab(button.dataset.tabTarget);
+    });
+  });
+
+  // Pfeiltasten zwischen den Reitern, wie es role="tab" verspricht — sonst
+  // kündigt der Screenreader "Tab" an, ohne die erwartete Bedienung zu
+  // liefern. Home/End springen an den Anfang bzw. das Ende.
+  const tabList = [...tabButtons];
+  tabList.forEach((tab, idx) => {
+    tab.addEventListener('keydown', (event) => {
+      let nextIdx: number | null = null;
+      if (event.key === 'ArrowRight') nextIdx = (idx + 1) % tabList.length;
+      else if (event.key === 'ArrowLeft') nextIdx = (idx - 1 + tabList.length) % tabList.length;
+      else if (event.key === 'Home') nextIdx = 0;
+      else if (event.key === 'End') nextIdx = tabList.length - 1;
+      if (nextIdx === null) return;
+      event.preventDefault();
+      const next = tabList[nextIdx];
+      if (!next) return;
+      next.focus();
+      if (next.dataset.tabTarget) activateTab(next.dataset.tabTarget);
+    });
+  });
+
+  // "Jetzt anmelden" sitzt im Info-Reiter, der beim Wechsel display:none
+  // bekommt — waehrend der Knopf selbst noch den Fokus haelt. Ohne diesen
+  // Sprung faellt der Tastatur-Fokus zurueck auf <body>.
+  host.querySelector<HTMLButtonElement>('#lp-carousel-cta')?.addEventListener('click', () => {
+    activateTab('login');
+    host.querySelector<HTMLButtonElement>('#lp-tab-login')?.focus();
+  });
+
+  // Karussell: Punkte folgen der sichtbaren Karte. Wisch-Hinweis UND
+  // Rand-Fade verschwinden auf der letzten Karte, auch für Screenreader
+  // (aria-hidden, nicht nur opacity) — sie versprechen sonst mehr, als da
+  // noch kommt.
+  const carousel = host.querySelector<HTMLElement>('.lp-carousel');
+  const dots = host.querySelectorAll<HTMLElement>('.lp-dot');
+  const swipeHint = host.querySelector<HTMLElement>('#lp-swipe-hint');
+  carousel?.addEventListener(
+    'scroll',
+    () => {
+      const first = carousel.firstElementChild as HTMLElement | null;
+      if (!first) return;
+      const slideWidth = first.getBoundingClientRect().width + 12;
+      const i = Math.round(carousel.scrollLeft / slideWidth);
+      const atEnd = i >= dots.length - 1;
+      dots.forEach((d, idx) => d.classList.toggle('is-active', idx === i));
+      if (swipeHint) {
+        swipeHint.style.opacity = atEnd ? '0' : '1';
+        swipeHint.setAttribute('aria-hidden', String(atEnd));
+      }
+      carousel.classList.toggle('is-at-end', atEnd);
+    },
+    { passive: true },
+  );
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
