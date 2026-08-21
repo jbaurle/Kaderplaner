@@ -43,13 +43,15 @@ Alles außer der Aufstellung ist nur lesend.
 
 <table>
   <tr valign="top">
-    <td><img src="docs/shot-mobile.png" alt="Kaderplaner auf dem Handy" width="330"></td>
-    <td><img src="docs/shot-lineup.png" alt="Aufstellung auf dem Spielfeld" width="330"></td>
+    <td><img src="docs/shot-mobile.png" alt="Kaderplaner auf dem Handy" width="200"></td>
+    <td><img src="docs/shot-lineup.png" alt="Aufstellung auf dem Spielfeld" width="200"></td>
+    <td><img src="docs/shot-player.png" alt="Der Spielerdialog" width="200"></td>
+    <td><img src="docs/shot-offers.png" alt="Der Gebotsdialog" width="200"></td>
   </tr>
 </table>
 
-Links die Tabelle auf einem 412 px breiten Handy, rechts die Aufstellung hinter
-dem Formations-Chip.
+Die Tabelle auf einem 412 px breiten Handy, die Aufstellung hinter dem
+Formations-Chip, der Spielerdialog und der Gebotsdialog.
 
 ## Lokal starten
 
