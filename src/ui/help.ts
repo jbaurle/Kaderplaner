@@ -174,6 +174,9 @@ export const FEATURES_HELP_BODY = `
     <li>Ein Tipp auf einen <strong>Spielernamen</strong> öffnet den
       Spielerdialog.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
+    <li>Der <strong>Mond</strong> im Kopf schaltet auf Dunkel und zurück. Die
+      Wahl gilt für diesen Browser und steht beim nächsten Besuch wieder so
+      da.</li>
     <li>Jeder Dialog schließt mit Escape, mit dem Kreuz oben rechts oder mit
       einem Klick daneben.</li>
   </ul>
