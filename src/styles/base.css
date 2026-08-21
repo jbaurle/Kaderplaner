@@ -591,21 +591,38 @@ button {
   padding: 12px;
 }
 
+/* Eigener Rahmen ums Bild, mit overflow:hidden: die Screenshots selbst
+   haben schon abgerundete Ecken und einen Schatten (echte Dialoge). Ohne
+   die Zoom-Stufe unten schimmert dieser Rand dünn oben durch den eigenen
+   Zuschnitt — zwei Karten ineinander statt einer sauberen. */
+.lp-slide-media {
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  margin-bottom: 11px;
+}
+
 .lp-slide-img {
   display: block;
   width: 100%;
   height: 186px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
-  margin-bottom: 11px;
 }
 
 .lp-slide--wide .lp-slide-img {
   object-position: 50% 12%;
 }
 
+.lp-slide--offers .lp-slide-img {
+  object-position: 50% 15%;
+}
+
 .lp-slide--tall .lp-slide-img {
-  object-position: top;
+  /* Die Breite passt exakt (object-fit:cover deckt sie ohne Rest), nur die
+     Höhe hat Spielraum — ein paar Prozent vom oberen Rand weg schieben den
+     eigenen abgerundeten Rand der Dialog-Screenshots aus dem Zuschnitt,
+     ohne links oder rechts etwas zu verlieren. Ein transform:scale() vorher
+     schnitt stattdessen unnötig Avatar und Titel links ab. */
+  object-position: 50% 6%;
 }
 
 .lp-badge {
@@ -653,6 +670,14 @@ button {
   transition: opacity 0.15s;
 }
 
+/* Mit Maus gibt's die Pfeile, "wischen" stimmt dort nicht — dieselbe
+   Bedingung wie bei .lp-carousel-nav, nur umgekehrt. */
+@media (hover: hover) and (pointer: fine) {
+  .lp-swipe-hint {
+    display: none;
+  }
+}
+
 .lp-swipe-arrow {
   display: inline-block;
   animation: lp-swipe-nudge 1.6s ease-in-out infinite;
@@ -671,23 +696,44 @@ button {
 .lp-dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 0;
   margin: 12px 0 0;
 }
 
+/* Der Punkt selbst bleibt klein, der Knopf drumherum ist die eigentliche
+   Trefffläche — 6px wären als Fingerziel zu knapp. */
 .lp-dot {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lp-dot::before {
+  content: '';
   width: 6px;
   height: 6px;
   border-radius: 999px;
   background: var(--text-muted);
   opacity: 0.35;
+  transition: width 0.2s, background-color 0.2s;
 }
 
-.lp-dot.is-active {
+.lp-dot.is-active::before {
   background: var(--action);
   opacity: 1;
   width: 18px;
-  transition: width 0.2s;
+}
+
+.lp-dot:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+  border-radius: 999px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -695,9 +741,75 @@ button {
     animation: none;
   }
   .lp-swipe-hint,
-  .lp-dot,
-  .lp-dot.is-active {
+  .lp-dot::before,
+  .lp-dot.is-active::before {
     transition: none;
+  }
+}
+
+/* ---------- Pfeile: nur mit Maus (nicht mobil) ---------- */
+
+.lp-carousel-frame {
+  position: relative;
+}
+
+.lp-carousel-nav {
+  display: none;
+  position: absolute;
+  /* Mitte des Bildes, nicht der ganzen Karte — die Karte reicht mit Titel
+     und Text deutlich tiefer, dort läge der Pfeil mitten im Fliesstext.
+     136px: Kartenpolster + Badge-Zeile + halbe Bildhöhe (186px), gemessen
+     am gerenderten Karussell, gilt für alle vier Karten gleich, weil Polster
+     und Badge bei allen identisch sind. */
+  top: 136px;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text-strong);
+  align-items: center;
+  justify-content: center;
+  /* Deutlich kräftiger als die Karten-Schatten dahinter: der Pfeil soll auf
+     jedem Screenshot als eigene Fläche lesen, nicht als Teil des Bildes. */
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22), 0 2px 5px rgba(15, 23, 42, 0.14);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.lp-carousel-nav svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lp-carousel-nav--prev {
+  left: 2px;
+}
+
+.lp-carousel-nav--next {
+  right: 2px;
+}
+
+.lp-carousel-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lp-carousel-nav:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.lp-carousel-nav:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+/* Zeigt die Pfeile nur, wo eine Maus wirklich Hover kann: am Touch-Gerät
+   wischt man ohnehin, ein Pfeil wäre nur ein zusätzliches Ziel. */
+@media (hover: hover) and (pointer: fine) {
+  .lp-carousel-nav {
+    display: flex;
   }
 }
 
@@ -813,6 +925,29 @@ button {
 
   .lp-hero[data-tab="info"] .lp-panel {
     display: none;
+  }
+
+  /* Ohne das bleibt `.lp-showcase` als leerer Flex-Punkt stehen (alle Kinder
+     display:none) und zieht trotzdem den vollen `gap` der Bühne — macht aus
+     20px zwischen Reiter und Karussell-Text versehentlich 40px. */
+  .lp-hero[data-tab="info"] .lp-showcase {
+    display: none;
+  }
+
+  /* Etwas knapper als auf der breiten Seite: dort steht das Kleingedruckte
+     nach drei Absätzen, hier direkt nach dem Karussell-Knopf. */
+  .lp-legal {
+    margin-top: 18px;
+  }
+
+  /* Vier Links in einer Zeile statt zwei: knapper und mittig, sonst bricht
+     "Quellcode" auf eine eigene, linksbündige zweite Zeile um. */
+  .lp-foot {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 5px;
+    font-size: 10.5px;
+    white-space: nowrap;
   }
 }
 

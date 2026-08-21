@@ -116,40 +116,73 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <div class="lp-intro">
           <!--
             Nur am Handy sichtbar, siehe die @container-Regel in base.css:
-            ersetzt dort die drei Absätze durch drei Karten zum Durchwischen,
-            mit denselben Bildern wie oben auf der breiten Seite.
+            ersetzt dort die drei Absätze durch vier Karten zum Durchwischen,
+            mit denselben Bildern wie oben auf der breiten Seite bzw. aus
+            den Funktionsseiten.
           -->
           <div class="lp-carousel-wrap" role="tabpanel" id="lp-panel-info" aria-labelledby="lp-tab-info">
-            <p class="lp-carousel-sub">Drei Blicke in die App, mit einem erfundenen Kader.</p>
+            <p class="lp-carousel-sub">Vier Blicke in die App, mit einem erfundenen Kader.</p>
+            <!--
+              Pfeile nur mit Maus, siehe (hover: hover) in base.css: am
+              Touch-Gerät wischt man ohnehin, ein Pfeil darüber wäre nur
+              ein weiteres Ziel zum Treffen.
+            -->
+            <div class="lp-carousel-frame">
             <div class="lp-carousel" role="region" aria-roledescription="Karussell" aria-label="Screenshots der App">
-              <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 3">
+              <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 4">
                 <span class="lp-badge">Score 0–100 %</span>
-                <img class="lp-slide-img" src="/images/table-desktop.webp"
-                     width="2451" height="1636" loading="lazy" decoding="async"
-                     alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
+                <div class="lp-slide-media">
+                  <img class="lp-slide-img" src="/images/table-desktop.webp"
+                       width="2451" height="1636" loading="lazy" decoding="async"
+                       alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
+                </div>
                 <h3 class="lp-slide-title">Kadertabelle</h3>
                 <p class="lp-slide-text">Score je Spieler, vier Spalten zum Durchspielen.</p>
               </div>
-              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="2 von 3">
+              <div class="lp-slide lp-slide--offers" role="group" aria-roledescription="Folie" aria-label="2 von 4">
+                <span class="lp-badge">Gebote</span>
+                <div class="lp-slide-media">
+                  <img class="lp-slide-img" src="/images/offers-dialog.webp"
+                       width="560" height="453" loading="lazy" decoding="async"
+                       alt="Der Gebotsdialog: das höchste Gebot gross, darunter alle Gebote mit Manager und Betrag.">
+                </div>
+                <h3 class="lp-slide-title">Gebote</h3>
+                <p class="lp-slide-text">Alle Gebote auf einen Blick, das höchste zuerst.</p>
+              </div>
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 4">
                 <span class="lp-badge lp-badge--gold">Marktwert</span>
-                <img class="lp-slide-img" src="/images/player-dialog.webp"
-                     width="946" height="1140" loading="lazy" decoding="async"
-                     alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
+                <div class="lp-slide-media">
+                  <img class="lp-slide-img" src="/images/player-dialog.webp"
+                       width="946" height="1140" loading="lazy" decoding="async"
+                       alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
+                </div>
                 <h3 class="lp-slide-title">Spielerdialog</h3>
                 <p class="lp-slide-text">Score, Spieltage, was ein Verkauf am Spielraum ändert.</p>
               </div>
-              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 3">
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="4 von 4">
                 <span class="lp-badge">Aufstellung</span>
-                <img class="lp-slide-img" src="/images/lineup.webp"
-                     width="531" height="1086" loading="lazy" decoding="async"
-                     alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
+                <div class="lp-slide-media">
+                  <img class="lp-slide-img" src="/images/lineup.webp"
+                       width="531" height="1086" loading="lazy" decoding="async"
+                       alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
+                </div>
                 <h3 class="lp-slide-title">Aufstellung</h3>
                 <p class="lp-slide-text">Auf dem Feld zusammengestellt, an Kickbase zurück.</p>
               </div>
             </div>
+            <button type="button" class="lp-carousel-nav lp-carousel-nav--prev" id="lp-carousel-prev" aria-label="Vorheriges Bild" disabled>
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="lp-carousel-nav lp-carousel-nav--next" id="lp-carousel-next" aria-label="Nächstes Bild">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            </div>
             <p class="lp-swipe-hint" id="lp-swipe-hint"><span class="lp-swipe-arrow" aria-hidden="true">→</span> wischen für mehr</p>
             <div class="lp-dots" id="lp-dots">
-              <span class="lp-dot is-active"></span><span class="lp-dot"></span><span class="lp-dot"></span>
+              <button type="button" class="lp-dot is-active" aria-label="Bild 1 von 4 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 2 von 4 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 3 von 4 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 4 von 4 zeigen"></button>
             </div>
             <button type="button" class="lp-carousel-cta" id="lp-carousel-cta">Jetzt anmelden</button>
           </div>
@@ -244,17 +277,32 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
   // Karussell: Punkte folgen der sichtbaren Karte. Wisch-Hinweis UND
   // Rand-Fade verschwinden auf der letzten Karte, auch für Screenreader
   // (aria-hidden, nicht nur opacity) — sie versprechen sonst mehr, als da
-  // noch kommt.
+  // noch kommt. Punkte und Pfeile springen dieselbe Distanz, die auch das
+  // Wischen ergibt: eine Kartenbreite plus Abstand.
   const carousel = host.querySelector<HTMLElement>('.lp-carousel');
-  const dots = host.querySelectorAll<HTMLElement>('.lp-dot');
+  const dots = host.querySelectorAll<HTMLButtonElement>('.lp-dot');
   const swipeHint = host.querySelector<HTMLElement>('#lp-swipe-hint');
+  const prevButton = host.querySelector<HTMLButtonElement>('#lp-carousel-prev');
+  const nextButton = host.querySelector<HTMLButtonElement>('#lp-carousel-next');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function slideWidth(): number {
+    const first = carousel?.firstElementChild as HTMLElement | null;
+    return first ? first.getBoundingClientRect().width + 12 : 0;
+  }
+
+  function scrollToIndex(i: number): void {
+    if (!carousel) return;
+    const clamped = Math.max(0, Math.min(dots.length - 1, i));
+    carousel.scrollTo({ left: clamped * slideWidth(), behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
   carousel?.addEventListener(
     'scroll',
     () => {
-      const first = carousel.firstElementChild as HTMLElement | null;
-      if (!first) return;
-      const slideWidth = first.getBoundingClientRect().width + 12;
-      const i = Math.round(carousel.scrollLeft / slideWidth);
+      const width = slideWidth();
+      if (!width) return;
+      const i = Math.round(carousel.scrollLeft / width);
       const atEnd = i >= dots.length - 1;
       dots.forEach((d, idx) => d.classList.toggle('is-active', idx === i));
       if (swipeHint) {
@@ -262,9 +310,21 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         swipeHint.setAttribute('aria-hidden', String(atEnd));
       }
       carousel.classList.toggle('is-at-end', atEnd);
+      if (prevButton) prevButton.disabled = i <= 0;
+      if (nextButton) nextButton.disabled = atEnd;
     },
     { passive: true },
   );
+
+  dots.forEach((dot, idx) => dot.addEventListener('click', () => scrollToIndex(idx)));
+  prevButton?.addEventListener('click', () => {
+    const width = slideWidth();
+    if (carousel && width) scrollToIndex(Math.round(carousel.scrollLeft / width) - 1);
+  });
+  nextButton?.addEventListener('click', () => {
+    const width = slideWidth();
+    if (carousel && width) scrollToIndex(Math.round(carousel.scrollLeft / width) + 1);
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
