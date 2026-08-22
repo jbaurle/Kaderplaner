@@ -986,8 +986,8 @@ function collectFormationHelp(
 
 function friendlyMessage(err: unknown): string {
   if (err instanceof KickbaseError) {
-    if (err.status === 0) return 'Netzwerkfehler — bitte erneut versuchen.';
-    return `Ladefehler (${err.status}) — bitte erneut versuchen.`;
+    if (err.status === 0) return 'Netzwerkfehler. Bitte erneut versuchen.';
+    return `Ladefehler (${err.status}). Bitte erneut versuchen.`;
   }
   if (err instanceof Error) return err.message;
   return 'Unbekannter Fehler.';
@@ -995,11 +995,11 @@ function friendlyMessage(err: unknown): string {
 
 function friendlyScoreMessage(err: unknown): string {
   if (err instanceof KickbaseError) {
-    if (err.status === 0) return 'Score-Berechnung fehlgeschlagen (Netzwerkfehler) — bitte erneut versuchen.';
-    return `Score-Berechnung fehlgeschlagen (${err.status}) — bitte erneut versuchen.`;
+    if (err.status === 0) return 'Score-Berechnung fehlgeschlagen (Netzwerkfehler). Bitte erneut versuchen.';
+    return `Score-Berechnung fehlgeschlagen (${err.status}). Bitte erneut versuchen.`;
   }
   if (err instanceof Error) return `Score-Berechnung fehlgeschlagen: ${err.message}`;
-  return 'Score-Berechnung fehlgeschlagen — bitte erneut versuchen.';
+  return 'Score-Berechnung fehlgeschlagen. Bitte erneut versuchen.';
 }
 
 function extractSquadFreshFields(squad: SquadPlayer[]): Record<PlayerId, SquadFreshFields> {

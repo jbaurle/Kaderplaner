@@ -371,7 +371,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
 function friendlyMessage(err: unknown): string {
   if (err instanceof KickbaseError) {
     if (err.isUnauthorized) return 'E-Mail oder Passwort falsch.';
-    if (err.status === 0) return 'Netzwerkfehler — bitte später erneut versuchen.';
+    if (err.status === 0) return 'Netzwerkfehler. Bitte später erneut versuchen.';
     return `Login fehlgeschlagen (${err.status}).`;
   }
   if (err instanceof Error) return err.message;
