@@ -11,15 +11,21 @@
     <title>Kickbase Kaderplaner</title>
 
     <!--
-      Setzt den Dunkel-Modus, bevor irgendetwas gezeichnet wird — sonst
-      blitzt die Seite hell auf und springt danach um. Das echte Umschalten
-      übernimmt src/ui/theme.ts, hier nur der gespeicherte Stand vorab.
-      Derselbe Schlüssel wie storage/local.ts (Namespace "kb.").
+      Setzt den Dunkel-Modus, bevor irgendetwas gezeichnet wird, sonst blitzt
+      die Seite hell auf und springt danach um. Das echte Umschalten übernimmt
+      src/ui/theme.ts, hier nur der gespeicherte Stand vorab.
+
+      Derselbe Schlüssel wie storage/local.ts (Namespace "kb."). Der Wrapper
+      schreibt durch JSON.stringify, im Speicher steht also "dark" mit
+      Anführungszeichen. Beide Schreibweisen gelten hier, damit dieses Skript
+      nicht still ins Leere läuft, falls der Wrapper das Format ändert; ein
+      Test in tests/theme.test.ts hält die Erwartung fest.
     -->
     <script>
       (function () {
         try {
-          if (localStorage.getItem('kb.theme') === '"dark"') {
+          var stored = localStorage.getItem('kb.theme');
+          if (stored === '"dark"' || stored === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
           }
         } catch (e) {}
