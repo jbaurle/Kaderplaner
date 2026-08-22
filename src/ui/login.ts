@@ -144,7 +144,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             den Funktionsseiten.
           -->
           <div class="lp-carousel-wrap" role="tabpanel" id="lp-panel-info" aria-labelledby="lp-tab-info">
-            <p class="lp-carousel-sub">Vier Blicke in die App, mit einem erfundenen Kader.</p>
+            <p class="lp-carousel-sub">Einblicke in die App</p>
             <!--
               Pfeile nur mit Maus, siehe (hover: hover) in base.css: am
               Touch-Gerät wischt man ohnehin, ein Pfeil darüber wäre nur
