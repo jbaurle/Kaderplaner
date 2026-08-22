@@ -173,7 +173,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <p class="lp-slide-text">Alle Gebote auf einen Blick, das höchste zuerst.</p>
               </div>
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 4">
-                <span class="lp-badge lp-badge--gold">Marktwert</span>
+                <span class="lp-badge lp-badge--gold">Spielraum</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="/images/player-dialog.webp"
                        width="582" height="615" loading="lazy" decoding="async"
