@@ -1170,12 +1170,11 @@ button {
     position: relative;
     z-index: 1;
     /*
-     * Untergrenze angehoben, nicht der Deckel: auf schmaleren Desktop-
-     * Fenstern (knapp über 720px) lag die Karte nah am alten Boden von
-     * 280px und wirkte verloren schmal. Sehr breite Fenster (1600px+)
-     * bleiben unverändert beim alten Deckel von 396px.
+     * Untergrenze und Prozentsatz weiter angehoben, der Deckel bleibt: auf
+     * schmaleren Desktop-Fenstern (knapp über 720px) sollte die Karte noch
+     * breiter werden, breite Fenster (1600px+) bleiben unverändert bei 396px.
      */
-    width: clamp(320px, 72%, 396px);
+    width: clamp(360px, 82%, 396px);
     /* Hängt links über die Bildkante hinaus, damit die Karte als eigene
        Fläche liest und nicht als Teil des Screenshots. */
     margin: var(--lp-panel-inset) 0 0 calc(-1 * var(--lp-panel-pull));
