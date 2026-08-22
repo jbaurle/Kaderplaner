@@ -179,6 +179,17 @@ export const FEATURES_HELP_BODY = `
       einem Klick daneben.</li>
   </ul>
 
+  <h3>Was der Kaderplaner nicht macht</h3>
+  <p>
+    Keine Kaufkraft der Mitspieler. Von ihnen siehst du nur, was bei dir
+    ankommt: Gebote auf deine eigenen Spieler, mit Name und Betrag. Bietest du
+    selbst auf jemanden, steht dort dein Gebot und sonst nichts, nicht einmal,
+    wie viele andere mitbieten. Kontostand, Kader und Teamwert der anderen gibt
+    Kickbase nicht heraus. Schätzen ließe sich das nur mit einem Server, der die
+    ganze Saison jeden Kader mitschreibt, und die Zahl wäre am Ende ungenauer
+    als die Entscheidung, die sie stützen soll.
+  </p>
+
   <h3>Was gespeichert wird</h3>
   <p>
     Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus
