@@ -22,7 +22,7 @@ import type {
   PlayerId,
   SquadPlayer,
 } from '../api/types.js';
-import { computePlanning, type MarketListing, type PlanningView } from '../compute/planning.js';
+import { computePlanning, planningRowFromMarketPlayer, type MarketListing, type PlanningView } from '../compute/planning.js';
 import {
   computeScores,
   type ScoreResult,
@@ -725,18 +725,28 @@ export class PlanningPage {
    * lokal auf denselben Zutaten, es geht keine einzige Abfrage raus.
    */
   private renderPlayerModal(playerId: PlayerId, view: PlanningView): string {
-    const row = view.rows.find((r) => r.id === playerId);
+    const squadRow = view.rows.find((r) => r.id === playerId);
+    const isOwned = squadRow !== undefined;
+    // Nicht im Kader: der Name kam aus dem Transferblock, ein Gebot auf
+    // einen fremden Spieler. Derselbe Dialog, nur ohne Verkaufsfolgen — der
+    // gehört noch niemandem.
+    const marketPlayer = this.state.market.find((p) => p.id === playerId);
+    const row = squadRow ?? (marketPlayer ? planningRowFromMarketPlayer(marketPlayer) : null);
     if (!row) return '';
 
     const scores = this.state.scores;
     const cache = loadOptimizerCache(this.props.leagueId);
-    const weekly = cache?.weeklyDetails[playerId];
+    // Kaderspieler stehen im Kader-Cache und in `byPlayer`, Marktspieler
+    // separat in `marketWeeklyByPlayer`/`marketByPlayer` — der Kader-Cache
+    // räumt alles weg, was nicht im Kader steht (siehe ComputeScoresInput.market).
+    const weekly = isOwned ? cache?.weeklyDetails[playerId] : scores?.marketWeeklyByPlayer[playerId];
+    const score = isOwned ? scores?.byPlayer[playerId] : scores?.marketByPlayer[playerId];
 
     const insight = computePlayerInsight({
       row,
       squad: view.rows,
       budget: view.budget,
-      score: scores?.byPlayer[playerId] ?? null,
+      score: score ?? null,
       scoreByPlayer: scores?.byPlayer ?? {},
       top11Ids: scores?.top11Ids ?? [],
       lineupInput: scores?.lineupInput ?? null,
@@ -768,10 +778,11 @@ export class PlanningPage {
       marketValue: row.marketValue,
       saleValue: row.saleValue,
       mvgl: row.mvgl,
-      score: scores?.byPlayer[playerId] ?? null,
+      score: score ?? null,
       listing: row.listing,
       bestOffer: row.bestOffer,
       insight,
+      isOwned,
     });
   }
 

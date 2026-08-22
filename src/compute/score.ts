@@ -31,6 +31,7 @@ import {
   emptyOptimizerCache,
   loadOptimizerCache,
   saveOptimizerCache,
+  type OptimizerCacheWeekly,
 } from '../state/optimizer.js';
 
 // ---------- Gegner-Spalte ----------
@@ -210,6 +211,15 @@ export interface ScoreResult {
    */
   marketByPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
   /**
+   * Dieselben Details wie `weeklyDetails` im Kader-Cache, nur für
+   * Marktspieler und nicht gespeichert: der Kader-Cache räumt alles weg, was
+   * nicht im Kader steht (siehe `ComputeScoresInput.market`). Ohne dieses
+   * Feld bliebe der Spielerdialog eines Transferkandidaten bei "Noch keine
+   * Spieltage", obwohl der Score-Lauf die Daten längst abgerufen hat, nur
+   * eben nicht dauerhaft ablegt.
+   */
+  marketWeeklyByPlayer: Record<PlayerId, OptimizerCacheWeekly>;
+  /**
    * Die nächsten drei Ansetzungen je Verein, für den Spielerdialog. Die
    * Gegner-Spalte der Tabelle bleibt davon unberührt und zeigt weiter nur die
    * kommende, siehe `opponents.columns`.
@@ -352,11 +362,12 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
     table: tableResult,
     budget,
   };
-  const marketByPlayer = await scoreMarketPlayers(
+  const { byPlayer: marketByPlayer, weeklyByPlayer: marketWeeklyByPlayer } = await scoreMarketPlayers(
     optimizer,
     client,
     leagueId,
     input.market ?? [],
+    tableMc,
   );
 
   let scoreResult: ScoreResult;
@@ -372,6 +383,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       budgetPlusOk: result.budgetPlusOk,
       opponents,
       marketByPlayer,
+      marketWeeklyByPlayer,
       fixturesAhead,
       kickoffs,
       lineupInput,
@@ -394,6 +406,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       budgetPlusOk: true,
       opponents,
       marketByPlayer,
+      marketWeeklyByPlayer,
       fixturesAhead,
       kickoffs,
       lineupInput,
@@ -413,15 +426,24 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
  *
  * Fällt der Detailabruf aus, bleibt die Spalte leer statt den ganzen Lauf
  * mitzureissen: die Gebote sind Beiwerk, der Kader ist die Hauptsache.
+ *
+ * Liefert die abgerufenen Spieltag-Details gleich mit zurück (`weeklyByPlayer`):
+ * der Spielerdialog eines Transferkandidaten braucht sie, und ein zweiter
+ * Abruf beim Öffnen des Dialogs wäre dieselbe Anfrage noch einmal.
  */
 async function scoreMarketPlayers(
   optimizer: LineupOptimizer,
   client: ComputeScoresInput['client'],
   leagueId: LeagueId,
   market: readonly MarketPlayer[],
-): Promise<Record<PlayerId, { score: number; detail: ScoreDetail }>> {
-  const out: Record<PlayerId, { score: number; detail: ScoreDetail }> = {};
-  if (market.length === 0) return out;
+  tableMc: number,
+): Promise<{
+  byPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }>;
+  weeklyByPlayer: Record<PlayerId, OptimizerCacheWeekly>;
+}> {
+  const byPlayer: Record<PlayerId, { score: number; detail: ScoreDetail }> = {};
+  const weeklyByPlayer: Record<PlayerId, OptimizerCacheWeekly> = {};
+  if (market.length === 0) return { byPlayer, weeklyByPlayer };
 
   const details = await client
     .getPlayerDetailsBatch(
@@ -429,7 +451,7 @@ async function scoreMarketPlayers(
       market.map((p) => p.id),
     )
     .catch(() => null);
-  if (!details) return out;
+  if (!details) return { byPlayer, weeklyByPlayer };
 
   for (let i = 0; i < market.length; i++) {
     const p = market[i]!;
@@ -448,9 +470,17 @@ async function scoreMarketPlayers(
       hasPlayedFlags: d.hasPlayedFlags,
       matchSummary: d.matchSummary,
     });
-    out[p.id] = { score: detail.score, detail };
+    byPlayer[p.id] = { score: detail.score, detail };
+    weeklyByPlayer[p.id] = {
+      mc: tableMc,
+      firstName: d.firstName,
+      statusText: d.statusText,
+      matchSummary: d.matchSummary,
+      lastMatchdayPoints: d.lastMatchdayPoints,
+      hasPlayedFlags: d.hasPlayedFlags,
+    };
   }
-  return out;
+  return { byPlayer, weeklyByPlayer };
 }
 
 function mapByPlayerId(

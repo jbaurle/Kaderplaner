@@ -52,6 +52,12 @@ export interface PlayerDialogInput {
   /** Das höchste fremde Gebot, 0 wenn keins vorliegt. */
   bestOffer: number;
   insight: PlayerInsight;
+  /**
+   * Steht er im eigenen Kader? Nur dann ergibt "Wenn du verkaufst" einen
+   * Sinn — bei einem Transferkandidaten, auf den nur ein Gebot liegt, gehört
+   * er noch niemandem, ein Verkaufserlös wäre erfunden.
+   */
+  isOwned: boolean;
 }
 
 /*
@@ -487,7 +493,7 @@ export function renderPlayerDialog(input: PlayerDialogInput): string {
         <div class="dialog-body pd-body">
           ${renderScore(input)}
           ${renderMatchdays(input.insight)}
-          ${renderSale(input.insight)}
+          ${input.isOwned ? renderSale(input.insight) : ''}
         </div>
       </section>
     </div>

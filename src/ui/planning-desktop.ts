@@ -791,7 +791,7 @@ function renderTransferRow(
   const rowCls = index % 2 === 1 ? ' class="is-alt"' : '';
   return `
     <tr${rowCls}>
-      <td class="col-name"><span class="name-text">${escapeHtml(bid.name)}</span>${renderTeamLogo(bid.teamId, opponents.teams)}</td>
+      <td class="col-name" data-player="${escapeHtml(bid.id)}"><button type="button" class="name-text name-btn">${escapeHtml(bid.name)}</button>${renderTeamLogo(bid.teamId, opponents.teams)}</td>
       <td class="col-pos"><span class="chip chip--pos${bid.position}">${escapeHtml(positionLabel(bid.position))}</span></td>
       <td class="num col-mv">${money(amount)}</td>
       ${scenCells}

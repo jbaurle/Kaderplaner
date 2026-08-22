@@ -12,8 +12,9 @@
  * No DOM access, no fetch, no localStorage — easy to unit-test.
  */
 
-import type { PlayerId, PositionCode, SquadPlayer } from '../api/types.js';
+import type { MarketPlayer, PlayerId, PositionCode, SquadPlayer } from '../api/types.js';
 import { squadFormationGap } from './lineup.js';
+import { positionLabel } from './optimizer.js';
 import type { ScenarioFlags, ScenarioSlot, ScenarioState } from '../state/planning.js';
 
 export type ResolvedScenarioSlot = ScenarioSlot | 'S4';
@@ -230,6 +231,37 @@ export function computePlanning(input: ComputePlanningInput): PlanningView {
     lineupCount,
     totalPlayers: rows.length,
     totalGainLoss,
+  };
+}
+
+/**
+ * Baut eine kaderförmige Zeile aus einem Marktspieler, für den Spielerdialog
+ * aus dem Transferblock — auf einen Kandidaten, auf den nur ein eigenes
+ * Gebot liegt, nicht auf einen Kaderspieler.
+ *
+ * Nur Score und Spieltage stammen von so einer Zeile: `saleValue`, `mvgl`
+ * und die anderen Verkaufsfelder sind Platzhalter und dürfen nicht gerendert
+ * werden, der Spieler gehört ja noch niemandem. Der Aufrufer blendet "Wenn
+ * du verkaufst" für einen Nicht-Kader-Spieler entsprechend aus.
+ */
+export function planningRowFromMarketPlayer(player: MarketPlayer): PlanningRow {
+  return {
+    id: player.id,
+    name: player.name,
+    position: player.position,
+    positionLabel: positionLabel(player.position),
+    marketValue: player.marketValue,
+    saleValue: player.marketValue,
+    bestOffer: 0,
+    mvgl: 0,
+    gainLoss: 0,
+    isInLineup: false,
+    teamId: player.teamId,
+    status: player.status,
+    probability: player.probability,
+    imagePath: player.imagePath,
+    listing: null,
+    flags: { S1: false, S2: false, S3: false, S4: false },
   };
 }
 

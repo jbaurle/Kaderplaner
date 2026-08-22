@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   CompetitionTable,
+  MarketPlayer,
   PlayerDetails,
   SquadPlayer,
 } from '../src/api/types.js';
@@ -77,8 +78,8 @@ function table(mc: number): CompetitionTable {
 
 function details(overrides: Partial<PlayerDetails> = {}): PlayerDetails {
   return {
-    firstName: '',
-    lastName: '',
+    firstName: overrides.firstName ?? '',
+    lastName: overrides.lastName ?? '',
     averagePoints: overrides.averagePoints ?? 100,
     status: overrides.status ?? 0,
     statusText: overrides.statusText ?? '',
@@ -99,6 +100,27 @@ const FRESH = {
   probability: 1,
   teamId: 't1',
 };
+
+function marketPlayer(overrides: Partial<MarketPlayer> & { id: string }): MarketPlayer {
+  return {
+    id: overrides.id,
+    name: overrides.name ?? overrides.id,
+    firstName: overrides.firstName ?? '',
+    position: overrides.position ?? 3,
+    marketValue: overrides.marketValue ?? 1_000_000,
+    price: overrides.price ?? 1_000_000,
+    expiresInSeconds: overrides.expiresInSeconds ?? 0,
+    offerCount: overrides.offerCount ?? 0,
+    myOffer: overrides.myOffer ?? null,
+    offers: overrides.offers ?? [],
+    status: overrides.status ?? 0,
+    probability: overrides.probability ?? 0,
+    averagePoints: overrides.averagePoints ?? 0,
+    teamId: overrides.teamId ?? 't1',
+    imagePath: overrides.imagePath ?? '',
+    trend: overrides.trend ?? 0,
+  };
+}
 
 describe('computeScores', () => {
   it('on first run, fetches table + every player and persists the cache', async () => {
@@ -260,5 +282,61 @@ describe('computeScores', () => {
     });
 
     expect(Object.keys(loadOptimizerCache(LEAGUE)!.weeklyDetails)).toEqual(['a']);
+  });
+
+  it('scores market players and returns their weekly details too', async () => {
+    const client = {
+      getCompetitionTable: vi.fn().mockResolvedValue(table(25)),
+      getCompetitionMatchdays: vi.fn().mockResolvedValue(EMPTY_SCHEDULE),
+      getPlayerDetailsBatch: vi
+        .fn()
+        .mockResolvedValueOnce([details()]) // squad
+        .mockResolvedValueOnce([
+          details({ firstName: 'Max', statusText: '', lastMatchdayPoints: [80, 60] }),
+        ]), // market
+    };
+
+    const result = await computeScores({
+      client: client as never,
+      leagueId: LEAGUE,
+      squad: [squadPlayer({ id: 'a' })],
+      squadFreshFields: { a: FRESH },
+      budget: 100_000_000,
+      market: [marketPlayer({ id: 'bid1', name: 'Kandidat' })],
+    });
+
+    expect(client.getPlayerDetailsBatch).toHaveBeenCalledTimes(2);
+    expect(client.getPlayerDetailsBatch).toHaveBeenNthCalledWith(2, LEAGUE, ['bid1']);
+    expect(result.marketByPlayer['bid1']).toBeDefined();
+    expect(result.marketWeeklyByPlayer['bid1']).toEqual({
+      mc: 25,
+      firstName: 'Max',
+      statusText: '',
+      matchSummary: expect.any(Array),
+      lastMatchdayPoints: [80, 60],
+      hasPlayedFlags: [],
+    });
+    // Der Kader-Cache bleibt Kader-only, der Marktspieler landet nicht darin.
+    expect(loadOptimizerCache(LEAGUE)!.weeklyDetails['bid1']).toBeUndefined();
+  });
+
+  it('leaves marketByPlayer empty without open bids', async () => {
+    const client = {
+      getCompetitionTable: vi.fn().mockResolvedValue(table(25)),
+      getCompetitionMatchdays: vi.fn().mockResolvedValue(EMPTY_SCHEDULE),
+      getPlayerDetailsBatch: vi.fn().mockResolvedValue([details()]),
+    };
+
+    const result = await computeScores({
+      client: client as never,
+      leagueId: LEAGUE,
+      squad: [squadPlayer({ id: 'a' })],
+      squadFreshFields: { a: FRESH },
+      budget: 100_000_000,
+    });
+
+    expect(client.getPlayerDetailsBatch).toHaveBeenCalledTimes(1);
+    expect(result.marketByPlayer).toEqual({});
+    expect(result.marketWeeklyByPlayer).toEqual({});
   });
 });
