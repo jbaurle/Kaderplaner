@@ -39,7 +39,7 @@ export interface PlayerDialogInput {
   teamName: string;
   /** Bildpfad aus dem Kader (`pim`), leer wenn Kickbase keinen führt. */
   imagePath: string;
-  /** 0 heisst einsatzbereit, alles andere ist ein Ausfall. */
+  /** 0 heißt einsatzbereit, alles andere ist ein Ausfall. */
   status: number;
   marketValue: number;
   saleValue: number;
@@ -86,7 +86,7 @@ const AHEAD_SLOTS = 3;
 const TABLE_COUNTS_FROM = 3;
 
 /**
- * Anstossdatum als Fuss der Kachel, etwa "22. Aug.". Leer, wenn kein
+ * Anstossdatum als Fuß der Kachel, etwa "22. Aug.". Leer, wenn kein
  * Zeitstempel vorliegt.
  */
 function dateShort(kickoff: string): string {
@@ -125,7 +125,7 @@ function signClass(value: number): string {
 
 const PERCENT = (value: number): string => `${Math.round(value * 100)} %`;
 
-/** Dieselbe Ampel als Schriftfarbe, für die grosse Zahl. */
+/** Dieselbe Ampel als Schriftfarbe, für die große Zahl. */
 function gradeText(value: number): string {
   if (value >= 0.7) return 'pd-text--good';
   if (value >= 0.4) return 'pd-text--mid';
@@ -140,8 +140,8 @@ function gradeClass(value: number): string {
 }
 
 /**
- * Dasselbe Zeichen wie in der Gegner-Spalte der Tabelle: hoch heisst
- * schwacher Gegner, runter heisst starker. Das Mittelfeld bekommt nichts:
+ * Dasselbe Zeichen wie in der Gegner-Spalte der Tabelle: hoch heißt
+ * schwacher Gegner, runter heißt starker. Das Mittelfeld bekommt nichts:
  * ein Zeichen für "unentschieden zu bewerten" wäre nur ein Fleck am Wappen.
  */
 function trendGlyph(entry: MatchdayEntry): string {
@@ -271,7 +271,7 @@ function remainingLabel(seconds: number): string {
  * Suche nach Nachrichten zum Spieler.
  *
  * Kein Deep-Link: Ligainsider und Kicker haben keine Adresse, die sich aus
- * Namen bauen liesse, und eine gepflegte Zuordnung wäre bei jedem Wechsel
+ * Namen bauen ließe, und eine gepflegte Zuordnung wäre bei jedem Wechsel
  * falsch. Die Suche mit Name, Verein und `ligainsider` führt in aller Regel
  * genau auf die Spielerseite dort.
  *
@@ -483,7 +483,7 @@ function renderSale(insight: PlayerInsight): string {
 
 /**
  * Das ganze Overlay. Trägt `data-dialog-shade` und `data-dialog-close`, damit
- * `wireModal` in `planning-page.ts` es ohne Sonderfall schliessen kann.
+ * `wireModal` in `planning-page.ts` es ohne Sonderfall schließen kann.
  */
 export function renderPlayerDialog(input: PlayerDialogInput): string {
   return `

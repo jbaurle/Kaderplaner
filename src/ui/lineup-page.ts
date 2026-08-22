@@ -13,7 +13,7 @@
  * Zwei Wege, einen Spieler zu bewegen:
  *   - Tippen: schiebt zwischen Bank und Elf hin und her.
  *   - Ziehen: Feldspieler am ganzen Token, Bankspieler nur am Bild. Das Band
- *     scrollt quer, und eine ganze Karte mit `touch-action: none` liesse sich
+ *     scrollt quer, und eine ganze Karte mit `touch-action: none` ließe sich
  *     nicht mehr wegwischen.
  *
  * Die Seite hängt an `document.body`, nicht am Host des Kaderplaners. Der
@@ -52,9 +52,9 @@ export interface LineupPlayer {
   positionLabel: PositionLabel;
   marketValue: number;
   teamId: string;
-  /** Verfügbarkeit laut Kickbase, 0 heisst fit. */
+  /** Verfügbarkeit laut Kickbase, 0 heißt fit. */
   status: number;
-  /** S11-Prognose 1 bis 5, 0 heisst keine Angabe. */
+  /** S11-Prognose 1 bis 5, 0 heißt keine Angabe. */
   probability: number;
   /** Bildpfad relativ zum CDN, leer wenn Kickbase keins führt. */
   imagePath: string;
@@ -158,7 +158,7 @@ const CROSS_ICON =
 /**
  * S11-Prognose von Kickbase, `prob` 1 bis 5. Die Bedeutung steht in der App
  * unter "Regeln & Icons": sicher, erwartet, unsicher, unwahrscheinlich,
- * ausgeschlossen. 0 heisst "keine Angabe" und zeigt nichts.
+ * ausgeschlossen. 0 heißt "keine Angabe" und zeigt nichts.
  */
 const S11_LEVELS: Record<number, { cls: string; title: string; glyph: string }> = {
   1: { cls: 's11--sure', title: 'S11: sicher', glyph: STAR_ICON },
@@ -173,7 +173,7 @@ const S11_LEVELS: Record<number, { cls: string; title: string; glyph: string }> 
  *
  * Kickbase unterscheidet zehn Zustände, verletzt, angeschlagen, gesperrt und
  * so weiter. Der Squad-Response liefert dafür nur die Zahl `st`, und belegt
- * sind daraus bisher nur 0 und 2. Ein Kreuz oder eine Karte zu zeigen hiesse
+ * sind daraus bisher nur 0 und 2. Ein Kreuz oder eine Karte zu zeigen hieße
  * raten; der Punkt sagt genau so viel, wie wir wissen.
  */
 const STATUS_TITLE = 'Nicht voll einsatzbereit';
@@ -416,7 +416,7 @@ export class LineupPage {
     const target = event.target as HTMLElement | null;
     if (!target) return;
 
-    // Klick neben das Blatt schliesst, wie bei den Dialogen in planning-page.
+    // Klick neben das Blatt schließt, wie bei den Dialogen in planning-page.
     if (target === this.layer) {
       this.close();
       return;
@@ -582,8 +582,8 @@ export class LineupPage {
    * Wird aus dem Druck ein Zug?
    *
    * Auf dem Feld reicht die Strecke, dort gibt es nichts zu blättern. Auf der
-   * Bank zählt bei Finger und Stift die Richtung: nach oben heisst
-   * aufstellen, quer heisst blättern. Dazwischen passiert nichts, der Finger
+   * Bank zählt bei Finger und Stift die Richtung: nach oben heißt
+   * aufstellen, quer heißt blättern. Dazwischen passiert nichts, der Finger
    * darf sich noch entscheiden. Die Maus hat kein Wischen, sie zieht weiter in
    * jede Richtung.
    */
@@ -719,7 +719,7 @@ export class LineupPage {
     const size = this.tokenSize();
     drag.offset = grabOffset(source, drag.startX, drag.startY, size);
 
-    // Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schliesst
+    // Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schließt
     // sich. Was bleibt, ist die Lücke, und die wandert gleich mit.
     if (drag.from === 'pitch') {
       const row = source?.closest<HTMLElement>('[data-row]');
@@ -728,7 +728,7 @@ export class LineupPage {
 
     const ghost = document.createElement('div');
     ghost.className = 'lineup-ghost';
-    // Zwei Ebenen: aussen die Lage am Zeiger, innen das Anheben. Das Anheben
+    // Zwei Ebenen: außen die Lage am Zeiger, innen das Anheben. Das Anheben
     // ist eine Animation und liefe sonst gegen die Lage, die jede Bewegung
     // neu setzt.
     const body = document.createElement('div');
@@ -1052,7 +1052,7 @@ export class LineupPage {
 
   /**
    * Bank als ein einziges Band, nach Position gruppiert. Kein Reiter: der
-   * verstecke immer drei Viertel der Bank, und beim Aufstellen weiss man oft
+   * verstecke immer drei Viertel der Bank, und beim Aufstellen weiß man oft
    * erst beim Hinsehen, wen man sucht. Ein Tipp auf einen freien Platz schiebt
    * das Band an die passende Gruppe, siehe {@link scrollToGroup}.
    */
@@ -1219,7 +1219,7 @@ function flipRow(row: HTMLElement, mutate: () => void): void {
 /**
  * Warnzeichen oben rechts am Bild, gegenüber dem Wappen.
  *
- * Der Squad-Response liefert nur `st`: 0 heisst fit, alles andere heisst
+ * Der Squad-Response liefert nur `st`: 0 heißt fit, alles andere heißt
  * ausgefallen. Ob Verletzung oder Sperre steht dort nicht, das käme aus
  * `stxt` der Spielerdetails, die diese Seite nicht lädt. Der Text bleibt
  * deshalb allgemein.

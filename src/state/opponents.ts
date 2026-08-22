@@ -14,7 +14,7 @@ import * as storage from '../storage/local.js';
 export interface OppLayout {
   /** Wie viele Wappen nebeneinander stehen. Mindestens 1. */
   columns: number;
-  /** Spieltag im Spaltenkopf. 0 heisst: keiner bekannt, dann steht nur `ST`. */
+  /** Spieltag im Spaltenkopf. 0 heißt: keiner bekannt, dann steht nur `ST`. */
   nextDay: number;
 }
 
@@ -30,7 +30,7 @@ export function loadOppLayout(leagueId: LeagueId): OppLayout {
 }
 
 /**
- * `columns: 0` heisst: keine einzige Ansetzung bekannt. Das ist kein Stand zum
+ * `columns: 0` heißt: keine einzige Ansetzung bekannt. Das ist kein Stand zum
  * Merken, sonst überschriebe ein Lauf ohne Spielplan den letzten brauchbaren.
  */
 export function saveOppLayout(leagueId: LeagueId, layout: OppLayout): void {

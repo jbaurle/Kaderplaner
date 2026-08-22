@@ -606,7 +606,7 @@ export class PlanningPage {
     }
     this.wireModal();
     // Deklarativ statt in openModal und closeModal: so stimmt die Sperre auch
-    // dann, wenn ein Laden oder ein Ligawechsel das Overlay nebenbei schliesst.
+    // dann, wenn ein Laden oder ein Ligawechsel das Overlay nebenbei schließt.
     document.body.classList.toggle('is-dialog-open', this.state.modal !== null);
 
     if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
@@ -857,7 +857,7 @@ function renderLeagueChoice(leagues: League[], currentId: LeagueId): string {
   const items = leagues
     .map((league) => {
       const isCurrent = league.id === currentId;
-      // Die offene Liga schliesst nur, statt dieselbe Liga neu zu laden.
+      // Die offene Liga schließt nur, statt dieselbe Liga neu zu laden.
       const attrs = isCurrent
         ? ' class="is-current" aria-current="true" data-dialog-close'
         : ` data-league-id="${escapeHtml(league.id)}"`;

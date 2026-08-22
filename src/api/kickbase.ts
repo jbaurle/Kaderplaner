@@ -61,7 +61,7 @@ export class KickbaseError extends Error {
 
   get isUnauthorized(): boolean {
     // Kickbase antwortet bei fehlendem oder abgelaufenem Token mit 403; nur
-    // user/login liefert 401 (falsche Zugangsdaten). Beides heisst: Session weg.
+    // user/login liefert 401 (falsche Zugangsdaten). Beides heißt: Session weg.
     return this.status === 401 || this.status === 403;
   }
 }
@@ -246,7 +246,7 @@ export class KickbaseClient {
     if (!response.ok) {
       const text = await response.text().catch(() => '');
       // Fachliche Fehler kommen als 500 mit `{err, errMsg}` im Body. Ohne das
-      // auszupacken hiesse jeder abgelehnte Gebotsversuch nur "Fehler 500".
+      // auszupacken hieße jeder abgelehnte Gebotsversuch nur "Fehler 500".
       let code = 0;
       let message = text || `HTTP ${response.status}`;
       try {

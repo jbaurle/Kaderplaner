@@ -19,7 +19,7 @@
   outline: none;
   /*
    * Höhenbudget des Rasens: alles ausser dem Feld braucht rund 320 px, Kopf,
-   * Knöpfe, Bank und Fuss zusammen. Was übrig bleibt, bekommt das Feld, und
+   * Knöpfe, Bank und Fuß zusammen. Was übrig bleibt, bekommt das Feld, und
    * die Breite folgt aus dem Verhältnis 4:5.
    *
    * Die Zahl steht hier und nicht am Rasen, weil das Blatt sie mitbenutzt:
@@ -149,8 +149,8 @@ body.is-lineup-open {
 }
 
 /*
- * Schon gesendet: grün getönt statt grau. Grau hiesse "geht noch nicht",
- * hier heisst es "ist erledigt". Der Zustand hält nur bis zur nächsten
+ * Schon gesendet: grün getönt statt grau. Grau hieße "geht noch nicht",
+ * hier heißt es "ist erledigt". Der Zustand hält nur bis zur nächsten
  * Änderung an der Elf. Dieselbe Tönung wie die Top-11-Markierung in der
  * Tabelle, nicht extra erfunden.
  */
@@ -391,7 +391,7 @@ body.is-lineup-open {
   opacity: 1;
 }
 
-/* Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schliesst sich. */
+/* Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schließt sich. */
 .tok.is-lifted {
   display: none;
 }

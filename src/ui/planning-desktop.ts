@@ -609,7 +609,7 @@ function renderPlayerRow(
   activeSlot: ResolvedScenarioSlot,
 ): string {
   const nameCls = row.isInLineup ? 'col-name col-name--lineup' : 'col-name';
-  // Blau heisst: steht im Transfermarkt. Der Preis und die Gebote stehen im
+  // Blau heißt: steht im Transfermarkt. Der Preis und die Gebote stehen im
   // Spielerdialog, in der Zeile ist dafür kein Platz.
   const listedCls = row.listing ? ' name-btn--listed' : '';
   const listedTitle = row.listing ? ' title="Steht im Transfermarkt"' : '';
@@ -787,7 +787,7 @@ function renderTransferRow(
   }).join('');
 
   // Der Wechsel steht im Markup, nicht in `nth-child`: die Zeilen liegen im
-  // Fuss zwischen Summen- und Kopfzeilen, die mitzählen würden.
+  // Fuß zwischen Summen- und Kopfzeilen, die mitzählen würden.
   const rowCls = index % 2 === 1 ? ' class="is-alt"' : '';
   return `
     <tr${rowCls}>

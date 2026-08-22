@@ -10,7 +10,7 @@
  * Am Handy stehen dieselben Blöcke untereinander, die aufgelegten Karten
  * fallen weg. Jeder Umbruch hängt an der Breite der Seite, nicht am Gerät.
  *
- * Nach aussen zustandslos: der Aufrufer gibt `onSubmit` mit, das E-Mail und
+ * Nach außen zustandslos: der Aufrufer gibt `onSubmit` mit, das E-Mail und
  * Passwort bekommt und einen `KickbaseError` werfen darf. Solange die Anfrage
  * läuft, ist der Knopf gesperrt, bei einem Fehler geht er wieder auf.
  */

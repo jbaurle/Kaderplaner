@@ -25,7 +25,7 @@
 
   /*
    * Transfermarkt: eigene Angebote. Ein Blau, weil Grün und Rot in den
-   * Beträgen schon Gewinn und Verlust heissen und eine Wertung hierher
+   * Beträgen schon Gewinn und Verlust heißen und eine Wertung hierher
    * nicht gehört.
    */
   --market: #2563eb;
@@ -77,7 +77,7 @@
 
   /*
    * Prognose-Badges in der Aufstellung (wird er wohl spielen?) sind
-   * absichtlich KEIN Token: sie sind immer weisse Schrift auf voller
+   * absichtlich KEIN Token: sie sind immer weiße Schrift auf voller
    * Farbfläche, auf dem Feld oder der Bank-Kachel — sie berühren nie den
    * Seitenhintergrund. Ein hellerer Dunkel-Wert würde nur den
    * Weiss-auf-Fläche-Kontrast verschlechtern, siehe lineup.css .s11--*.
@@ -91,7 +91,7 @@
  * Werte ändern sich — Komponenten greifen weiter auf dieselben
  * Variablennamen zu und merken nichts vom Umschalten.
  *
- * --action bleibt bewusst gleich: der Knopf-Hintergrund mit weisser
+ * --action bleibt bewusst gleich: der Knopf-Hintergrund mit weißer
  * Schrift braucht in beiden Modi denselben dunklen, satten Ton, sonst
  * reisst der Kontrast (siehe Startseiten-Karussell, derselbe Fehler
  * schon einmal gemacht und korrigiert). Helle Akzente fuers Dunkle
@@ -602,7 +602,7 @@ button {
 /*
  * Das Tabellenbild gibt es erst auf der breiten Seite. Am Handy wäre es ein
  * hoher Streifen, durch den man scrollt, bevor irgendetwas gesagt ist: dort
- * tragen die zwei kleinen Karten darunter mehr. `display: none` heisst
+ * tragen die zwei kleinen Karten darunter mehr. `display: none` heißt
  * ausserdem, dass das Bild am Telefon gar nicht erst geladen wird.
  */
 .lp-shot {
@@ -1014,7 +1014,7 @@ button {
    * gepinnt zu sein. `margin-top: auto` zog die Fusszeile sonst an den
    * unteren Rand des min-height:100vh-Containers — auf einem breiten,
    * aber knappen Fenster (Laptop, Tablet quer) landete sie ausserhalb
-   * des sichtbaren Bereichs, auf einem hohen Fenster riss es eine grosse
+   * des sichtbaren Bereichs, auf einem hohen Fenster riss es eine große
    * Lücke auf. Ein fester Abstand ist unabhängig von der Fensterhöhe.
    */
   margin-top: 40px;
@@ -1072,7 +1072,7 @@ button {
     white-space: nowrap;
     /* `margin-top: auto` schiebt den Footer sonst ans untere Fensterende —
        richtig auf der breiten Seite mit viel Inhalt, am Handy reisst es
-       eine grosse Lücke unters Kleingedruckte auf. */
+       eine große Lücke unters Kleingedruckte auf. */
     margin-top: 16px;
   }
 }

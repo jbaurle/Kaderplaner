@@ -113,7 +113,7 @@ export interface PlayerInsightInput {
   /** Scores aller Kaderspieler, für den Schnitt der besten Elf. */
   scoreByPlayer: Record<PlayerId, { score: number }>;
   top11Ids: readonly PlayerId[];
-  /** Zutaten für den zweiten Optimizer-Lauf. Null heisst: kein Vergleich. */
+  /** Zutaten für den zweiten Optimizer-Lauf. Null heißt: kein Vergleich. */
   lineupInput: LineupInput | null;
   /** Die nächsten Ansetzungen seines Vereins. */
   fixtures: readonly Fixture[];
@@ -195,7 +195,7 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
     };
   });
 
-  // Nur Spieltage dieser Saison. Ohne Nummer liesse sich der Eintrag nirgends
+  // Nur Spieltage dieser Saison. Ohne Nummer ließe sich der Eintrag nirgends
   // verorten: zur neuen Saison stehen dort noch die Punkte der alten, und die
   // gehören nicht in eine Achse, die bei Spieltag 1 anfängt.
   const inSeason = played.filter((day) => day.day > 0);

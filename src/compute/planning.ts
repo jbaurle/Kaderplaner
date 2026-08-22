@@ -66,9 +66,9 @@ export interface PlanningRow {
   isInLineup: boolean;
   /** Team id — nur für das Vereinswappen in der Namensspalte. */
   teamId: string;
-  /** Verfügbarkeit laut Kickbase, 0 heisst fit. */
+  /** Verfügbarkeit laut Kickbase, 0 heißt fit. */
   status: number;
-  /** S11-Prognose laut Kickbase, 1 bis 5, 0 heisst keine Angabe. */
+  /** S11-Prognose laut Kickbase, 1 bis 5, 0 heißt keine Angabe. */
   probability: number;
   /** Bildpfad relativ zum CDN, leer wenn Kickbase keins führt. */
   imagePath: string;

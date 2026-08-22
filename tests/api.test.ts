@@ -416,7 +416,7 @@ describe('toMarketPlayer', () => {
    * Karazor am 17.08.2026: von uns eingestellt, ein fremdes Gebot. Kickbase
    * fuehrt keine eigene Gebots-Id, `u` und `uoid` tragen die Nutzer-Id.
    */
-  it('liest fremde Gebote aus ofs, ohne sie als eigene zu zaehlen', () => {
+  it('liest fremde Gebote aus ofs, ohne sie als eigene zu zählen', () => {
     const player = _marketInternal.toMarketPlayer({
       i: '2214',
       n: 'Karazor',

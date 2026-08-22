@@ -386,7 +386,7 @@ export class LineupOptimizer {
    * nachgetauscht, wie nötig und möglich, statt genau einmal. Und wenn das
    * Konto danach immer noch im Minus steht, gibt die Methode `null` zurück
    * statt eines halb getauschten Kaders. Ein Tausch, der die Lücke nicht
-   * schliesst, ist reiner Score-Verlust ohne Gegenwert: `budgetPlusOk` bleibt
+   * schließt, ist reiner Score-Verlust ohne Gegenwert: `budgetPlusOk` bleibt
    * so oder so false.
    *
    * Terminiert, weil jeder Tausch den Bankwert echt erhöht und die
@@ -439,7 +439,7 @@ export class LineupOptimizer {
       for (let j = 0; j < bench.length; j++) {
         const benchP = bench[j]!;
         if (benchP.position !== starter.position) continue;
-        // Score 0 heisst Ausfall. Die Greedy-Auswahl lässt solche Spieler
+        // Score 0 heißt Ausfall. Die Greedy-Auswahl lässt solche Spieler
         // nicht in die Elf, die Budget-Rettung darf sie nicht hintenrum
         // hineinschieben.
         if (benchP.score <= 0) continue;
@@ -666,7 +666,7 @@ const PROB_FORECAST_WEIGHT = 0.7;
 function computeStartProbability(hasPlayedFlags: boolean[], probability: number): number {
   const mapped = PROB_MAPPING[probability];
   const fromHistory = startShareFromHistory(hasPlayedFlags);
-  // prob 0 heisst "keine Angabe"; alles ausserhalb 1..5 behandeln wir genauso
+  // prob 0 heißt "keine Angabe"; alles ausserhalb 1..5 behandeln wir genauso
   // und schätzen allein aus der Historie, statt den 45-%-Faktor still auf 0
   // fallen zu lassen.
   if (mapped === undefined) return fromHistory ?? 0.5;

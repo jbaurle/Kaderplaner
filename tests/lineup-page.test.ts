@@ -4,7 +4,7 @@
  * steht dort auch nach dem Loslassen.
  *
  * Das Ziehen selbst braucht `elementFromPoint` und echte Zeiger-Ereignisse und
- * bleibt deshalb aussen vor. Geprüft wird der Zustand darunter, den das
+ * bleibt deshalb außen vor. Geprüft wird der Zustand darunter, den das
  * Ziehen ändert: welche Elf gespeichert wird und in welcher Folge die Kreise
  * im Markup stehen.
  */
@@ -94,7 +94,7 @@ describe('LineupPage: Reihenfolge', () => {
     expect(rowNames(layer, 'ABW')).toEqual(['Conrad', 'Bauer']);
   });
 
-  it('uebernimmt die gespeicherte Folge beim Oeffnen', () => {
+  it('übernimmt die gespeicherte Folge beim Öffnen', () => {
     const { layer } = open(['b', 'c', 'a']);
     expect(rowNames(layer, 'ABW')).toEqual(['Bauer', 'Conrad', 'Abele']);
   });

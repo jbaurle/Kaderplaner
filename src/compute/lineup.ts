@@ -105,7 +105,7 @@ function minStillNeeded(counts: PositionCounts, pos: OutfieldLabel): number {
 }
 
 /**
- * Fehlbestand eines Kaders zur nächstgelegenen Formation. Leere Liste heisst:
+ * Fehlbestand eines Kaders zur nächstgelegenen Formation. Leere Liste heißt:
  * mindestens eine der zehn geht auf.
  *
  * Nicht mit {@link isReachable} zu verwechseln: dort ist eine Elf im Aufbau
@@ -140,7 +140,7 @@ export function squadFormationGap(counts: PositionCounts): string[] {
   return best ? best.parts : [];
 }
 
-/** Kurztexte für den Chip im Kopf. Leere Liste heisst: die Elf steht. */
+/** Kurztexte für den Chip im Kopf. Leere Liste heißt: die Elf steht. */
 export function lineupIssues(counts: PositionCounts): string[] {
   const issues: string[] = [];
   const total = totalPlayers(counts);
@@ -150,7 +150,7 @@ export function lineupIssues(counts: PositionCounts): string[] {
   // Was auf einer Position noch fehlt, steht wie beim Torwart als eigener
   // Chip da, vom ersten Spieler an. Die Zahl dahinter ist keine feste
   // Untergrenze, sondern was die noch erreichbaren Formationen verlangen: bei
-  // sechs MF bleibt nur 3-6-1, dort heisst es dann "ABW 1/3".
+  // sechs MF bleibt nur 3-6-1, dort heißt es dann "ABW 1/3".
   for (const pos of OUTFIELD) {
     const need = minStillNeeded(counts, pos);
     if (counts[pos] < need) issues.push(`${pos} ${counts[pos]}/${need}`);

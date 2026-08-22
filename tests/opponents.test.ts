@@ -90,7 +90,7 @@ describe('buildOpponents', () => {
     expect(buildOpponents(leer, table).nextDay).toBe(0);
   });
 
-  it('nimmt fuer den Spaltentitel den kleinsten naechsten Spieltag', () => {
+  it('nimmt fuer den Spaltentitel den kleinsten nächsten Spieltag', () => {
     const plan = schedule(24, [
       match({ day: 25, team1Id: 'B', team2Id: 'T2' }),
       match({ day: 24, team1Id: 'A', team2Id: 'T1' }),
@@ -100,12 +100,12 @@ describe('buildOpponents', () => {
 });
 
 describe('trendOfPosition', () => {
-  it('oben in der Tabelle heisst starker Gegner', () => {
+  it('oben in der Tabelle heißt starker Gegner', () => {
     expect(trendOfPosition(1, 18)).toBe('down');
     expect(trendOfPosition(6, 18)).toBe('down');
   });
 
-  it('unten in der Tabelle heisst schwacher Gegner', () => {
+  it('unten in der Tabelle heißt schwacher Gegner', () => {
     expect(trendOfPosition(13, 18)).toBe('up');
     expect(trendOfPosition(18, 18)).toBe('up');
   });

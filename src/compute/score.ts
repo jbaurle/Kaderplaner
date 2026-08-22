@@ -66,7 +66,7 @@ export interface OpponentsView {
   /**
    * Wie viele Wappen nebeneinander stehen. Gilt für die ganze Spalte, damit
    * die Wappen untereinander stehen, auch wenn einem Verein eine Ansetzung
-   * fehlt. 0 heisst: keine einzige bekannt, die Spalte bleibt leer.
+   * fehlt. 0 heißt: keine einzige bekannt, die Spalte bleibt leer.
    */
   columns: number;
   /** Vereine in der Tabelle, für die Umrechnung Platz in Pfeil. */
@@ -74,7 +74,7 @@ export interface OpponentsView {
   /**
    * Spieltag der nächsten Ansetzung, für den Spaltentitel. Der kleinste
    * über alle Vereine: bei einem nachgeholten Spiel steht sonst je nach
-   * Kader eine andere Zahl im Kopf. 0 heisst unbekannt.
+   * Kader eine andere Zahl im Kopf. 0 heißt unbekannt.
    */
   nextDay: number;
 }
@@ -197,7 +197,7 @@ export interface ScoreResult {
   /** True when no formation was viable (not enough available players). */
   formationFallback: boolean;
   /**
-   * False heisst: der Verkauf aller übrigen Spieler bringt den Kontostand
+   * False heißt: der Verkauf aller übrigen Spieler bringt den Kontostand
    * nicht ins Plus, und zwar bei keiner der zehn Formationen. Der Optimizer
    * liefert dann trotzdem die beste Elf, die Fusszeile sagt es dazu.
    */

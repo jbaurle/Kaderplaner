@@ -17,7 +17,7 @@ function counts(tw: number, abw: number, mf: number, ang: number): PositionCount
 }
 
 describe('countPositions', () => {
-  it('zaehlt je Position', () => {
+  it('zählt je Position', () => {
     const positions: PositionLabel[] = ['TW', 'ABW', 'ABW', 'MF', 'ANG', 'ANG'];
     expect(countPositions(positions)).toEqual(counts(1, 2, 1, 2));
   });
@@ -32,22 +32,22 @@ describe('isReachable', () => {
     expect(isReachable(counts(2, 0, 0, 0))).toBe(false);
   });
 
-  it('vier Stuermer bleiben erreichbar, solange 4-2-4 offen ist', () => {
+  it('vier Stürmer bleiben erreichbar, solange 4-2-4 offen ist', () => {
     expect(isReachable(counts(1, 4, 2, 4))).toBe(true);
   });
 
-  it('drei Mittelfeldspieler schliessen den vierten Stuermer aus', () => {
+  it('drei Mittelfeldspieler schließen den vierten Stürmer aus', () => {
     // 4-2-4 ist die einzige Formation mit vier ANG und lässt nur 2 MF zu.
     expect(isReachable(counts(1, 3, 3, 4))).toBe(false);
   });
 });
 
 describe('canPlace', () => {
-  it('erlaubt den vierten Stuermer bei 4-2-x', () => {
+  it('erlaubt den vierten Stürmer bei 4-2-x', () => {
     expect(canPlace(counts(1, 4, 2, 3), 'ANG')).toBe(true);
   });
 
-  it('sperrt den vierten Stuermer bei drei Mittelfeldspielern', () => {
+  it('sperrt den vierten Stürmer bei drei Mittelfeldspielern', () => {
     expect(canPlace(counts(1, 3, 3, 3), 'ANG')).toBe(false);
   });
 
@@ -107,7 +107,7 @@ describe('lineupIssues', () => {
 });
 
 describe('explainBlock', () => {
-  it('nennt 4-2-4 als einzigen Weg zum vierten Stuermer', () => {
+  it('nennt 4-2-4 als einzigen Weg zum vierten Stürmer', () => {
     const text = explainBlock(counts(1, 3, 3, 3), 'ANG');
     expect(text).toContain('4-2-4');
     expect(text).toContain('MF auf 2');

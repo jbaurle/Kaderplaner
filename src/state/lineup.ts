@@ -7,7 +7,7 @@
  * einen Eintrag zu legen, wäre nur billiger, nicht klarer.
  *
  * Der Entwurf ist keine Kopie der echten Aufstellung. Solange nichts an
- * Kickbase geschickt wurde, weiss nur der Browser davon.
+ * Kickbase geschickt wurde, weiß nur der Browser davon.
  */
 
 import type { LeagueId, PlayerId } from '../api/types.js';
@@ -19,7 +19,7 @@ interface StoredLineup {
 
 /**
  * Gibt den gespeicherten Entwurf zurück, ohne Spieler, die es im Kader nicht
- * mehr gibt. `null` heisst: es gibt keinen Entwurf, der Aufrufer soll aus der
+ * mehr gibt. `null` heißt: es gibt keinen Entwurf, der Aufrufer soll aus der
  * laufenden Aufstellung vorbelegen.
  */
 export function loadLineup(
