@@ -38,6 +38,9 @@ Tabelle, Spielerdialog und Aufstellung.
   `5-4-1`, öffnet sie. Von dort geht die Elf auch zurück an Kickbase.
 - **Eine Tabelle für jede Breite.** Von 320 px bis Desktop entscheidet CSS über
   Container-Queries, welche Spalten passen.
+- **Hell und dunkel.** Der Mond im Kopf schaltet um, die Wahl bleibt im
+  Browser. Kein `prefers-color-scheme`: wer umschaltet, meint diese Seite,
+  nicht sein Betriebssystem.
 
 Alles außer der Aufstellung ist nur lesend.
 
@@ -110,6 +113,7 @@ Im `localStorage` liegen:
 | `kb.optimizer.<leagueId>` | Spielerdetails und Tabelle, damit nicht jeder Klick neu abruft |
 | `kb.oppview.<leagueId>` | Spaltenzahl und Spieltag der Gegner-Spalte, damit sie beim Laden nicht springt |
 | `kb.lineup.<leagueId>` | dein Aufstellungsentwurf, bis du ihn abschickst |
+| `kb.theme` | die Wahl zwischen hellem und dunklem Design |
 
 Abmelden löscht Sitzung und Ligaauswahl. Szenarien, Aufstellungsentwurf und
 Cache bleiben.
