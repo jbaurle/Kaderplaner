@@ -14,7 +14,8 @@
   <script>
     (function () {
       try {
-        if (localStorage.getItem('kb.theme') === '"dark"') {
+        var stored = localStorage.getItem('kb.theme');
+        if (stored === '"dark"' || stored === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute('content', '#12181c');
