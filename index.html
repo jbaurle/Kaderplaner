@@ -15,10 +15,12 @@
     <!--
       Auf dem Startbildschirm abgelegt startet die Seite ohne Adressleiste.
       Das regelt `display: standalone` im Manifest; iOS vor 16.4 liest das
-      Manifest nicht, dafür steht das alte Apple-Meta daneben. `theme-color`
-      färbt die Statusleiste und steht hier hell, das Skript darunter zieht
-      Dunkel nach.
+      Manifest nicht, dafür steht das alte Apple-Meta daneben. Chrome mahnt es
+      als veraltet an und will `mobile-web-app-capable`, also beide.
+      `theme-color` färbt die Statusleiste und steht hier hell, das Skript
+      darunter zieht Dunkel nach.
     -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Kaderplaner" />
     <meta name="theme-color" content="#f4f6f9" />

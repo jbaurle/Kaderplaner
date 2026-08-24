@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Kickbase Kaderplaner",
   "short_name": "Kaderplaner",
   "description": "Score je Spieler, beste Elf, vier Szenarien. Im Browser, ohne Server.",
@@ -26,6 +27,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-mobile.webp",
+      "sizes": "397x797",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Der Kader am Handy, je Spieler ein Score"
+    },
+    {
+      "src": "/images/table-desktop.webp",
+      "sizes": "2451x1636",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Die Kadertabelle mit vier Spalten zum Durchspielen"
     }
   ]
 }
