@@ -194,15 +194,15 @@ function renderHead(input: PlayerDialogInput): string {
     <header class="pd-head">
       <div class="pd-identity">
         <span class="pd-portrait">
-          <img class="pd-photo" src="${photo}" alt="" loading="eager" decoding="sync">
-          <img class="pd-crest" src="${teamLogoUrl(input.teamId)}" alt="" width="30" height="30">
+          <img class="pd-photo" src="${escapeHtml(photo)}" alt="" loading="eager" decoding="sync">
+          <img class="pd-crest" src="${escapeHtml(teamLogoUrl(input.teamId))}" alt="" width="30" height="30">
         </span>
         <span class="pd-ident-text">
           <span class="pd-name">${escapeHtml(fullName)}</span>
           <span class="pd-tags">
             <span class="chip chip--pos${input.position}">${input.positionLabel}</span>
             <span class="pd-club">${escapeHtml(club)}</span>
-            <span class="pd-status${fit ? '' : ' pd-status--out'}" title="${statusTitle}" aria-label="${statusTitle}"></span>
+            <span class="pd-status${fit ? '' : ' pd-status--out'}" title="${escapeHtml(statusTitle)}" aria-label="${escapeHtml(statusTitle)}"></span>
             ${renderNewsLink(fullName, club, fit ? '' : input.statusText)}
           </span>
         </span>
@@ -387,7 +387,7 @@ function renderMatchdays(insight: PlayerInsight): string {
     const date = dateShort(day.kickoff) || '&nbsp;';
 
     const crest = day.opponentId
-      ? `<img class="pd-day-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="22" height="22">`
+      ? `<img class="pd-day-crest" src="${escapeHtml(teamLogoUrl(day.opponentId))}" alt="" width="22" height="22">`
       : '<span class="pd-day-crest pd-day-crest--none" aria-hidden="true"></span>';
     const venue = day.home === null
       ? ''
@@ -629,7 +629,7 @@ function renderHalf(
     ),
   ];
   const crests = clubs
-    .map((id) => `<img src="${teamLogoUrl(id)}" alt="" width="12" height="12">`)
+    .map((id) => `<img src="${escapeHtml(teamLogoUrl(id))}" alt="" width="12" height="12">`)
     .join('');
   const columns = part
     .map((day, index) => renderPerfColumn(day, slots[from + index - 1] ?? null, stats, selectedDay))
@@ -653,7 +653,7 @@ function renderPerfColumn(
   // Der Wechsel gehört an den ersten Spieltag beim neuen Verein.
   const switched = day !== null && previous !== null && previous.teamId !== day.teamId;
   const crest = day
-    ? `<img class="pd-perf-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="15" height="15">`
+    ? `<img class="pd-perf-crest" src="${escapeHtml(teamLogoUrl(day.opponentId))}" alt="" width="15" height="15">`
     : '<span class="pd-perf-crest"></span>';
   const points = day === null || day.points === null
     ? '<span class="pd-perf-num">&nbsp;</span>'
@@ -705,9 +705,9 @@ function renderPerfDetail(day: PerformanceMatchday | null): string {
     : `<span>·</span> ${day.minutes}′ <span>·</span> <b>${day.points}</b> Punkte`;
   return `
     Spieltag <b>${day.day}</b>
-    <img src="${teamLogoUrl(day.teamId)}" alt="" width="16" height="16">
+    <img src="${escapeHtml(teamLogoUrl(day.teamId))}" alt="" width="16" height="16">
     <b>${result}</b>
-    <img src="${teamLogoUrl(day.opponentId)}" alt="" width="16" height="16">
+    <img src="${escapeHtml(teamLogoUrl(day.opponentId))}" alt="" width="16" height="16">
     ${tail}
   `;
 }
