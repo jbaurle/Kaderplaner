@@ -583,10 +583,19 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
     <p class="pd-perf-detail">${renderPerfDetail(selected)}</p>
     <p class="pd-legend">
       Balken ist die Punktzahl, darunter Gegner und Punkte. Graue Stummel sind
-      Spieltage ohne Einsatz, rote Minuspunkte. Ein senkrechter Strich markiert
-      einen Vereinswechsel.
+      Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}
     </p>
   `;
+}
+
+/**
+ * Der Satz zum Wechsel-Strich, nur wenn es ihn in dieser Saison gibt: unter
+ * einem Spieler, der nie gewechselt hat, erklärte er ein Zeichen, das
+ * nirgends steht.
+ */
+function switchNote(season: PerformanceSeason): string {
+  const clubs = new Set(season.matchdays.map((day) => day.teamId));
+  return clubs.size > 1 ? ' Der senkrechte Strich markiert den Vereinswechsel.' : '';
 }
 
 function renderSeasonStats(stats: SeasonStats): string {
@@ -652,15 +661,22 @@ function renderPerfColumn(
   const classes = ['pd-perf-col', `pd-perf-col--${grade}`, switched ? 'pd-perf-col--switch' : '']
     .filter(Boolean)
     .join(' ');
-
-  return `
-    <button type="button" class="${classes}" ${day ? `data-perf-day="${day.day}"` : ''}
-            aria-pressed="${day !== null && day.day === selectedDay}"
-            title="${perfTitle(day)}">
+  const body = `
       <span class="pd-perf-bars"><span class="pd-perf-bar" style="height:${height}px"></span></span>
       ${crest}
       ${points}
-    </button>
+  `;
+
+  // Ein Spieltag, den es in den Daten nicht gibt, ist nichts zum Antippen:
+  // als Knopf trüge er einen Zeiger, hinter dem nichts passiert.
+  if (day === null) {
+    return `<span class="${classes}" title="${perfTitle(day)}">${body}</span>`;
+  }
+
+  return `
+    <button type="button" class="${classes}" data-perf-day="${day.day}"
+            aria-pressed="${day.day === selectedDay}"
+            title="${perfTitle(day)}">${body}</button>
   `;
 }
 

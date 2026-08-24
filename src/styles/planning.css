@@ -2752,6 +2752,11 @@ body.is-dialog-open {
 .pd-perf-col--neg .pd-perf-num { color: var(--error); }
 .pd-perf-col--none .pd-perf-bar { background: transparent; }
 
+/* Ein Spieltag, den es nicht gibt, ist ein span: nichts zum Antippen. */
+.pd-perf-col--none {
+  cursor: default;
+}
+
 /* Ohne Einsatz: der Stummel bleibt, aber Wappen und Balken treten zurück. */
 .pd-perf-col--out .pd-perf-bar {
   background: var(--border-strong);
