@@ -366,6 +366,10 @@ export class PlanningPage {
    * Copy the auto-bench state (S4 = !isInLineup) into a user slot. Used to
    * seed a new manual scenario from the current bench, then customise from
    * there. Replaces the slot's existing flags entirely.
+   *
+   * Die Zugänge hakt sie mit an. BANK verkauft jeden von ihnen, denn ein
+   * Zugang steht nie in der Aufstellung; ohne sie stünde die Spalte auf einem
+   * anderen Kontostand als die Vorlage.
    */
   private handleCopyFromS4(slot: ScenarioSlot): void {
     if (!this.state.squad) return;
@@ -374,6 +378,9 @@ export class PlanningPage {
       if (!player.isInLineup) {
         next = setFlag(next, player.id, slot, true);
       }
+    }
+    for (const bid of this.bids()) {
+      next = setFlag(next, bid.id, slot, true);
     }
     this.state.scenarios = next;
     saveScenarios(this.props.leagueId, this.state.scenarios);

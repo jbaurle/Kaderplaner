@@ -170,7 +170,7 @@ export const FEATURES_HELP_BODY = `
       Umschalter darüber wechselt sie. Ab Tablet stehen alle vier
       nebeneinander.</li>
     <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
-      BANK, <strong>×</strong> räumt die Spalte ab.</li>
+      BANK, samt Zugängen. <strong>×</strong> räumt die Spalte ab.</li>
     <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
     <li>Der <strong>Mond</strong> im Kopf schaltet auf Dunkel und zurück. Die
       Wahl gilt für diesen Browser und steht beim nächsten Besuch wieder so
