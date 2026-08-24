@@ -1004,6 +1004,39 @@ button {
   color: var(--text);
 }
 
+/* Der Knopf zur Installation, siehe ui/install.ts. Umrissen statt gefüllt:
+   das Grün gehört dem Anmelden, und wer hier landet, will sich anmelden und
+   nicht zuerst etwas installieren. */
+.lp-install {
+  display: inline-flex;
+  align-items: center;
+  margin: 10px 0 0;
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lp-install:hover {
+  border-color: var(--text-muted);
+}
+
+.lp-install:focus-visible {
+  outline: 2px solid var(--text-strong);
+  outline-offset: 2px;
+}
+
+/* `hidden` muss über dem `display` oben stehen, sonst zeigt der Knopf sich
+   auch ohne Angebot des Browsers. */
+.lp-install[hidden] {
+  display: none;
+}
+
 /* Der Hinweis auf Kickbase und die Bildrechte, mit Abstand unter dem Link
    zur Hilfe: er gehört zum Kleingedruckten, nicht zur Fusszeile mit den
    Rechtslinks. */
@@ -1056,13 +1089,18 @@ button {
   }
 
   /* Nur im Reiter „Was die App kann“: neben dem Formular zählt das Anmelden,
-     dort wäre der Hinweis nur eine zweite Aufforderung. */
-  .lp-app-hint {
+     dort wären Hinweis und Knopf nur eine zweite Aufforderung. */
+  .lp-app-hint,
+  .lp-install {
     display: none;
   }
 
   .lp-hero[data-tab="info"] .lp-app-hint {
     display: block;
+  }
+
+  .lp-hero[data-tab="info"] .lp-install:not([hidden]) {
+    display: inline-flex;
   }
 
   .lp-hero[data-tab="info"] .lp-panel {

@@ -17,6 +17,7 @@
 
 import { KickbaseError } from '../api/kickbase.js';
 import { escapeHtml } from './format.js';
+import { canInstall, promptInstall, watchInstall } from './install.js';
 
 /** Repo hinter „Der Code liegt offen". Der Link trägt erst, wenn es öffentlich ist. */
 const REPO_URL = 'https://github.com/jbaurle/Kaderplaner';
@@ -239,6 +240,14 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             startet dann wie eine App.
             <a href="/functions.html#als-app-ablegen">So geht das</a>.
           </p>
+          <!--
+            Nur sichtbar, wenn der Browser die Installation von sich aus
+            anbietet, siehe ui/install.ts. Chrome versteckt sie je nach
+            Fassung tief im Menü, hier steht sie im Blick.
+          -->
+          <button type="button" class="lp-install" id="lp-install" hidden>
+            App installieren
+          </button>
           <p class="lp-legal">Inoffizielles Fan-Tool, keine Verbindung zu Kickbase.
             Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
         </div>
@@ -359,6 +368,28 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     const width = slideWidth();
     if (carousel && width) scrollToIndex(Math.round(carousel.scrollLeft / width) + 1);
   });
+
+  /*
+   * Der Knopf hängt am Browser, nicht am Gerät: er erscheint, sobald
+   * `beforeinstallprompt` kam, und geht nach der Installation wieder. Die
+   * Anmeldeseite baut sich bei jedem Rendern neu auf, deshalb meldet sich ein
+   * alter Beobachter selbst ab, sobald sein Knopf nicht mehr im Dokument hängt.
+   */
+  const installButton = host.querySelector<HTMLButtonElement>('#lp-install');
+  if (installButton) {
+    const sync = (): void => {
+      if (!installButton.isConnected) {
+        unwatch();
+        return;
+      }
+      installButton.hidden = !canInstall();
+    };
+    const unwatch = watchInstall(sync);
+    sync();
+    installButton.addEventListener('click', () => {
+      void promptInstall();
+    });
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
