@@ -142,6 +142,8 @@ export class PlanningPage {
    * damit die Antwort eines überholten Laufs nicht mehr in den State fällt.
    */
   private scoreRun = 0;
+  /** Das Modal des letzten Renderns, siehe die Scroll-Rettung in `render`. */
+  private renderedModalKey = '';
 
   constructor(props: PlanningPageProps) {
     this.props = props;
@@ -466,10 +468,15 @@ export class PlanningPage {
     const scrollY = window.scrollY;
     /*
      * Dasselbe für den Dialog: ein Tipp auf einen Spieltag baut die Seite neu
-     * auf, und der Abschnitt ganz unten wäre danach wieder außer Sicht.
+     * auf, und der Abschnitt ganz unten wäre danach wieder außer Sicht. Aber
+     * nur, solange dasselbe Modal offen bleibt: der Gebotsdialog, der aus
+     * einem gescrollten Spielerdialog aufgeht, soll oben beginnen.
      */
-    const dialogScroll =
-      props.host.querySelector<HTMLElement>('.dialog-body')?.scrollTop ?? 0;
+    const modalKey = describeModal(state.modal);
+    const dialogScroll = modalKey === this.renderedModalKey
+      ? props.host.querySelector<HTMLElement>('.dialog-body')?.scrollTop ?? 0
+      : 0;
+    this.renderedModalKey = modalKey;
 
     // First-load skeleton — no data yet.
     if (state.isLoading && !state.squad) {
@@ -947,6 +954,13 @@ const LOGOUT_ICON = `
     <path d="M6.9 6.9a7.2 7.2 0 1 0 10.2 0" />
   </svg>
 `;
+
+/** Ein Schlüssel je Modal, nur für den Vergleich in der Scroll-Rettung. */
+function describeModal(modal: ModalKind | null): string {
+  if (modal === null) return '';
+  if (typeof modal === 'string') return modal;
+  return `${modal.kind}:${modal.playerId}`;
+}
 
 /** Liganame im Kopf, immer als Einstieg in die Ligaauswahl. */
 function renderLeagueLabel(leagueName: string): string {
