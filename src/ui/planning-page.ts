@@ -20,6 +20,7 @@ import type {
   MarketOffer,
   MarketPlayer,
   PlayerId,
+  PlayerPerformance,
   SquadPlayer,
 } from '../api/types.js';
 import { computePlanning, planningRowFromMarketPlayer, type MarketListing, type PlanningView } from '../compute/planning.js';
@@ -37,6 +38,8 @@ import {
   type ScenarioState,
 } from '../state/planning.js';
 import { loadLineup, saveLineup } from '../state/lineup.js';
+import { isFresh, loadPerformance, savePerformance } from '../state/performance.js';
+import { defaultSeasonId } from '../compute/performance.js';
 import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
 import { loadOptimizerCache } from '../state/optimizer.js';
 import { buildLabel } from './build-info.js';
@@ -116,6 +119,17 @@ interface PageState {
    * vier und der Umschalter verschwindet.
    */
   activeSlot: ResolvedScenarioSlot;
+  /**
+   * Punkte je Spieltag, je Spieler. Füllt sich beim Öffnen des Spielerdialogs
+   * aus dem Cache (`state/performance.ts`) und aus der Antwort von Kickbase.
+   */
+  performance: Record<PlayerId, PlayerPerformance>;
+  /** Der Spieler, dessen Punkte gerade unterwegs sind. Für den Ladetext. */
+  performanceLoading: PlayerId | null;
+  /** Saison, die im Spielerdialog offen steht. */
+  performanceSeason: string | null;
+  /** Angetippter Spieltag im Spielerdialog, null wenn keiner. */
+  performanceDay: number | null;
 }
 
 export class PlanningPage {
@@ -143,6 +157,10 @@ export class PlanningPage {
       market: [],
       modal: null,
       activeSlot: 'S1',
+      performance: {},
+      performanceLoading: null,
+      performanceSeason: null,
+      performanceDay: null,
     };
   }
 
@@ -446,6 +464,12 @@ export class PlanningPage {
      * gesetzt, die frühen Rückgaben für Laden und Fehler gehören nach oben.
      */
     const scrollY = window.scrollY;
+    /*
+     * Dasselbe für den Dialog: ein Tipp auf einen Spieltag baut die Seite neu
+     * auf, und der Abschnitt ganz unten wäre danach wieder außer Sicht.
+     */
+    const dialogScroll =
+      props.host.querySelector<HTMLElement>('.dialog-body')?.scrollTop ?? 0;
 
     // First-load skeleton — no data yet.
     if (state.isLoading && !state.squad) {
@@ -617,6 +641,10 @@ export class PlanningPage {
     document.body.classList.toggle('is-dialog-open', this.state.modal !== null);
 
     if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
+    if (dialogScroll > 0) {
+      const body = props.host.querySelector<HTMLElement>('.dialog-body');
+      if (body) body.scrollTop = dialogScroll;
+    }
   }
 
   /**
@@ -665,7 +693,61 @@ export class PlanningPage {
 
   private openModal(kind: ModalKind): void {
     this.state.modal = kind;
+    if (typeof kind === 'object' && kind.kind === 'player') {
+      // Jeder Spieler bringt seine eigene Saison und seinen eigenen
+      // angetippten Spieltag mit, der vorige darf nicht stehen bleiben.
+      this.state.performanceSeason = null;
+      this.state.performanceDay = null;
+      this.applyCachedPerformance(kind.playerId);
+      void this.refreshPerformance(kind.playerId);
+    }
     this.render();
+  }
+
+  /**
+   * Den Cache-Eintrag in den State heben, ohne zu rendern. So steht der
+   * Abschnitt schon beim Aufgehen des Dialogs da, auch wenn gleich danach
+   * eine Anfrage rausgeht.
+   */
+  private applyCachedPerformance(playerId: PlayerId): void {
+    const cached = loadPerformance(this.props.leagueId, playerId);
+    if (!cached) return;
+    this.state.performance[playerId] = cached.performance;
+    this.state.performanceSeason = defaultSeasonId(cached.performance);
+  }
+
+  /**
+   * Die Punkte je Spieltag holen, wenn der Cache fehlt oder zu alt ist. Ein
+   * Fehler bleibt still: der Dialog steht auch ohne diesen Abschnitt, und ein
+   * Banner über der Tabelle würde zu einem geschlossenen Dialog gehören.
+   */
+  private async refreshPerformance(playerId: PlayerId): Promise<void> {
+    const cached = loadPerformance(this.props.leagueId, playerId);
+    if (cached && isFresh(cached)) return;
+
+    this.state.performanceLoading = playerId;
+    this.render();
+    try {
+      const performance = await this.props.client.getPlayerPerformance(
+        this.props.leagueId,
+        playerId,
+      );
+      savePerformance(this.props.leagueId, playerId, performance);
+      this.state.performance[playerId] = performance;
+      // Die Saison nur setzen, solange keine gewählt ist: wer während der
+      // Anfrage umschaltet, soll nicht zurückgeworfen werden.
+      if (this.state.performanceSeason === null) {
+        this.state.performanceSeason = defaultSeasonId(performance);
+      }
+    } catch (err) {
+      if (err instanceof KickbaseError && err.isUnauthorized) {
+        this.props.onUnauthorized();
+        return;
+      }
+    } finally {
+      if (this.state.performanceLoading === playerId) this.state.performanceLoading = null;
+      this.render();
+    }
   }
 
   private closeModal(): void {
@@ -789,6 +871,12 @@ export class PlanningPage {
       listing: row.listing,
       bestOffer: row.bestOffer,
       insight,
+      performance: {
+        performance: this.state.performance[row.id] ?? null,
+        seasonId: this.state.performanceSeason,
+        isLoading: this.state.performanceLoading === row.id,
+        selectedDay: this.state.performanceDay,
+      },
       isOwned,
     });
   }
@@ -810,6 +898,27 @@ export class PlanningPage {
       el.addEventListener('click', () => {
         const id = el.dataset['offers'];
         if (id) this.openModal({ kind: 'offers', playerId: id });
+      });
+    }
+
+    // Umschalter und Spieltage im Abschnitt "Punkte je Spieltag".
+    for (const el of backdrop.querySelectorAll<HTMLElement>('[data-season-tab]')) {
+      el.addEventListener('click', () => {
+        const seasonId = el.dataset['seasonTab'];
+        if (!seasonId || seasonId === this.state.performanceSeason) return;
+        this.state.performanceSeason = seasonId;
+        // Der angetippte Spieltag gehört zur alten Saison und sagt in der
+        // neuen etwas anderes.
+        this.state.performanceDay = null;
+        this.render();
+      });
+    }
+    for (const el of backdrop.querySelectorAll<HTMLElement>('[data-perf-day]')) {
+      el.addEventListener('click', () => {
+        const day = Number(el.dataset['perfDay']);
+        if (!Number.isFinite(day)) return;
+        this.state.performanceDay = this.state.performanceDay === day ? null : day;
+        this.render();
       });
     }
 

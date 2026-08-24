@@ -75,13 +75,20 @@ export const FEATURES_HELP_BODY = `
       als Balken. Dann die Spieltage: links die gespielten mit Punkten, Gegner und
       Ergebnis, rechts die nächsten drei mit Tabellenplatz und Einschätzung.
       <p>
-        Ganz unten steht, was ein Verkauf auslöst, und zwar mit zwei Zahlen,
+        Darunter steht, was ein Verkauf auslöst, und zwar mit zwei Zahlen,
         die es sonst nirgends gibt. Dein Spielraum ist Kontostand plus 33 % vom
         Teamwert: verkaufst du einen Spieler, steigt das Konto um seinen
         Erlös, die Kreditlinie fällt aber um 33 % seines Marktwerts. Netto
         bleibt weniger übrig, als der Erlös verspricht. Und die beste Elf
         wird ohne ihn noch einmal gerechnet, damit dasteht, was der Verkauf
         sportlich kostet.
+      </p>
+      <p>
+        Ganz unten die Punkte je Spieltag, ein Balken je Spieltag mit dem
+        Wappen des Gegners und der Punktzahl darunter. Der Umschalter wechselt
+        zwischen dieser und der letzten Saison, ein Tipp auf einen Spieltag
+        zeigt Ergebnis und Einsatzminuten. Ein senkrechter Strich steht dort,
+        wo ein Spieler mitten in der Saison den Verein gewechselt hat.
       </p>
     </dd>
 

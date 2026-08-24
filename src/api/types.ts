@@ -282,6 +282,49 @@ export interface PlayerDetails {
   matchSummary: MatchSummary[];
 }
 
+/**
+ * Ein Spieltag aus der Spielerhistorie, `/players/{id}/performance`.
+ *
+ * Kickbase liefert dort jede Saison, in der der Spieler geführt wurde, mit
+ * allen Spieltagen. Der eigene Verein hängt am einzelnen Spieltag, nicht an
+ * der Saison: wer im Winter wechselt, hat in derselben Saison zwei.
+ */
+export interface PerformanceMatchday {
+  /** Spieltagsnummer, 1-basiert. */
+  day: number;
+  /** Punkte an diesem Spieltag. `null` heißt: nicht im Kader. */
+  points: number | null;
+  /** Einsatzminuten, 0 ohne Einsatz. */
+  minutes: number;
+  /** Der Verein des Spielers an diesem Spieltag. */
+  teamId: string;
+  opponentId: string;
+  /** Tore aus Sicht des Spielers. */
+  goalsFor: number;
+  goalsAgainst: number;
+  /** Anstoß, ISO 8601. Leer, wenn Kickbase keinen führt. */
+  kickoff: string;
+}
+
+export interface PerformanceSeason {
+  /** Saison-Id laut Kickbase, etwa "35". */
+  id: string;
+  /** Beschriftung, etwa "2025/2026". */
+  title: string;
+  /** Wettbewerb dieser Saison, etwa "Bundesliga". */
+  competition: string;
+  /**
+   * Die Spieltage in der Reihenfolge von Kickbase, aufsteigend. Die Liste ist
+   * nicht zwingend lückenlos: Ryerson fehlt in 2022/2023 der 8. Spieltag ganz.
+   */
+  matchdays: PerformanceMatchday[];
+}
+
+export interface PlayerPerformance {
+  /** Aufsteigend nach Saison, die laufende steht zuletzt. */
+  seasons: PerformanceSeason[];
+}
+
 export interface MatchSummary {
   /** matchday number (1-based) */
   day: number;
@@ -353,6 +396,36 @@ export interface WirePlayerDetails {
 export interface WirePointsHistoryEntry {
   hp?: boolean;
   p?: number;
+}
+
+export interface WirePerformanceResponse {
+  it?: WirePerformanceSeason[];
+}
+
+export interface WirePerformanceSeason {
+  /** Saison-Id, etwa "35". */
+  sid?: string;
+  /** Beschriftung, etwa "2025/2026". */
+  ti?: string;
+  /** Wettbewerb, etwa "Bundesliga". */
+  n?: string;
+  ph?: WirePerformanceMatch[];
+}
+
+export interface WirePerformanceMatch {
+  day?: number;
+  /** Punkte. Fehlt ganz, wenn der Spieler nicht im Kader stand. */
+  p?: number;
+  /** Einsatzminuten als Text, etwa "103'". */
+  mp?: string;
+  /** Anstoß, ISO 8601. */
+  md?: string;
+  t1?: string;
+  t2?: string;
+  t1g?: number;
+  t2g?: number;
+  /** Der Verein des Spielers an diesem Spieltag. */
+  pt?: string;
 }
 
 export interface WireMatchSummary {

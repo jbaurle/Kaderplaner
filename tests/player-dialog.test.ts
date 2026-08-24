@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { MarketPlayer } from '../src/api/types.js';
 import { planningRowFromMarketPlayer } from '../src/compute/planning.js';
-import { renderPlayerDialog, type PlayerDialogInput } from '../src/ui/player-dialog.js';
+import {
+  renderPlayerDialog,
+  type PerformanceView,
+  type PlayerDialogInput,
+} from '../src/ui/player-dialog.js';
 import type { PlayerInsight } from '../src/compute/player-insight.js';
 
 function marketPlayer(overrides: Partial<MarketPlayer> & { id: string }): MarketPlayer {
@@ -41,6 +45,13 @@ const EMPTY_INSIGHT: PlayerInsight = {
   matchdays: [],
 };
 
+const EMPTY_PERFORMANCE: PerformanceView = {
+  performance: null,
+  seasonId: null,
+  isLoading: false,
+  selectedDay: null,
+};
+
 function dialogInput(overrides: Partial<PlayerDialogInput> = {}): PlayerDialogInput {
   return {
     playerId: overrides.playerId ?? 'p1',
@@ -60,6 +71,7 @@ function dialogInput(overrides: Partial<PlayerDialogInput> = {}): PlayerDialogIn
     listing: overrides.listing ?? null,
     bestOffer: overrides.bestOffer ?? 0,
     insight: overrides.insight ?? EMPTY_INSIGHT,
+    performance: overrides.performance ?? EMPTY_PERFORMANCE,
     isOwned: overrides.isOwned ?? true,
   };
 }

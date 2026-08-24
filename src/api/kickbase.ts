@@ -22,7 +22,10 @@ import type {
   MarketPlayer,
   MarketResult,
   MatchSummary,
+  PerformanceMatchday,
+  PerformanceSeason,
   PlayerDetails,
+  PlayerPerformance,
   PlayerId,
   PositionCode,
   SquadPlayer,
@@ -36,6 +39,8 @@ import type {
   WireMarketPlayer,
   WireMarketResponse,
   WireMatchSummary,
+  WirePerformanceResponse,
+  WirePerformanceSeason,
   WirePlayerDetails,
   WireSquadPlayer,
   WireSquadResponse,
@@ -227,6 +232,18 @@ export class KickbaseClient {
     return Promise.all(playerIds.map((id) => this.getPlayerDetails(leagueId, id)));
   }
 
+  /**
+   * Die Punkte je Spieltag über alle Saisons, in denen Kickbase den Spieler
+   * führt. Eine Anfrage liefert alle Saisons auf einmal, deshalb gibt es hier
+   * keinen Saisonparameter.
+   */
+  async getPlayerPerformance(leagueId: LeagueId, playerId: PlayerId): Promise<PlayerPerformance> {
+    const wire = await this.request<WirePerformanceResponse>(
+      `leagues/${leagueId}/players/${playerId}/performance`,
+    );
+    return { seasons: (wire.it ?? []).map(toPerformanceSeason) };
+  }
+
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, authenticated = true } = options;
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -365,6 +382,42 @@ function toPlayerDetails(wire: WirePlayerDetails): PlayerDetails {
     lastMatchdayPoints,
     hasPlayedFlags,
     matchSummary: (wire.mdsum ?? []).map(toMatchSummary),
+  };
+}
+
+/**
+ * Eine Saison der Spielerhistorie. Spieltage ohne Nummer oder ohne beide
+ * Vereine fallen weg: ohne sie lässt sich weder einordnen noch anzeigen.
+ *
+ * Heim oder auswärts steht nirgends als Feld. Es ergibt sich daraus, ob der
+ * eigene Verein (`pt`) als erster oder zweiter geführt wird, und daraus
+ * wiederum der Gegner und die Reihenfolge der Tore.
+ */
+function toPerformanceSeason(wire: WirePerformanceSeason): PerformanceSeason {
+  const matchdays: PerformanceMatchday[] = [];
+  for (const match of wire.ph ?? []) {
+    const day = match.day ?? 0;
+    const teamId = match.pt ?? '';
+    if (day <= 0 || !match.t1 || !match.t2) continue;
+    const isHome = match.t1 === teamId;
+    matchdays.push({
+      day,
+      // `p` fehlt ganz, wenn der Spieler nicht im Kader stand. 0 waere falsch:
+      // null Punkte gibt es auch mit Einsatz.
+      points: typeof match.p === 'number' ? match.p : null,
+      minutes: parseInt(match.mp ?? '', 10) || 0,
+      teamId,
+      opponentId: isHome ? match.t2 : match.t1,
+      goalsFor: (isHome ? match.t1g : match.t2g) ?? 0,
+      goalsAgainst: (isHome ? match.t2g : match.t1g) ?? 0,
+      kickoff: match.md ?? '',
+    });
+  }
+  return {
+    id: wire.sid ?? '',
+    title: wire.ti ?? '',
+    competition: wire.n ?? '',
+    matchdays,
   };
 }
 

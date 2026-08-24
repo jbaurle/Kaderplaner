@@ -2586,6 +2586,223 @@ body.is-dialog-open {
   color: var(--text-muted);
 }
 
+/* ---------- Punkte je Spieltag ---------- */
+
+/*
+ * Umschalter zwischen laufender und voriger Saison. Sieht aus wie der
+ * Szenario-Umschalter der Tabelle, ist aber eine eigene Klasse: `.scen-switch`
+ * blendet CSS ab 796 px aus, und im Dialog soll er in jeder Breite stehen.
+ */
+.pd-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: 8px;
+  background: var(--scen-switch-bg);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+.pd-tabs button {
+  flex: 1;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.pd-tabs button[aria-pressed='true'] {
+  background: var(--card);
+  color: var(--text-strong);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.pd-tabs button:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
+.pd-perf-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pd-perf-stats b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Die Trennpunkte zwischen den drei Zahlen, leiser als der Text. */
+.pd-perf-stats span {
+  color: var(--border-strong);
+}
+
+/*
+ * Zwei Reihen zu 17 Spieltagen statt einer zu 34. Eine Spalte wird damit 18
+ * statt 8 px breit, und erst so ist Platz für Wappen und Punktzahl.
+ */
+.pd-perf-halves {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pd-perf-half-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 3px;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pd-perf-half-label img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
+.pd-perf-half {
+  display: grid;
+  grid-template-columns: repeat(var(--perf-cols, 17), 1fr);
+  gap: 2px;
+}
+
+.pd-perf-col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/*
+ * Die Balken hängen an einer gemeinsamen Grundlinie, zwei Punkte höher als der
+ * höchste Balken (siehe PERF_BAR in player-dialog.ts).
+ */
+.pd-perf-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 44px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.pd-perf-bar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  background: var(--grade-mid);
+}
+
+.pd-perf-crest {
+  display: block;
+  width: 100%;
+  height: 15px;
+  object-fit: contain;
+}
+
+/*
+ * 8 px, fett und eng: drei Ziffern brauchen so 14 px, die Spalte hat 18. Mit
+ * tabellarischen Ziffern stehen sie in jeder Spalte gleich breit.
+ */
+.pd-perf-num {
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  letter-spacing: -0.03em;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-perf-col--good .pd-perf-bar { background: var(--grade-good); }
+.pd-perf-col--weak .pd-perf-bar { background: var(--grade-weak); }
+.pd-perf-col--neg .pd-perf-bar { background: var(--error); }
+.pd-perf-col--neg .pd-perf-num { color: var(--error); }
+.pd-perf-col--none .pd-perf-bar { background: transparent; }
+
+/* Ohne Einsatz: der Stummel bleibt, aber Wappen und Balken treten zurück. */
+.pd-perf-col--out .pd-perf-bar {
+  background: var(--border-strong);
+  opacity: 0.55;
+}
+
+.pd-perf-col--out .pd-perf-crest {
+  opacity: 0.4;
+}
+
+.pd-perf-col[aria-pressed='true'] {
+  outline: 2px solid var(--text-strong);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+.pd-perf-col:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
+/* Der Vereinswechsel steht als Strich vor dem ersten Spieltag beim neuen. */
+.pd-perf-col--switch {
+  position: relative;
+}
+
+.pd-perf-col--switch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  width: 1px;
+  background: var(--text-strong);
+  opacity: 0.55;
+}
+
+/*
+ * Die Zeile zum angetippten Spieltag. Sie steht immer da, auch leer: sonst
+ * springt beim ersten Tippen alles darunter nach unten.
+ */
+.pd-perf-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  margin: 8px 0 0;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--summary-bg);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.pd-perf-detail img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.pd-perf-detail b {
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Verkaufsfolgen ---------- */
 
 .pd-sell {

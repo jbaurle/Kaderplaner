@@ -32,6 +32,8 @@ Tabelle, Spielerdialog und Aufstellung.
   dahinter. G/V rechnet gegen dieselbe Zahl.
 - **Gegner am nächsten Spieltag** als Wappen mit Tendenzpfeil, aus dem
   Spielplan des Wettbewerbs.
+- **Punkte je Spieltag** ganz unten im Spielerdialog, ein Balken je Spieltag
+  mit Gegner und Punktzahl, umschaltbar zwischen dieser und der letzten Saison.
 - **Transferblock** mit deinen offenen Geboten, auch denen aus der
   Kickbase-App.
 - **Aufstellung** auf einem Spielfeld. Der Formations-Chip im Kopf, etwa

@@ -10,8 +10,21 @@
  * `planning-page.ts` und `compute/player-insight.ts`.
  */
 
-import type { PlayerId, PositionCode } from '../api/types.js';
+import type {
+  PerformanceMatchday,
+  PerformanceSeason,
+  PlayerId,
+  PlayerPerformance,
+  PositionCode,
+} from '../api/types.js';
 import type { ScoreDetail } from '../compute/optimizer.js';
+import {
+  gradeOf,
+  matchdaysBySlot,
+  pickSeasons,
+  seasonStats,
+  type SeasonStats,
+} from '../compute/performance.js';
 import type { MarketListing, PositionLabel } from '../compute/planning.js';
 import type { MatchdayEntry, PlayerInsight } from '../compute/player-insight.js';
 import {
@@ -52,6 +65,8 @@ export interface PlayerDialogInput {
   /** Das höchste fremde Gebot, 0 wenn keins vorliegt. */
   bestOffer: number;
   insight: PlayerInsight;
+  /** Punkte je Spieltag, ganz unten im Dialog. */
+  performance: PerformanceView;
   /**
    * Steht er im eigenen Kader? Nur dann ergibt "Wenn du verkaufst" einen
    * Sinn — bei einem Transferkandidaten, auf den nur ein Gebot liegt, gehört
@@ -481,6 +496,209 @@ function renderSale(insight: PlayerInsight): string {
   `;
 }
 
+// ---------- Punkte je Spieltag ----------
+
+export interface PerformanceView {
+  /** Alle Saisons, die Kickbase zu ihm führt. null, solange nichts da ist. */
+  performance: PlayerPerformance | null;
+  /** Die Saison, die offen steht. */
+  seasonId: string | null;
+  /** Läuft gerade eine Anfrage? Nur für den Text, solange nichts da ist. */
+  isLoading: boolean;
+  /** Angetippter Spieltag, null wenn keiner. */
+  selectedDay: number | null;
+}
+
+/**
+ * Höhe des höchsten Balkens in px. Die Fläche darüber steht in `planning.css`
+ * und ist zwei Punkte höher, damit auch der höchste Balken noch Luft hat.
+ */
+const PERF_BAR = 42;
+
+/**
+ * Die Saison als zwei Reihen zu 17 Spieltagen. Zwei Reihen, weil eine Spalte
+ * damit 18 statt 8 px breit wird: erst so ist Platz für das Wappen des
+ * Gegners und die Punktzahl darunter.
+ */
+function renderPerformance(view: PerformanceView): string {
+  const seasons = view.performance?.seasons ?? [];
+  const season = seasons.find((entry) => entry.id === view.seasonId) ?? null;
+
+  return `
+    <section class="pd-section">
+      <h3 class="pd-section-title">Punkte je Spieltag</h3>
+      ${renderSeasonTabs(view)}
+      ${season ? renderSeason(season, view.selectedDay) : renderPerformanceEmpty(view)}
+    </section>
+  `;
+}
+
+/**
+ * Der Umschalter. Er steht nur da, wenn es etwas umzuschalten gibt: führt
+ * Kickbase nur eine Saison, wäre ein Reiter ohne Gegenstück eine Attrappe.
+ */
+function renderSeasonTabs(view: PerformanceView): string {
+  const { current, previous } = pickSeasons(view.performance);
+  if (!current || !previous) return '';
+  const tab = (season: PerformanceSeason, label: string): string => `
+    <button type="button" data-season-tab="${escapeHtml(season.id)}"
+            aria-pressed="${season.id === view.seasonId}"
+            title="${escapeHtml(season.title)}">${label}</button>
+  `;
+  return `<div class="pd-tabs">${tab(current, 'Diese Saison')}${tab(previous, 'Letzte Saison')}</div>`;
+}
+
+function renderPerformanceEmpty(view: PerformanceView): string {
+  const text = view.isLoading ? 'Punkte werden geladen…' : 'Keine Punkte bekannt.';
+  return `<p class="pd-empty">${text}</p>`;
+}
+
+function renderSeason(season: PerformanceSeason, selectedDay: number | null): string {
+  const stats = seasonStats(season);
+  if (stats.played === 0) {
+    // Ohne den Punkt am Ende: "28. Aug." trägt schon einen.
+    const first = nextKickoff(season).replace(/\.$/, '');
+    const hint = first ? ` Der erste ist am ${first}.` : '';
+    return `<p class="pd-empty">Noch kein Spieltag gespielt.${hint}</p>`;
+  }
+
+  const slots = matchdaysBySlot(season);
+  const half = Math.ceil(slots.length / 2);
+  const selected = selectedDay === null ? null : slots[selectedDay - 1] ?? null;
+
+  return `
+    ${renderSeasonStats(stats)}
+    <div class="pd-perf-halves">
+      ${renderHalf(slots, 0, half, stats, selectedDay)}
+      ${renderHalf(slots, half, slots.length, stats, selectedDay)}
+    </div>
+    <p class="pd-perf-detail">${renderPerfDetail(selected)}</p>
+    <p class="pd-legend">
+      Balken ist die Punktzahl, darunter Gegner und Punkte. Graue Stummel sind
+      Spieltage ohne Einsatz, rote Minuspunkte. Ein senkrechter Strich markiert
+      einen Vereinswechsel.
+    </p>
+  `;
+}
+
+function renderSeasonStats(stats: SeasonStats): string {
+  return `
+    <p class="pd-perf-stats">
+      <b>${NUMBER.format(stats.total)}</b> Punkte
+      <span>·</span> <b>Ø ${stats.average}</b>
+      <span>·</span> <b>${stats.played}</b> von ${stats.days} Einsätzen
+    </p>
+  `;
+}
+
+/**
+ * Eine Reihe. Die Beschriftung trägt die Vereine dieser Hälfte: bei einem
+ * Wechsel stehen dort zwei Wappen, und der Strich in der Reihe sagt, ab wann
+ * das zweite gilt.
+ */
+function renderHalf(
+  slots: (PerformanceMatchday | null)[],
+  from: number,
+  to: number,
+  stats: SeasonStats,
+  selectedDay: number | null,
+): string {
+  const part = slots.slice(from, to);
+  const clubs = [
+    ...new Set(
+      part
+        .filter((day): day is PerformanceMatchday => day !== null)
+        .map((day) => day.teamId),
+    ),
+  ];
+  const crests = clubs
+    .map((id) => `<img src="${teamLogoUrl(id)}" alt="" width="12" height="12">`)
+    .join('');
+  const columns = part
+    .map((day, index) => renderPerfColumn(day, slots[from + index - 1] ?? null, stats, selectedDay))
+    .join('');
+  return `
+    <div>
+      <p class="pd-perf-half-label">Spieltag ${from + 1} bis ${to}${crests}</p>
+      <div class="pd-perf-half" style="--perf-cols:${part.length}">${columns}</div>
+    </div>
+  `;
+}
+
+function renderPerfColumn(
+  day: PerformanceMatchday | null,
+  previous: PerformanceMatchday | null,
+  stats: SeasonStats,
+  selectedDay: number | null,
+): string {
+  const grade = gradeOf(day, stats.average);
+  const height = perfBarHeight(day, stats);
+  // Der Wechsel gehört an den ersten Spieltag beim neuen Verein.
+  const switched = day !== null && previous !== null && previous.teamId !== day.teamId;
+  const crest = day
+    ? `<img class="pd-perf-crest" src="${teamLogoUrl(day.opponentId)}" alt="" width="15" height="15">`
+    : '<span class="pd-perf-crest"></span>';
+  const points = day === null || day.points === null
+    ? '<span class="pd-perf-num">&nbsp;</span>'
+    : `<span class="pd-perf-num">${day.points}</span>`;
+  const classes = ['pd-perf-col', `pd-perf-col--${grade}`, switched ? 'pd-perf-col--switch' : '']
+    .filter(Boolean)
+    .join(' ');
+
+  return `
+    <button type="button" class="${classes}" ${day ? `data-perf-day="${day.day}"` : ''}
+            aria-pressed="${day !== null && day.day === selectedDay}"
+            title="${perfTitle(day)}">
+      <span class="pd-perf-bars"><span class="pd-perf-bar" style="height:${height}px"></span></span>
+      ${crest}
+      ${points}
+    </button>
+  `;
+}
+
+/**
+ * Ein Spieltag ohne Einsatz bekommt einen Stummel, Minuspunkte auch: ohne ihn
+ * wäre die Spalte leer und sähe aus wie ein Spieltag, den es nicht gab.
+ */
+function perfBarHeight(day: PerformanceMatchday | null, stats: SeasonStats): number {
+  if (day === null) return 0;
+  if (day.points === null) return 3;
+  if (day.points < 0) return 4;
+  return Math.max(3, Math.round((day.points / stats.max) * PERF_BAR));
+}
+
+function perfTitle(day: PerformanceMatchday | null): string {
+  if (day === null) return 'Kein Spieltag';
+  const points = day.points === null ? 'nicht gespielt' : `${day.points} Punkte`;
+  return `Spieltag ${day.day}, ${points}`;
+}
+
+function renderPerfDetail(day: PerformanceMatchday | null): string {
+  if (!day) return 'Tippe einen Spieltag an.';
+  const result = `${day.goalsFor}:${day.goalsAgainst}`;
+  const tail = day.points === null
+    ? '<span>·</span> nicht im Kader'
+    : `<span>·</span> ${day.minutes}′ <span>·</span> <b>${day.points}</b> Punkte`;
+  return `
+    Spieltag <b>${day.day}</b>
+    <img src="${teamLogoUrl(day.teamId)}" alt="" width="16" height="16">
+    <b>${result}</b>
+    <img src="${teamLogoUrl(day.opponentId)}" alt="" width="16" height="16">
+    ${tail}
+  `;
+}
+
+/** Anstoß des ersten noch nicht gespielten Spieltags, für die leere Saison. */
+function nextKickoff(season: PerformanceSeason): string {
+  for (const day of season.matchdays) {
+    const text = dateShort(day.kickoff);
+    if (text) return text;
+  }
+  return '';
+}
+
+const NUMBER = new Intl.NumberFormat('de-DE');
+
 /**
  * Das ganze Overlay. Trägt `data-dialog-shade` und `data-dialog-close`, damit
  * `wireModal` in `planning-page.ts` es ohne Sonderfall schließen kann.
@@ -494,6 +712,7 @@ export function renderPlayerDialog(input: PlayerDialogInput): string {
           ${renderScore(input)}
           ${renderMatchdays(input.insight)}
           ${input.isOwned ? renderSale(input.insight) : ''}
+          ${renderPerformance(input.performance)}
         </div>
       </section>
     </div>
