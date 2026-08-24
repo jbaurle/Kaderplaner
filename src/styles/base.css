@@ -1326,7 +1326,7 @@ html[data-theme='dark'] .lp-panel {
    */
   .lp-inset--player {
     left: calc(-1 * clamp(64px, 10cqw, 120px));
-    bottom: calc(-1 * clamp(56px, 6.5cqw, 88px));
+    bottom: calc(-1 * clamp(36px, 4.5cqw, 60px));
     width: clamp(150px, 16.5cqw, 196px);
   }
 
