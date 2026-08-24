@@ -2628,6 +2628,20 @@ body.is-dialog-open {
   outline-offset: 1px;
 }
 
+/*
+ * Platzhalter, wenn es keine Spieltage zu zeigen gibt. Die Fläche bleibt so
+ * hoch wie der gefüllte Abschnitt: 20 px Kennzahlen samt Abstand, 210 px die
+ * beiden Reihen, 26 px die Zeile zum angetippten Spieltag. Ohne das klappt der
+ * Dialog beim Umschalten der Saison zusammen.
+ */
+.pd-body .pd-perf-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 268px;
+  text-align: center;
+}
+
 .pd-perf-stats {
   display: flex;
   align-items: baseline;

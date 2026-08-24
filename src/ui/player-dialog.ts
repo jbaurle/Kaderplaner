@@ -549,8 +549,16 @@ function renderSeasonTabs(view: PerformanceView): string {
 }
 
 function renderPerformanceEmpty(view: PerformanceView): string {
-  const text = view.isLoading ? 'Punkte werden geladen…' : 'Keine Punkte bekannt.';
-  return `<p class="pd-empty">${text}</p>`;
+  return perfPlaceholder(view.isLoading ? 'Punkte werden geladen…' : 'Keine Punkte bekannt.');
+}
+
+/*
+ * Steht nichts an, bleibt die Fläche trotzdem stehen und der Satz sitzt in
+ * ihrer Mitte. Sonst klappt der Dialog beim Umschalten der Saison zusammen und
+ * alles darunter springt.
+ */
+function perfPlaceholder(text: string): string {
+  return `<p class="pd-empty pd-perf-empty">${text}</p>`;
 }
 
 function renderSeason(season: PerformanceSeason, selectedDay: number | null): string {
@@ -559,7 +567,7 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
     // Ohne den Punkt am Ende: "28. Aug." trägt schon einen.
     const first = nextKickoff(season).replace(/\.$/, '');
     const hint = first ? ` Der erste ist am ${first}.` : '';
-    return `<p class="pd-empty">Noch kein Spieltag gespielt.${hint}</p>`;
+    return perfPlaceholder(`Noch kein Spieltag gespielt.${hint}`);
   }
 
   const slots = matchdaysBySlot(season);
