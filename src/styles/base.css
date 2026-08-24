@@ -1318,24 +1318,16 @@ html[data-theme='dark'] .lp-panel {
    * Der Spielerdialog, unten links. Er hängt über die linke Kante des
    * Tabellenbilds hinaus und steht damit halb auf dem hellen Grund: so liest
    * er als eigenes Blatt und nicht als Teil des Screenshots.
+   *
+   * Schmaler als die Aufstellung rechts: die Aufnahme (620x1034) zeigt den
+   * ganzen Dialog und ist damit gut anderthalbmal so hoch wie breit. Bei
+   * voller Breite ragte sie bis unter die Anmeldung. Der Versatz nach unten
+   * hält Abstand zur Anmeldekarte darüber.
    */
   .lp-inset--player {
-    left: calc(-1 * clamp(40px, 7cqw, 84px));
-    bottom: calc(-1 * clamp(6px, 0.9cqw, 12px));
-    width: clamp(170px, 19.5cqw, 232px);
-  }
-
-  /*
-   * Die Aufnahme (620x1034) zeigt den ganzen Dialog samt Punkten je
-   * Spieltag und ist dafür deutlich höher als die Karte hier Platz hat:
-   * ungeschnitten ragte sie über die Tabelle hinaus bis unter die
-   * Anmeldung. Die Karte zeigt deshalb nur den oberen Teil, im alten
-   * Seitenverhältnis der früheren Aufnahme.
-   */
-  .lp-inset--player .lp-inset-img {
-    aspect-ratio: 582 / 615;
-    object-fit: cover;
-    object-position: top;
+    left: calc(-1 * clamp(64px, 10cqw, 120px));
+    bottom: calc(-1 * clamp(56px, 6.5cqw, 88px));
+    width: clamp(150px, 16.5cqw, 196px);
   }
 
   /*
