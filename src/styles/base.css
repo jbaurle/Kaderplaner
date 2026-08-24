@@ -224,17 +224,7 @@ button {
   gap: 16px;
 }
 
-/*
- * Marke neben dem Titel, nicht darüber: die Karte ist ohnehin hoch, und eine
- * eigene Zeile kostete 46 px. Das Bild ist dieselbe Datei wie das Favicon,
- * also nur ein Abruf für beides.
- */
-.auth-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
+/* Marke neben dem Titel. Dieselbe Datei wie das Favicon, ein Abruf für beides. */
 .brand-mark {
   display: block;
   flex: none;
@@ -301,40 +291,7 @@ button {
   color: var(--text);
 }
 
-.row-buttons {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* ---------- Login: Kennzeichnung, Belege, Rechtsfußzeile ---------- */
-
-/* Trägt Karte und Fußzeile, damit die Fußzeile die Breite der Karte hat. */
-.auth-stack {
-  width: min(420px, 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.auth-kicker {
-  /* Zieht die Zeile dicht unter den Titel, gegen die 16px Lücke der Karte. */
-  margin: -10px 0 0;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.auth-kicker b {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.auth-rule {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 2px 0 0;
-}
+/* ---------- Login: Belege ---------- */
 
 .auth-proof {
   margin: 0;
@@ -361,24 +318,6 @@ button {
 
 .auth-proof a {
   color: var(--text);
-}
-
-.auth-legal {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.auth-legal a {
-  color: var(--text-muted);
-}
-
-.auth-legal span {
-  color: var(--border-strong);
 }
 
 /* ---------- Form fields ---------- */
