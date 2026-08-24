@@ -1212,6 +1212,18 @@ html[data-theme='dark'] .lp-panel {
     margin: 0;
     object-fit: cover;
     object-position: 100% 0;
+    /*
+     * Leicht verwischt: die Tabelle ist hier Bühne, nicht Inhalt. Scharf
+     * gelesen zieht sie das Auge weg von der Anmeldekarte und den zwei
+     * aufgelegten Bildern, die den Text daneben belegen sollen. Die beiden
+     * bleiben scharf, das trägt sie zusätzlich nach vorne.
+     */
+    filter: blur(2.5px) saturate(0.88);
+    /* Der Weichzeichner zieht die Bildkanten milchig aus. Oben und unten
+       schneidet der Rahmen sie ohnehin weg, links und rechts nicht: dort
+       deckt der Zoom den Streifen zu. Kostet rechts einen Millimeter der
+       Spalte, an der die Datei endet, was verwischt niemand sieht. */
+    transform: scale(1.02);
   }
 
   .lp-panel {
