@@ -27,6 +27,8 @@ export class App {
   private readonly host: HTMLElement;
   private readonly client: KickbaseClient;
   private view: View;
+  /** Die aktive Planungsseite, damit `render()` sie vor dem Wechsel abräumt. */
+  private page: PlanningPage | null = null;
 
   constructor(options: AppOptions) {
     this.host = options.host;
@@ -61,6 +63,11 @@ export class App {
   }
 
   private render(): void {
+    // Die alte Seite hängt sonst mit ihren window/document-Listenern weiter
+    // am Dokument und rendert auf Escape ihre veralteten Daten in den Host.
+    this.page?.dispose();
+    this.page = null;
+
     switch (this.view.kind) {
       case 'login':
         renderLogin(this.host, {
@@ -84,7 +91,7 @@ export class App {
         const leagueName = persisted?.leagues.find((l) => l.id === leagueId)?.name ?? leagueId;
         const userLabel = persisted?.userName ?? persisted?.email ?? '';
 
-        const page = new PlanningPage({
+        this.page = new PlanningPage({
           host: this.host,
           client: this.client,
           leagueId,
@@ -95,7 +102,7 @@ export class App {
           onLogout: () => this.handleLogout(),
           onUnauthorized: () => this.handleUnauthorized(),
         });
-        page.start();
+        this.page.start();
         break;
       }
     }

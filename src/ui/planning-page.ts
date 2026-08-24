@@ -137,6 +137,11 @@ export class PlanningPage {
   private state: PageState;
   /** Hängt an der Tabelle und meldet jede Breitenänderung, siehe `watchWidth`. */
   private widthObserver: ResizeObserver | null = null;
+  /** Als Felder, damit `dispose()` genau diese Listener wieder abhängt. */
+  private readonly onResize = (): void => this.fitAmounts();
+  private readonly onKeydown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') this.closeModal();
+  };
   /**
    * Zählt die Score-Läufe. Ein neues Laden oder ein neuer Lauf zählt hoch,
    * damit die Antwort eines überholten Laufs nicht mehr in den State fällt.
@@ -170,13 +175,24 @@ export class PlanningPage {
     this.render();
     void this.fetch();
     // Drehen ändert die Breite, ohne dass neu gerendert wird.
-    window.addEventListener('resize', () => this.fitAmounts());
+    window.addEventListener('resize', this.onResize);
     // Escape hängt am Dokument, nicht am Overlay: das Overlay hat beim Öffnen
     // keinen Fokus, die Taste käme dort erst nach einem Klick an. Ohne offenes
     // Overlay läuft `closeModal()` ins Leere.
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') this.closeModal();
-    });
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  /**
+   * Hängt die Listener an window/document wieder ab. Ohne diesen Aufruf lebt
+   * eine verworfene Instanz weiter: ihr Escape-Handler rendert den Host dann
+   * mit den veralteten Daten der alten Liga neu. `App` ruft das vor jedem
+   * Ansichtswechsel auf.
+   */
+  dispose(): void {
+    window.removeEventListener('resize', this.onResize);
+    document.removeEventListener('keydown', this.onKeydown);
+    this.widthObserver?.disconnect();
+    this.widthObserver = null;
   }
 
   /** Fetch budget + squad, danach laufen die Scores automatisch hinterher. */
