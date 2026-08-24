@@ -1326,6 +1326,19 @@ html[data-theme='dark'] .lp-panel {
   }
 
   /*
+   * Die Aufnahme (620x1034) zeigt den ganzen Dialog samt Punkten je
+   * Spieltag und ist dafür deutlich höher als die Karte hier Platz hat:
+   * ungeschnitten ragte sie über die Tabelle hinaus bis unter die
+   * Anmeldung. Die Karte zeigt deshalb nur den oberen Teil, im alten
+   * Seitenverhältnis der früheren Aufnahme.
+   */
+  .lp-inset--player .lp-inset-img {
+    aspect-ratio: 582 / 615;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  /*
    * Die Aufstellung, oben rechts. Sie steht oben über die Bildkante hinaus,
    * so wie der Spielerdialog unten, bleibt dabei aber ganz zu sehen:
    * angeschnitten wäre sie als dritte Ebene schwer zu lesen.

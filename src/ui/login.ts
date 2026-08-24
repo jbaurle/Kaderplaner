@@ -141,7 +141,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           <div class="lp-cards">
             <div class="lp-inset lp-inset--player">
               <img class="lp-inset-img" src="${shot('player-dialog', dark)}" data-shot="player-dialog"
-                   width="582" height="615" loading="lazy" decoding="async"
+                   width="620" height="1034" loading="lazy" decoding="async"
                    alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
             </div>
 
@@ -193,7 +193,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <span class="lp-badge lp-badge--gold">Spielraum</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="${shot('player-dialog', dark)}" data-shot="player-dialog"
-                       width="582" height="615" loading="lazy" decoding="async"
+                       width="620" height="1034" loading="lazy" decoding="async"
                        alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
                 </div>
                 <h3 class="lp-slide-title">Spielerdialog</h3>
