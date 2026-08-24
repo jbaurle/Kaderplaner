@@ -8,7 +8,20 @@
       content="Score je Spieler, beste Elf, vier Szenarien. Im Browser, ohne Server."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <title>Kickbase Kaderplaner</title>
+
+    <!--
+      Auf dem Startbildschirm abgelegt startet die Seite ohne Adressleiste.
+      Das regelt `display: standalone` im Manifest; iOS vor 16.4 liest das
+      Manifest nicht, dafür steht das alte Apple-Meta daneben. `theme-color`
+      färbt die Statusleiste und steht hier hell, das Skript darunter zieht
+      Dunkel nach.
+    -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Kaderplaner" />
+    <meta name="theme-color" content="#f4f6f9" />
 
     <!--
       Setzt den Dunkel-Modus, bevor irgendetwas gezeichnet wird, sonst blitzt
@@ -27,6 +40,8 @@
           var stored = localStorage.getItem('kb.theme');
           if (stored === '"dark"' || stored === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#12181c');
           }
         } catch (e) {}
       })();

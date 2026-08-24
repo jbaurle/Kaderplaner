@@ -7,12 +7,17 @@
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
+  <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
+       Startbildschirm liegt. Diese Seite öffnet dort im selben Fenster. -->
+  <meta name="theme-color" content="#f4f6f9">
   <!-- Siehe index.html: setzt den Dunkel-Modus vor dem ersten Bildaufbau. -->
   <script>
     (function () {
       try {
         if (localStorage.getItem('kb.theme') === '"dark"') {
           document.documentElement.setAttribute('data-theme', 'dark');
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#12181c');
         }
       } catch (e) {}
     })();

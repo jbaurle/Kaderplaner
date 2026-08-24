@@ -7,12 +7,17 @@
   <meta name="description" content="Kader mit Score, vier Szenarien, Spielerdialog und Aufstellung: was der Kaderplaner zeigt und wie er rechnet.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
+  <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
+       Startbildschirm liegt. Diese Seite öffnet dort im selben Fenster. -->
+  <meta name="theme-color" content="#f4f6f9">
   <!-- Siehe index.html: setzt den Dunkel-Modus vor dem ersten Bildaufbau. -->
   <script>
     (function () {
       try {
         if (localStorage.getItem('kb.theme') === '"dark"') {
           document.documentElement.setAttribute('data-theme', 'dark');
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#12181c');
         }
       } catch (e) {}
     })();
@@ -213,6 +218,24 @@
         <li>Jeder Dialog schließt mit Escape, mit dem Kreuz oben rechts oder mit
           einem Klick daneben.</li>
       </ul>
+
+      <h2>Als App ablegen</h2>
+      <p>
+        Der Kaderplaner lässt sich auf den Startbildschirm legen. Er startet
+        dann mit eigenem Symbol und ohne Adressleiste. Installiert wird dabei
+        nichts, es bleibt dieselbe Seite.
+      </p>
+      <ul>
+        <li><strong>iPhone und iPad:</strong> in Safari auf das Teilen-Symbol
+          tippen, dann „Zum Home-Bildschirm“.</li>
+        <li><strong>Android:</strong> in Chrome das Menü mit den drei Punkten
+          öffnen, dann „App installieren“ oder „Zum Startbildschirm
+          hinzufügen“.</li>
+      </ul>
+      <p>
+        Die abgelegte App hat ihren eigenen Speicher. Du meldest dich dort
+        einmal neu an, und die Szenarien aus dem Browser stehen nicht darin.
+      </p>
 
       <h2>Was der Kaderplaner nicht macht</h2>
       <p>
