@@ -994,6 +994,16 @@ button {
   font-weight: 400;
 }
 
+/* Der Hinweis auf den Startbildschirm, eine Zeile unter dem Link in die
+   Hilfe. Kleiner als der Fließtext, aber in dessen Farbe: gedämpft stünde er
+   direkt über dem Kleingedruckten und läse sich als dessen erste Zeile. */
+.lp-app-hint {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
 /* Der Hinweis auf Kickbase und die Bildrechte, mit Abstand unter dem Link
    zur Hilfe: er gehört zum Kleingedruckten, nicht zur Fusszeile mit den
    Rechtslinks. */
@@ -1042,6 +1052,16 @@ button {
   }
 
   .lp-hero[data-tab="info"] .lp-carousel-wrap {
+    display: block;
+  }
+
+  /* Nur im Reiter „Was die App kann“: neben dem Formular zählt das Anmelden,
+     dort wäre der Hinweis nur eine zweite Aufforderung. */
+  .lp-app-hint {
+    display: none;
+  }
+
+  .lp-hero[data-tab="info"] .lp-app-hint {
     display: block;
   }
 

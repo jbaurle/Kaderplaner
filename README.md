@@ -41,6 +41,10 @@ Tabelle, Spielerdialog und Aufstellung.
 - **Hell und dunkel.** Der Mond im Kopf schaltet um, die Wahl bleibt im
   Browser. Kein `prefers-color-scheme`: wer umschaltet, meint diese Seite,
   nicht sein Betriebssystem.
+- **Auf den Startbildschirm.** Manifest und Icons liegen bei: am Handy
+  abgelegt startet der Kaderplaner mit eigenem Symbol und ohne Adressleiste.
+  Der Service Worker reicht nur durch und speichert nichts, offline läuft
+  also nichts.
 
 Alles außer der Aufstellung ist nur lesend.
 

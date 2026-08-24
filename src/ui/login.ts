@@ -228,6 +228,17 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             Was die App kann
             <span class="lp-more-arrow" aria-hidden="true">→</span>
           </a>
+          <!--
+            Steht bewusst an dieser Stelle: am Handy fallen die drei Absätze
+            und der Link darüber weg, dann rückt der Hinweis direkt unter das
+            Karussell. Also genau dorthin, wo jemand mit dem Telefon in der
+            Hand liest und ihn brauchen kann.
+          -->
+          <p class="lp-app-hint">
+            Am Handy lässt sich der Kaderplaner auf den Startbildschirm legen und
+            startet dann wie eine App.
+            <a href="/functions.html#als-app-ablegen">So geht das</a>.
+          </p>
           <p class="lp-legal">Inoffizielles Fan-Tool, keine Verbindung zu Kickbase.
             Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
         </div>
