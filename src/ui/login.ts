@@ -17,6 +17,7 @@
 
 import { KickbaseError } from '../api/kickbase.js';
 import { escapeHtml } from './format.js';
+import { getTheme } from './theme.js';
 import { canInstall, promptInstall, watchInstall } from './install.js';
 
 /** Repo hinter „Der Code liegt offen". Der Link trägt erst, wenn es öffentlich ist. */
@@ -34,7 +35,22 @@ export interface LoginViewProps {
   onSubmit: (email: string, password: string) => Promise<void>;
 }
 
+/**
+ * Bildpfad passend zum Design. Die dunklen Aufnahmen liegen als
+ * `<name>-dark.webp` daneben und haben dasselbe Seitenverhältnis, damit die
+ * `width`/`height`-Angaben für beide gelten.
+ *
+ * Die Wahl fällt beim Rendern, nicht in CSS: `content: url(...)` würde das
+ * helle Bild trotzdem laden, und einen Umschalter gibt es auf dieser Seite
+ * nicht. Wer das Design wechselt, kommt ohnehin mit einem neuen Aufbau
+ * zurück.
+ */
+function shot(name: string, dark: boolean): string {
+  return `/images/${name}${dark ? '-dark' : ''}.webp`;
+}
+
 export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
+  const dark = getTheme() === 'dark';
   const notice = props.notice ?? '';
   const startTab = notice ? 'login' : 'info';
   const tab = (target: string) => ({
@@ -112,7 +128,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           </form>
 
           <div class="lp-shot">
-            <img class="lp-shot-img" src="/images/table-desktop.webp"
+            <img class="lp-shot-img" src="${shot('table-desktop', dark)}"
                  width="2451" height="1636" decoding="async"
                  alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
           </div>
@@ -124,13 +140,13 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           -->
           <div class="lp-cards">
             <div class="lp-inset lp-inset--player">
-              <img class="lp-inset-img" src="/images/player-dialog.webp"
+              <img class="lp-inset-img" src="${shot('player-dialog', dark)}"
                    width="582" height="615" loading="lazy" decoding="async"
                    alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
             </div>
 
             <div class="lp-inset lp-inset--lineup">
-              <img class="lp-inset-img" src="/images/lineup.webp"
+              <img class="lp-inset-img" src="${shot('lineup', dark)}"
                    width="528" height="818" loading="lazy" decoding="async"
                    alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
             </div>
@@ -156,7 +172,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 4">
                 <span class="lp-badge">Score 0–100 %</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="/images/table-desktop.webp"
+                  <img class="lp-slide-img" src="${shot('table-desktop', dark)}"
                        width="2451" height="1636" loading="lazy" decoding="async"
                        alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
                 </div>
@@ -166,7 +182,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--offers" role="group" aria-roledescription="Folie" aria-label="2 von 4">
                 <span class="lp-badge">Gebote</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="/images/offers-dialog.webp"
+                  <img class="lp-slide-img" src="${shot('offers-dialog', dark)}"
                        width="560" height="453" loading="lazy" decoding="async"
                        alt="Der Gebotsdialog: das höchste Gebot groß, darunter alle Gebote mit Manager und Betrag.">
                 </div>
@@ -176,7 +192,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 4">
                 <span class="lp-badge lp-badge--gold">Spielraum</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="/images/player-dialog.webp"
+                  <img class="lp-slide-img" src="${shot('player-dialog', dark)}"
                        width="582" height="615" loading="lazy" decoding="async"
                        alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
                 </div>
@@ -186,7 +202,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="4 von 4">
                 <span class="lp-badge">Aufstellung</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="/images/lineup.webp"
+                  <img class="lp-slide-img" src="${shot('lineup', dark)}"
                        width="528" height="818" loading="lazy" decoding="async"
                        alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
                 </div>

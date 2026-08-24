@@ -50,6 +50,27 @@ describe('renderLogin', () => {
     expect(host.querySelector('#lp-tab-info')?.getAttribute('aria-selected')).toBe('false');
   });
 
+  it('nimmt im hellen Design die hellen Aufnahmen', () => {
+    const host = render();
+    const srcs = [...host.querySelectorAll('img')].map((i) => i.getAttribute('src') ?? '');
+    expect(srcs).toContain('/images/table-desktop.webp');
+    expect(srcs.some((s) => s.endsWith('-dark.webp'))).toBe(false);
+  });
+
+  it('nimmt im dunklen Design die dunklen Aufnahmen', () => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    try {
+      const host = render();
+      const shots = [...host.querySelectorAll('img')]
+        .map((i) => i.getAttribute('src') ?? '')
+        .filter((s) => s.startsWith('/images/'));
+      expect(shots.length).toBeGreaterThan(0);
+      expect(shots.every((s) => s.endsWith('-dark.webp'))).toBe(true);
+    } finally {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  });
+
   it('lässt den roten Fehlerplatz für falsche Zugangsdaten frei', () => {
     const host = render('Deine Sitzung ist abgelaufen. Bitte melde dich neu an.');
 

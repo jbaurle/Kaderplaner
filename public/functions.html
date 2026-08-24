@@ -51,7 +51,7 @@
         auseinanderfällt, lohnt der Blick.
       </p>
       <figure class="shot">
-        <img src="/images/functions-table.webp" width="1024" height="832" loading="lazy" decoding="async"
+        <img src="/images/functions-table.webp" data-dark="/images/functions-table-dark.webp" width="1024" height="832" loading="lazy" decoding="async"
              alt="Die Kadertabelle mit Spalten für Erlös, drei Szenarien, Bank, Gewinn und Verlust, Score und Gegner.">
         <figcaption>
           Oben die drei Zeilen, die mitrechnen. Darunter der Kader, ganz rechts
@@ -76,7 +76,7 @@
         Spielern gegen das Gebot, sonst widersprächen sich die beiden Spalten.
       </p>
       <figure class="shot shot--narrow">
-        <img src="/images/offers-dialog.webp" width="560" height="453" loading="lazy" decoding="async"
+        <img src="/images/offers-dialog.webp" data-dark="/images/offers-dialog-dark.webp" width="560" height="453" loading="lazy" decoding="async"
              alt="Der Gebotsdialog: das höchste Gebot groß, darunter alle Gebote mit Manager und Betrag.">
         <figcaption>
           Oben die Zahl, mit der die Ansicht rechnet, und ihr Abstand zum
@@ -102,7 +102,7 @@
         Formation zustande kommt.
       </p>
       <figure class="shot">
-        <img src="/images/functions-scenarios.webp" width="1024" height="332" loading="lazy" decoding="async"
+        <img src="/images/functions-scenarios.webp" data-dark="/images/functions-scenarios-dark.webp" width="1024" height="332" loading="lazy" decoding="async"
              alt="Die drei Szenariospalten und die Spalte Bank, darüber Kontostand, Verkäufe und Kontostand neu.">
         <figcaption>
           Jedes Häkchen ändert sofort die drei Zeilen oben. Der ←-Knopf übernimmt
@@ -141,7 +141,7 @@
         noch einmal gerechnet, damit dasteht, was der Verkauf sportlich kostet.
       </p>
       <figure class="shot shot--narrow">
-        <img src="/images/player-dialog.webp" width="582" height="615" loading="lazy" decoding="async"
+        <img src="/images/player-dialog.webp" data-dark="/images/player-dialog-dark.webp" width="582" height="615" loading="lazy" decoding="async"
              alt="Der Spielerdialog: Werte, Score als Balken, die Spieltage als Kacheln und die Folgen eines Verkaufs.">
         <figcaption>
           Links die gespielten Spieltage mit Punkten, rechts die nächsten drei
@@ -159,7 +159,7 @@
         der dir noch gar nicht gehört, kann niemand bei dir bieten.
       </p>
       <figure class="shot">
-        <img src="/images/functions-transfers.webp" width="1024" height="115" loading="lazy" decoding="async"
+        <img src="/images/functions-transfers.webp" data-dark="/images/functions-transfers-dark.webp" width="1024" height="115" loading="lazy" decoding="async"
              alt="Der Transferblock: offene Gebote mit Gebotshöhe, Erlös und Score.">
         <figcaption>
           Links das Gebot, rechts der Marktwert. Die Zeile darunter zählt
@@ -197,7 +197,7 @@
         an deinem Konto ändert.
       </p>
       <figure class="shot shot--narrow">
-        <img src="/images/lineup.webp" width="528" height="818" loading="lazy" decoding="async"
+        <img src="/images/lineup.webp" data-dark="/images/lineup-dark.webp" width="528" height="818" loading="lazy" decoding="async"
              alt="Der Aufstellungsdialog: die Elf auf dem Spielfeld, je Spieler sein Score.">
         <figcaption>
           Über dem Feld die Formation und was nach dem Umbau auf dem Konto steht.
@@ -275,5 +275,20 @@
       <a href="/terms.html">Nutzungsbedingungen</a>
     </footer>
   </div>
+  <!--
+    Dunkle Fassungen der Screenshots. Der Tausch läuft hier und nicht in CSS:
+    `content: url(...)` ersetzt nur die Darstellung, geladen würde das helle
+    Bild trotzdem. Weil alle Bilder ausser dem ersten `loading="lazy"` tragen,
+    holt der Browser nach dem Tausch gleich die richtige Datei.
+  -->
+  <script>
+    (function () {
+      if (document.documentElement.getAttribute('data-theme') !== 'dark') return;
+      var imgs = document.querySelectorAll('img[data-dark]');
+      for (var i = 0; i < imgs.length; i++) {
+        imgs[i].src = imgs[i].getAttribute('data-dark');
+      }
+    })();
+  </script>
 </body>
 </html>
