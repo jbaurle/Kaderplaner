@@ -1157,10 +1157,37 @@ html[data-theme='dark'] .lp-panel {
        eine große Lücke unters Kleingedruckte auf. */
     margin-top: 16px;
   }
+
+  /* Randlos und auf Textgröße geschrumpft, sonst schiebt der Knopf die eine
+     Zeile mit den vier Links bei 360px über den Rand (mit klassischer
+     Bildlaufleiste bleiben dort nur 321px). */
+  .lp-foot .icon-btn {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    background: none;
+    margin-left: 0;
+  }
+
+  .lp-foot .icon-btn svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .lp-foot a {
   color: var(--text-muted);
+}
+
+/* Der Umschalter für den Dunkel-Modus reiht sich klein hinter die
+   Textlinks ein, statt oben im Kopf zu stehen. Mit etwas Abstand zu
+   „Quellcode", damit er nicht als fünfter Link liest — am Handy fällt der
+   Abstand weg, dort passt die Zeile bei 360px sonst nicht. */
+.lp-foot .icon-btn {
+  width: 24px;
+  height: 24px;
+  align-self: center;
+  margin-left: 8px;
 }
 
 .lp-foot span {

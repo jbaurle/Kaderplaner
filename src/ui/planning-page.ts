@@ -13,7 +13,7 @@
  */
 
 import { KickbaseClient, KickbaseError } from '../api/kickbase.js';
-import { getTheme, toggleTheme, type Theme } from './theme.js';
+import { getTheme, toggleTheme, THEME_ICON, themeToggleLabel } from './theme.js';
 import type {
   League,
   LeagueId,
@@ -530,8 +530,8 @@ export class PlanningPage {
           <div class="planning-account">
             <span class="user-label">${escapeHtml(props.userLabel)}</span>
             <button type="button" class="icon-btn icon-btn--theme" id="theme-toggle-btn"
-                    title="${getTheme() === 'dark' ? 'Helles Design' : 'Dunkles Design'}"
-                    aria-label="${getTheme() === 'dark' ? 'Helles Design' : 'Dunkles Design'}">
+                    title="${themeToggleLabel(getTheme())}"
+                    aria-label="${themeToggleLabel(getTheme())}">
               ${THEME_ICON[getTheme()]}
             </button>
             <button type="button" class="icon-btn" id="logout-btn" title="Abmelden" aria-label="Abmelden">
@@ -617,7 +617,7 @@ export class PlanningPage {
     const themeButton = props.host.querySelector<HTMLButtonElement>('#theme-toggle-btn');
     themeButton?.addEventListener('click', () => {
       const next = toggleTheme();
-      const label = next === 'dark' ? 'Helles Design' : 'Dunkles Design';
+      const label = themeToggleLabel(next);
       themeButton.innerHTML = THEME_ICON[next];
       themeButton.title = label;
       themeButton.setAttribute('aria-label', label);
@@ -947,23 +947,6 @@ const LOGOUT_ICON = `
     <path d="M6.9 6.9a7.2 7.2 0 1 0 10.2 0" />
   </svg>
 `;
-
-/** Mond = "wechselt zu dunkel" (Ausgangslage hell), Sonne umgekehrt. */
-const THEME_ICON: Record<Theme, string> = {
-  light: `
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 14.5a8 8 0 1 1-10.5-10.5 6.5 6.5 0 0 0 10.5 10.5z" />
-    </svg>
-  `,
-  dark: `
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-    </svg>
-  `,
-};
 
 /** Liganame im Kopf, immer als Einstieg in die Ligaauswahl. */
 function renderLeagueLabel(leagueName: string): string {

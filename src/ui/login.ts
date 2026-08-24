@@ -17,7 +17,7 @@
 
 import { KickbaseError } from '../api/kickbase.js';
 import { escapeHtml } from './format.js';
-import { getTheme } from './theme.js';
+import { getTheme, toggleTheme, THEME_ICON, themeToggleLabel } from './theme.js';
 import { canInstall, promptInstall, watchInstall } from './install.js';
 
 /** Repo hinter „Der Code liegt offen". Der Link trägt erst, wenn es öffentlich ist. */
@@ -41,9 +41,9 @@ export interface LoginViewProps {
  * `width`/`height`-Angaben für beide gelten.
  *
  * Die Wahl fällt beim Rendern, nicht in CSS: `content: url(...)` würde das
- * helle Bild trotzdem laden, und einen Umschalter gibt es auf dieser Seite
- * nicht. Wer das Design wechselt, kommt ohnehin mit einem neuen Aufbau
- * zurück.
+ * helle Bild trotzdem laden. Der Umschalter im Kopf stellt die `src`s über
+ * das `data-shot`-Attribut nach, ohne die Seite neu aufzubauen — ein
+ * Re-Render würfe die Eingaben im Formular weg.
  */
 function shot(name: string, dark: boolean): string {
   return `/images/${name}${dark ? '-dark' : ''}.webp`;
@@ -128,7 +128,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           </form>
 
           <div class="lp-shot">
-            <img class="lp-shot-img" src="${shot('table-desktop', dark)}"
+            <img class="lp-shot-img" src="${shot('table-desktop', dark)}" data-shot="table-desktop"
                  width="2451" height="1636" decoding="async"
                  alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
           </div>
@@ -140,13 +140,13 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           -->
           <div class="lp-cards">
             <div class="lp-inset lp-inset--player">
-              <img class="lp-inset-img" src="${shot('player-dialog', dark)}"
+              <img class="lp-inset-img" src="${shot('player-dialog', dark)}" data-shot="player-dialog"
                    width="582" height="615" loading="lazy" decoding="async"
                    alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
             </div>
 
             <div class="lp-inset lp-inset--lineup">
-              <img class="lp-inset-img" src="${shot('lineup', dark)}"
+              <img class="lp-inset-img" src="${shot('lineup', dark)}" data-shot="lineup"
                    width="528" height="818" loading="lazy" decoding="async"
                    alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
             </div>
@@ -172,7 +172,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 4">
                 <span class="lp-badge">Score 0–100 %</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="${shot('table-desktop', dark)}"
+                  <img class="lp-slide-img" src="${shot('table-desktop', dark)}" data-shot="table-desktop"
                        width="2451" height="1636" loading="lazy" decoding="async"
                        alt="Die Kadertabelle: je Spieler ein Score und vier Spalten zum Durchspielen.">
                 </div>
@@ -182,7 +182,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--offers" role="group" aria-roledescription="Folie" aria-label="2 von 4">
                 <span class="lp-badge">Gebote</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="${shot('offers-dialog', dark)}"
+                  <img class="lp-slide-img" src="${shot('offers-dialog', dark)}" data-shot="offers-dialog"
                        width="560" height="453" loading="lazy" decoding="async"
                        alt="Der Gebotsdialog: das höchste Gebot groß, darunter alle Gebote mit Manager und Betrag.">
                 </div>
@@ -192,7 +192,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 4">
                 <span class="lp-badge lp-badge--gold">Spielraum</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="${shot('player-dialog', dark)}"
+                  <img class="lp-slide-img" src="${shot('player-dialog', dark)}" data-shot="player-dialog"
                        width="582" height="615" loading="lazy" decoding="async"
                        alt="Der Spielerdialog: Score, Spieltage und was ein Verkauf aufs Konto bringt.">
                 </div>
@@ -202,7 +202,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="4 von 4">
                 <span class="lp-badge">Aufstellung</span>
                 <div class="lp-slide-media">
-                  <img class="lp-slide-img" src="${shot('lineup', dark)}"
+                  <img class="lp-slide-img" src="${shot('lineup', dark)}" data-shot="lineup"
                        width="528" height="818" loading="lazy" decoding="async"
                        alt="Die Aufstellung auf dem Spielfeld, je Spieler sein Score.">
                 </div>
@@ -275,6 +275,10 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <a href="/privacy.html">Datenschutz</a><span aria-hidden="true">·</span>
         <a href="/terms.html">Nutzungsbedingungen</a><span aria-hidden="true">·</span>
         <a href="${REPO_URL}" target="_blank" rel="noopener">Quellcode</a>
+        <button type="button" class="icon-btn icon-btn--theme" id="lp-theme-btn"
+                title="${themeToggleLabel(getTheme())}" aria-label="${themeToggleLabel(getTheme())}">
+          ${THEME_ICON[getTheme()]}
+        </button>
       </footer>
     </main>
   `;
@@ -323,6 +327,22 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
       next.focus();
       if (next.dataset.tabTarget) activateTab(next.dataset.tabTarget);
     });
+  });
+
+  // Umschalten stellt neben dem Attribut auf <html> auch die Screenshots um:
+  // die dunklen Aufnahmen liegen als eigene Dateien daneben, CSS allein käme
+  // nicht an die `src`s heran.
+  const themeButton = host.querySelector<HTMLButtonElement>('#lp-theme-btn');
+  themeButton?.addEventListener('click', () => {
+    const next = toggleTheme();
+    const label = themeToggleLabel(next);
+    themeButton.innerHTML = THEME_ICON[next];
+    themeButton.title = label;
+    themeButton.setAttribute('aria-label', label);
+    for (const img of host.querySelectorAll<HTMLImageElement>('img[data-shot]')) {
+      const name = img.dataset['shot'];
+      if (name) img.src = shot(name, next === 'dark');
+    }
   });
 
   // "Jetzt anmelden" sitzt im Info-Reiter, der beim Wechsel display:none
