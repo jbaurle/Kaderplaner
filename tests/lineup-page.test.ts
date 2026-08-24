@@ -53,6 +53,7 @@ function open(initialIds: string[] = []): { saved: string[][]; layer: HTMLElemen
     onChange: (ids) => saved.push([...ids]),
     onSubmit: () => Promise.resolve(),
     onClose: () => {},
+    onUnauthorized: () => {},
   });
   page.open();
   const layer = document.querySelector<HTMLElement>('.lineup-layer');
@@ -113,7 +114,10 @@ describe('Fehler beim Senden', () => {
     ...['i', 'j'].map((id) => player(id, `Ang ${id}`, 'ANG')),
   ];
 
-  async function submitFailing(error: unknown): Promise<string> {
+  async function submitFailing(
+    error: unknown,
+    onUnauthorized: () => void = () => {},
+  ): Promise<string> {
     const page = new LineupPage({
       players: ELEVEN,
       budget: 0,
@@ -123,6 +127,7 @@ describe('Fehler beim Senden', () => {
       onChange: () => {},
       onSubmit: () => Promise.reject(error),
       onClose: () => {},
+      onUnauthorized,
     });
     page.open();
     const layer = document.querySelector<HTMLElement>('.lineup-layer');
@@ -144,9 +149,14 @@ describe('Fehler beim Senden', () => {
     expect(text).toContain('keine Verbindung zu Kickbase');
   });
 
-  it('sagt bei 403, dass die Sitzung abgelaufen ist', async () => {
-    const text = await submitFailing(new KickbaseError(403, 'Forbidden'));
-    expect(text).toContain('Sitzung ist abgelaufen');
+  it('führt bei 403 zurück zur Anmeldung, statt eine Zeile zu zeigen', async () => {
+    let unauthorized = false;
+    const text = await submitFailing(new KickbaseError(403, 'Forbidden'), () => {
+      unauthorized = true;
+    });
+    expect(unauthorized).toBe(true);
+    expect(document.querySelector('.lineup-layer')).toBeNull();
+    expect(text).toBe('');
   });
 
   it('nennt sonst wenigstens den Status', async () => {

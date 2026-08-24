@@ -77,6 +77,11 @@ export interface LineupPageProps {
    */
   onSubmit: (formation: string, ids: PlayerId[]) => Promise<void>;
   onClose: () => void;
+  /**
+   * Kickbase hat das Token beim Senden verworfen. Das Blatt schließt sich
+   * vorher selbst; der Aufrufer führt zurück zur Anmeldung.
+   */
+  onUnauthorized: () => void;
 }
 
 /** Zeile unter der Bank: Sperrgrund beim Aufstellen oder Ergebnis des Sendens. */
@@ -491,7 +496,15 @@ export class LineupPage {
       // bei "Aktuelle Elf" weiter den alten Stand.
       this.closeTimer = window.setTimeout(() => this.close(), 1100);
     } catch (error) {
-      this.note = { text: `Senden fehlgeschlagen: ${errorText(error)}`, tone: 'error' };
+      // Abgelaufene Sitzung: Blatt zu und zurück zur Anmeldung, wie in allen
+      // anderen API-Pfaden. Die Fehlerzeile hülfe hier nicht, jeder weitere
+      // Versuch scheiterte gleich.
+      if (error instanceof KickbaseError && error.isUnauthorized) {
+        this.close();
+        this.props.onUnauthorized();
+      } else {
+        this.note = { text: `Senden fehlgeschlagen: ${errorText(error)}`, tone: 'error' };
+      }
     } finally {
       this.sending = false;
       this.render();

@@ -711,6 +711,7 @@ export class PlanningPage {
         await this.fetch();
       },
       onClose: () => {},
+      onUnauthorized: () => this.props.onUnauthorized(),
     }).open();
   }
 
