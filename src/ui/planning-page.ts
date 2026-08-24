@@ -492,6 +492,20 @@ export class PlanningPage {
     const dialogScroll = modalKey === this.renderedModalKey
       ? props.host.querySelector<HTMLElement>('.dialog-body')?.scrollTop ?? 0
       : 0;
+    /*
+     * Und dasselbe für den Fokus: Saison-Reiter und Spieltag-Kacheln bauen
+     * die Seite neu auf, der Fokus soll danach auf dem gleichwertigen neuen
+     * Element weiterleben statt auf den Backdrop zu fallen. Nur diese beiden
+     * Controls rendern aus dem offenen Dialog heraus neu.
+     */
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    let dialogFocus: string | null = null;
+    if (modalKey === this.renderedModalKey && active?.closest('[data-dialog-shade]')) {
+      const seasonTab = active.dataset['seasonTab'];
+      const perfDay = active.dataset['perfDay'];
+      if (seasonTab !== undefined) dialogFocus = `[data-season-tab="${CSS.escape(seasonTab)}"]`;
+      else if (perfDay !== undefined) dialogFocus = `[data-perf-day="${CSS.escape(perfDay)}"]`;
+    }
     this.renderedModalKey = modalKey;
 
     // First-load skeleton — no data yet.
@@ -658,7 +672,7 @@ export class PlanningPage {
         }
       });
     }
-    this.wireModal();
+    this.wireModal(dialogFocus);
     // Deklarativ statt in openModal und closeModal: so stimmt die Sperre auch
     // dann, wenn ein Laden oder ein Ligawechsel das Overlay nebenbei schließt.
     document.body.classList.toggle('is-dialog-open', this.state.modal !== null);
@@ -911,11 +925,35 @@ export class PlanningPage {
     });
   }
 
-  private wireModal(): void {
+  private wireModal(focusSelector: string | null = null): void {
     const backdrop = this.props.host.querySelector<HTMLElement>('[data-dialog-shade]');
     if (!backdrop) return;
     backdrop.addEventListener('click', (event) => {
       if (event.target === backdrop) this.closeModal();
+    });
+
+    // aria-modal="true" verspricht, dass hinter dem Dialog nichts erreichbar
+    // ist. Die Seite dahinter bleibt aber im Dokument, also fängt das Overlay
+    // Tab selbst ein und läuft an den Rändern im Kreis.
+    backdrop.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      const focusables = [...backdrop.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )];
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) {
+        event.preventDefault();
+        return;
+      }
+      const current = document.activeElement;
+      if (event.shiftKey && (current === first || current === backdrop)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && current === last) {
+        event.preventDefault();
+        first.focus();
+      }
     });
     // Mehrere Schliesser: das Kreuz im Kopf und die bereits offene Liga.
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-dialog-close]')) {
@@ -960,7 +998,9 @@ export class PlanningPage {
       });
     }
 
-    backdrop.focus();
+    // Der gerettete Fokus aus `render()`, sonst der Backdrop als Ausgangspunkt.
+    const restored = focusSelector ? backdrop.querySelector<HTMLElement>(focusSelector) : null;
+    (restored ?? backdrop).focus();
   }
 }
 
