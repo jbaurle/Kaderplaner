@@ -551,6 +551,18 @@ button {
   gap: 13px;
 }
 
+/*
+ * Nur im Dunkel-Modus: die Anmeldung liegt auf dem Screenshot und ging darin
+ * unter. Eine Spur hellere Fläche, eine hellere Kante und ein Schatten, der
+ * sie vom Bild abhebt. Hell trennt der Kontrast schon von allein.
+ */
+html[data-theme='dark'] .lp-panel {
+  background: #202930;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.09);
+}
+
 .lp-panel-title {
   margin: 0;
   font-size: 20px;
