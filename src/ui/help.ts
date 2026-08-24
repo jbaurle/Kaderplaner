@@ -216,9 +216,9 @@ export const SCORE_HELP_TITLE = 'Wie der Score entsteht';
 
 export const SCORE_HELP_BODY = `
   <p>
-    Der Score schätzt, wie viel ein Spieler dir <strong>am nächsten Spieltag</strong>
-    bringt. Ein Wert zwischen 0 und 100 %, gedacht zum Vergleich innerhalb deines
-    eigenen Kaders.
+    Der Score sagt, wie gut ein <strong>Spieler selbst</strong> in den nächsten
+    Spieltag geht: Form, Startelf-Prognose und Verfügbarkeit. Ein Wert zwischen
+    0 und 100 %, gedacht zum Vergleich innerhalb deines eigenen Kaders.
   </p>
 
   <p class="help-formula">

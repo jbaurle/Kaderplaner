@@ -168,7 +168,7 @@ const ERLOES_HINT =
   'Was der Verkauf bringt: das höchste Gebot eines Mitspielers, sonst der Marktwert. Grüne Beträge stehen für ein Gebot, ein Klick zeigt es.';
 
 const SCORE_HINT =
-  'Was der Spieler am nächsten Spieltag bringt, 0 bis 100 %. Aus Form, Startelf-Prognose und Verfügbarkeit. Der Gegner steht in der Spalte daneben.';
+  'Wie gut der Spieler in den nächsten Spieltag geht, 0 bis 100 %. Aus Form, Startelf-Prognose und Verfügbarkeit. Der Gegner steht in der Spalte daneben.';
 
 const SLOT_LABEL: Record<ResolvedScenarioSlot, string> = {
   S1: 'S1',

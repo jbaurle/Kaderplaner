@@ -228,7 +228,8 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           </div>
 
           <p class="lp-body">
-            Jeder Spieler bekommt einen Score für den nächsten Spieltag, 0 bis 100 %.
+            Jeder Spieler bekommt einen Score, 0 bis 100 %: Form, Startelf-Prognose
+            und Verfügbarkeit. Der nächste Gegner steht daneben, nicht darin.
           </p>
           <p class="lp-body">
             Verkäufe spielst du vorher durch: Konto, Kreditlinie und die Aufstellung
