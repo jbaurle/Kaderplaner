@@ -734,9 +734,15 @@ export class PlanningPage {
       );
       savePerformance(this.props.leagueId, playerId, performance);
       this.state.performance[playerId] = performance;
-      // Die Saison nur setzen, solange keine gewählt ist: wer während der
-      // Anfrage umschaltet, soll nicht zurückgeworfen werden.
-      if (this.state.performanceSeason === null) {
+      // Die Saison nur setzen, solange keine gewählt ist und der Dialog noch
+      // zu diesem Spieler gehört. Wer während der Anfrage umschaltet, soll
+      // nicht zurückgeworfen werden; und die späte Antwort eines schon
+      // geschlossenen Dialogs darf nicht die Saison des nächsten bestimmen.
+      const modal = this.state.modal;
+      const stillOpen =
+        typeof modal === 'object' && modal !== null
+        && modal.kind === 'player' && modal.playerId === playerId;
+      if (stillOpen && this.state.performanceSeason === null) {
         this.state.performanceSeason = defaultSeasonId(performance);
       }
     } catch (err) {
