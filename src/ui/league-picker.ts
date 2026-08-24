@@ -35,7 +35,14 @@ export function renderLeaguePicker(host: HTMLElement, props: LeaguePickerProps):
     </main>
   `;
 
-  host.addEventListener('click', (event) => {
+  // Am frisch gerenderten Kind, nicht am dauerhaften Host: dort stapelte
+  // sich der Listener bei jedem Anzeigen der Ligaauswahl und feuerte später
+  // auch auf #logout-btn und [data-league-id] der Planungsseite mit.
+  const shell = host.querySelector<HTMLElement>('.auth-shell');
+  if (!shell) {
+    throw new Error('renderLeaguePicker: shell missing after innerHTML.');
+  }
+  shell.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
 
     const logoutBtn = target.closest<HTMLButtonElement>('#logout-btn');
