@@ -844,13 +844,17 @@ export class LineupPage {
    * Auf Touch schwebt der Ghost über dem Finger. Wer ihn über einen Spieler
    * schiebt, meint diesen, auch wenn der Finger selbst noch tiefer steht.
    * Liegt am Fingerpunkt also nichts, zählt die Überschneidung des
-   * Ghost-Körpers: ab einem Viertel der kleineren Fläche, die größte gewinnt.
-   * Ohne die Schwelle zuckte beim Vorbeiziehen jeder gestreifte Nachbar auf.
+   * Ghost-Körpers: die größte gewinnt. Mit Hysterese: ein neues Ziel braucht
+   * ein Viertel der kleineren Fläche, dem gehaltenen reicht ein Zehntel.
+   * Ohne die Schwellen zuckte beim Vorbeiziehen jeder gestreifte Nachbar
+   * auf, und am Rand kippte das Ziel mit jeder Bewegung.
    */
   private swapUnderGhost(drag: DragState): DropAction | null {
     const body = drag.ghost?.querySelector('.lineup-ghost-body');
     if (!body) return null;
     const ghost = body.getBoundingClientRect();
+    // `drag.drop` trägt hier noch das Ziel der vorigen Bewegung.
+    const held = drag.drop?.kind === 'swap' ? drag.drop.withId : null;
     let best: { id: PlayerId; area: number } | null = null;
     for (const el of this.layer.querySelectorAll<HTMLElement>('[data-player-id]')) {
       const id = el.dataset['playerId'];
@@ -861,7 +865,7 @@ export class LineupPage {
       if (w <= 0 || h <= 0) continue;
       const area = w * h;
       const smaller = Math.min(ghost.width * ghost.height, rect.width * rect.height);
-      if (area < smaller * 0.25) continue;
+      if (area < smaller * (id === held ? 0.1 : 0.25)) continue;
       if (best && area <= best.area) continue;
       if (this.canSwap(drag, id)) best = { id, area };
     }

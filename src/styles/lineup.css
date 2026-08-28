@@ -844,28 +844,41 @@ body.is-lineup-open {
 
 .tok.is-over .tok-photo {
   transform: scale(1.18);
+  box-shadow: 0 0 0 4px #ffffff;
+}
+
+/*
+ * Der Puls als eigener Ring mit Transform und Opacity: das läuft auf dem
+ * Compositor. Ein animierter box-shadow malte jedes Bild neu und stockte
+ * auf dem Handy, sobald die Move-Ereignisse den Thread auslasteten.
+ */
+.tok.is-over .tok-img::after {
+  content: '';
+  position: absolute;
+  /* Am Rand des auf 1.18 gewachsenen Kreises samt seinem 4px-Ring. */
+  inset: calc(-9% - 4px);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  pointer-events: none;
   animation: tok-over-pulse 700ms ease-out infinite;
 }
 
 @keyframes tok-over-pulse {
   from {
-    box-shadow:
-      0 0 0 4px #ffffff,
-      0 0 0 4px rgba(255, 255, 255, 0.7);
+    transform: scale(1);
+    opacity: 1;
   }
   to {
-    box-shadow:
-      0 0 0 4px #ffffff,
-      0 0 0 16px rgba(255, 255, 255, 0);
+    transform: scale(1.4);
+    opacity: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tok.is-over .tok-photo {
+  .tok.is-over .tok-img::after {
     animation: none;
-    box-shadow:
-      0 0 0 4px #ffffff,
-      0 0 0 10px rgba(255, 255, 255, 0.35);
+    transform: scale(1.2);
+    opacity: 0.5;
   }
 }
 
