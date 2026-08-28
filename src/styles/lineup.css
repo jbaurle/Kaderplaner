@@ -382,7 +382,7 @@ body.is-lineup-open {
  * zog. Was passiert, sagt jetzt die Lücke.
  */
 .lineup-layer.is-dragging .tok {
-  opacity: 0.35;
+  opacity: 0.25;
 }
 
 .lineup-layer.is-dragging .prow.is-target .tok,
@@ -414,6 +414,9 @@ body.is-lineup-open {
   padding: 2px 0;
 }
 
+/* Derselbe Ring wie beim Tausch, siehe `.tok.is-over`: gleiche Farbe und
+   gleiche Größe, denn beides heißt "hier landet der Spieler". Der Kreis ist
+   so groß wie ein Foto, der Ring legt sich außen herum. */
 .tok-gap::before {
   content: '';
   display: block;
@@ -421,8 +424,10 @@ body.is-lineup-open {
   aspect-ratio: 1;
   margin: 0 auto;
   border-radius: 50%;
-  border: 2px dashed rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(245, 158, 11, 0.14);
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 7px #f59e0b;
 }
 
 /*
@@ -831,9 +836,15 @@ body.is-lineup-open {
 }
 
 /*
- * Der Spieler, der beim Loslassen ersetzt würde. Ruhig und statisch: die
- * eigentliche Rückmeldung ist der Ghost, der über ihm andockt. Ein Puls
- * stand hier schon und flackerte bei jedem Zielwechsel neu an.
+ * Der Spieler, der beim Loslassen ersetzt würde. Bewusst statisch: nur ein
+ * kräftiger Ring mit Schattenhof, nichts animiert und nichts wächst. Ein
+ * Puls und ein Scale standen hier schon und liefen bei jedem Zielwechsel
+ * neu an; auf dem Handy las sich das als Flackern.
+ *
+ * Amber, nicht weiß: die Kandidaten tragen schon weiße Ringe, und auf dem
+ * grünen Rasen ist ein warmes Orange die eine Farbe, die weder mit dem
+ * Feld noch mit den Ringen daneben verwechselbar ist. Innen bleibt ein
+ * schmaler weißer Absatz, damit der Farbring nicht ins Foto blutet.
  */
 .tok.is-over {
   position: relative;
@@ -841,7 +852,10 @@ body.is-lineup-open {
 }
 
 .tok.is-over .tok-photo {
-  box-shadow: 0 0 0 4px #ffffff;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 7px #f59e0b,
+    0 4px 18px rgba(17, 24, 39, 0.5);
 }
 
 .bench-card.is-swappable {
@@ -849,10 +863,11 @@ body.is-lineup-open {
   box-shadow: inset 0 0 0 1px var(--success);
 }
 
+/* Dieselbe Zielfarbe wie auf dem Feld, siehe `.tok.is-over`. */
 .bench-card.is-over {
-  border-color: var(--success);
-  box-shadow: inset 0 0 0 2px var(--success);
-  background: rgba(4, 120, 87, 0.18);
+  border-color: #f59e0b;
+  box-shadow: inset 0 0 0 2px #f59e0b;
+  background: rgba(245, 158, 11, 0.14);
 }
 
 .lineup-ghost {
@@ -892,15 +907,6 @@ body.is-lineup-open {
 
 .lineup-ghost.is-touch {
   opacity: 1;
-}
-
-/*
- * Angedockt: der Ghost gleitet auf sein Tauschziel und rastet dort ein,
- * statt am Finger zu kleben. Der Übergang gilt nur in diesem Zustand und
- * kurz danach; beim Folgen am Finger federte er sonst jede Bewegung nach.
- */
-.lineup-ghost.is-docked {
-  transition: transform 150ms ease-out;
 }
 
 .lineup-ghost.is-touch .lineup-ghost-body {
