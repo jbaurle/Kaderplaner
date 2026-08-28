@@ -407,6 +407,12 @@ export class LineupPage {
     this.layer.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') this.close();
     });
+    // Langes Drücken auf einer Spieler-Kachel öffnet sonst das Kontextmenü
+    // des Systems (Android; auf iOS erledigt das `-webkit-touch-callout` im
+    // CSS). Außerhalb der Kacheln bleibt der Rechtsklick normal.
+    this.layer.addEventListener('contextmenu', (event) => {
+      if ((event.target as HTMLElement | null)?.closest('[data-drag-id]')) event.preventDefault();
+    });
     // Fehlende Freisteller antwortet das CDN mit 403. `error` steigt nicht
     // auf, deshalb in der Erfassungsphase mithören und aufs Wappen wechseln.
     this.layer.addEventListener(
