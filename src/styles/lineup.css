@@ -505,6 +505,8 @@ body.is-lineup-open {
   object-position: 50% 14%;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.65);
+  /* Fürs Wachsen als Tauschziel, siehe `.tok.is-over`. */
+  transition: transform 120ms ease-out;
 }
 
 /* Fehlt der Freisteller, steht hier das Wappen und braucht Luft. */
@@ -830,8 +832,41 @@ body.is-lineup-open {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95);
 }
 
+/*
+ * Der Spieler, der beim Loslassen ersetzt würde. Deutlich mehr als der
+ * schmale Ring der Kandidaten: er wächst und sein Ring pulst, sonst geht er
+ * auf dem Handy unter dem schwebenden Ghost und neben der Hand verloren.
+ */
+.tok.is-over {
+  position: relative;
+  z-index: 2;
+}
+
 .tok.is-over .tok-photo {
-  box-shadow: 0 0 0 4px #ffffff;
+  transform: scale(1.18);
+  animation: tok-over-pulse 700ms ease-out infinite;
+}
+
+@keyframes tok-over-pulse {
+  from {
+    box-shadow:
+      0 0 0 4px #ffffff,
+      0 0 0 4px rgba(255, 255, 255, 0.7);
+  }
+  to {
+    box-shadow:
+      0 0 0 4px #ffffff,
+      0 0 0 16px rgba(255, 255, 255, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tok.is-over .tok-photo {
+    animation: none;
+    box-shadow:
+      0 0 0 4px #ffffff,
+      0 0 0 10px rgba(255, 255, 255, 0.35);
+  }
 }
 
 .bench-card.is-swappable {
@@ -840,7 +875,9 @@ body.is-lineup-open {
 }
 
 .bench-card.is-over {
-  background: rgba(4, 120, 87, 0.1);
+  border-color: var(--success);
+  box-shadow: inset 0 0 0 2px var(--success);
+  background: rgba(4, 120, 87, 0.18);
 }
 
 .lineup-ghost {

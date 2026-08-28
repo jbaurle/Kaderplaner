@@ -771,12 +771,13 @@ export class LineupPage {
     if (!drag.drop) return;
 
     // Beim Einreihen sagt die Lücke, was passiert. Hervorgehoben wird nur,
-    // was ausserhalb der Reihe liegt: die Bank und der Tauschpartner.
-    const under = document.elementFromPoint(x, y) as HTMLElement | null;
+    // was ausserhalb der Reihe liegt: die Bank und der Tauschpartner. Der
+    // Tauschpartner über seine Id, nicht über den Punkt unter dem Finger:
+    // den Tausch kann auch der Ghost gefunden haben, siehe `swapUnderGhost`.
     if (drag.drop.kind === 'remove') {
-      under?.closest<HTMLElement>('[data-bench]')?.classList.add('is-over');
+      this.layer.querySelector<HTMLElement>('[data-bench]')?.classList.add('is-over');
     } else if (drag.drop.kind === 'swap') {
-      under?.closest<HTMLElement>('[data-player-id]')?.classList.add('is-over');
+      this.elementOf(drag.drop.withId)?.classList.add('is-over');
     }
   }
 
@@ -821,7 +822,7 @@ export class LineupPage {
    */
   private resolveDrop(drag: DragState, x: number, y: number): DropAction | null {
     const under = document.elementFromPoint(x, y) as HTMLElement | null;
-    if (!under) return null;
+    if (!under) return this.swapUnderGhost(drag);
 
     if (drag.from === 'pitch' && under.closest('[data-bench]')) return { kind: 'remove' };
 
@@ -836,7 +837,35 @@ export class LineupPage {
     if (otherId && otherId !== drag.id && this.canSwap(drag, otherId)) {
       return { kind: 'swap', withId: otherId };
     }
-    return null;
+    return this.swapUnderGhost(drag);
+  }
+
+  /**
+   * Auf Touch schwebt der Ghost über dem Finger. Wer ihn über einen Spieler
+   * schiebt, meint diesen, auch wenn der Finger selbst noch tiefer steht.
+   * Liegt am Fingerpunkt also nichts, zählt die Überschneidung des
+   * Ghost-Körpers: ab einem Viertel der kleineren Fläche, die größte gewinnt.
+   * Ohne die Schwelle zuckte beim Vorbeiziehen jeder gestreifte Nachbar auf.
+   */
+  private swapUnderGhost(drag: DragState): DropAction | null {
+    const body = drag.ghost?.querySelector('.lineup-ghost-body');
+    if (!body) return null;
+    const ghost = body.getBoundingClientRect();
+    let best: { id: PlayerId; area: number } | null = null;
+    for (const el of this.layer.querySelectorAll<HTMLElement>('[data-player-id]')) {
+      const id = el.dataset['playerId'];
+      if (!id || id === drag.id) continue;
+      const rect = el.getBoundingClientRect();
+      const w = Math.min(ghost.right, rect.right) - Math.max(ghost.left, rect.left);
+      const h = Math.min(ghost.bottom, rect.bottom) - Math.max(ghost.top, rect.top);
+      if (w <= 0 || h <= 0) continue;
+      const area = w * h;
+      const smaller = Math.min(ghost.width * ghost.height, rect.width * rect.height);
+      if (area < smaller * 0.25) continue;
+      if (best && area <= best.area) continue;
+      if (this.canSwap(drag, id)) best = { id, area };
+    }
+    return best ? { kind: 'swap', withId: best.id } : null;
   }
 
   /**
