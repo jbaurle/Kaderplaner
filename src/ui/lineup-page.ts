@@ -189,6 +189,9 @@ const DRAG_THRESHOLD_PX = 8;
 /** So weit quer, und die Geste auf der Bank ist ein Blättern. */
 const BENCH_PAN_PX = 12;
 
+/** So lange muss ein neuer Tauschzustand anstehen, bevor er übernimmt. */
+const SWAP_SETTLE_MS = 180;
+
 /**
  * `index` ist der Platz in der Reihe, nicht in der Elf: der dritte Verteidiger
  * von links steht auf 2, egal wie viele Spieler sonst noch aufgestellt sind.
@@ -222,6 +225,8 @@ interface DragState {
   /** Der Platzhalter in der Reihe, solange der Zug dort landen würde. */
   gap: HTMLElement | null;
   drop: DropAction | null;
+  /** Anwärter auf den nächsten Tauschzustand, siehe `settleSwap`. */
+  pending: { key: string; since: number } | null;
 }
 
 export class LineupPage {
@@ -588,6 +593,7 @@ export class LineupPage {
       offset: { x: 0, y: 0 },
       gap: null,
       drop: null,
+      pending: null,
     };
   }
 
@@ -765,7 +771,7 @@ export class LineupPage {
 
   private updateDropTarget(drag: DragState, x: number, y: number): void {
     for (const el of this.layer.querySelectorAll('.is-over')) el.classList.remove('is-over');
-    drag.drop = this.resolveDrop(drag, x, y);
+    drag.drop = this.settleSwap(drag, this.resolveDrop(drag, x, y), x, y);
     this.showGap(drag);
     this.autoScroll(x, y);
     if (!drag.drop) return;
@@ -838,6 +844,49 @@ export class LineupPage {
       return { kind: 'swap', withId: otherId };
     }
     return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag);
+  }
+
+  /**
+   * Kurze Zwischenzustände schlucken: weg vom gehaltenen Tauschziel, zu
+   * einem anderen oder zu keinem, geht es erst, wenn der neue Stand
+   * SWAP_SETTLE_MS stabil ansteht. Beim Überqueren der Lücke zwischen zwei
+   * Nachbarn blitzte sonst kurz der Spieler eine Reihe höher auf, den der
+   * Ghost im Vorbeigehen streift, und jeder Blitzer startete Puls und
+   * Transition neu. Ein direkter Fingertreffer wechselt sofort, der ist
+   * gezielt. Alles außer Tausch und Nichts (Einreihen, Bank) übernimmt
+   * ungebremst, die Lücke muss dem Finger folgen.
+   */
+  private settleSwap(drag: DragState, next: DropAction | null, x: number, y: number): DropAction | null {
+    const cur = drag.drop;
+    const curSwap = cur?.kind === 'swap' ? cur.withId : null;
+    const nextSwap = next?.kind === 'swap' ? next.withId : null;
+    const inScope = (cur === null || curSwap !== null) && (next === null || nextSwap !== null);
+    if (!inScope || curSwap === nextSwap) {
+      drag.pending = null;
+      return next;
+    }
+    if (nextSwap) {
+      const hit = document.elementFromPoint(x, y) as HTMLElement | null;
+      if (hit?.closest<HTMLElement>('[data-player-id]')?.dataset['playerId'] === nextSwap) {
+        drag.pending = null;
+        return next;
+      }
+    }
+    const key = nextSwap ? `swap:${nextSwap}` : 'none';
+    if (drag.pending?.key !== key) {
+      drag.pending = { key, since: performance.now() };
+      // Steht der Finger ab jetzt still, kommt kein Move-Ereignis mehr, das
+      // den stabil gewordenen Stand übernehmen könnte: einmal nachfassen.
+      window.setTimeout(() => {
+        if (this.drag === drag && drag.active && drag.pending?.key === key) {
+          this.updateDropTarget(drag, x, y);
+        }
+      }, SWAP_SETTLE_MS + 20);
+      return cur;
+    }
+    if (performance.now() - drag.pending.since < SWAP_SETTLE_MS) return cur;
+    drag.pending = null;
+    return next;
   }
 
   /**
