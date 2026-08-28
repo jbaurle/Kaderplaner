@@ -354,8 +354,10 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
   const takenAt = Date.now();
   const opponents = buildOpponents(schedule, tableResult, 1);
   // Zweite, längere Liste nur für den Spielerdialog. Nicht über `max` der
-  // Gegner-Spalte lösen: die würde damit auf drei Wappen wachsen.
-  const fixturesAhead = buildFixtures(schedule, MAX_FIXTURES);
+  // Gegner-Spalte lösen: die würde damit auf drei Wappen wachsen. Ein Feld
+  // mehr, als der Dialog zeigt: während der Spieltag läuft, steht seine
+  // Ansetzung schon links der Naht und fällt rechts weg.
+  const fixturesAhead = buildFixtures(schedule, MAX_FIXTURES + 1);
   const kickoffs = buildKickoffs(schedule);
   const lineupInput: LineupInput = {
     players: optimizerPlayers,

@@ -51,6 +51,8 @@ export interface MatchdayEntry {
   points: number | null;
   /** War der Spieler im Einsatz? Nur bei gespielten Spieltagen aussagekräftig. */
   played: boolean;
+  /** Spieltag läuft schon, das eigene Spiel ist aber noch nicht angepfiffen. */
+  pending: boolean;
   /** Verein des Gegners, null wenn unbekannt. */
   opponentId: string | null;
   opponentName: string | null;
@@ -155,9 +157,12 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
     const points = weekly.lastMatchdayPoints;
     for (let i = points.length - 1; i >= 0; i--) {
       const day = weekly.mc > i ? weekly.mc - i : 0;
+      // Auch das noch nicht angepfiffene Spiel (state 0) nennt schon Gegner
+      // und Ort, nur das Ergebnis gibt es erst nach dem Abpfiff.
       const match = day === 0
         ? undefined
-        : weekly.matchSummary.find((m) => m.day === day && m.state !== 0);
+        : weekly.matchSummary.find((m) => m.day === day);
+      const pending = match !== undefined && match.state === 0;
       const home = match ? match.team1Id === row.teamId : null;
       const opponentId = match ? (home ? match.team2Id : match.team1Id) : null;
       played.push({
@@ -165,40 +170,48 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         ahead: false,
         points: points[i] ?? 0,
         played: weekly.hasPlayedFlags[i] ?? false,
+        pending,
         opponentId,
         opponentName: opponentId ? teams[opponentId]?.name ?? null : null,
         opponentPosition: opponentId ? teams[opponentId]?.position ?? 0 : 0,
         trend: null,
         home,
-        goalsFor: match ? (home ? match.team1Goals : match.team2Goals) : null,
-        goalsAgainst: match ? (home ? match.team2Goals : match.team1Goals) : null,
+        goalsFor: match && !pending ? (home ? match.team1Goals : match.team2Goals) : null,
+        goalsAgainst: match && !pending ? (home ? match.team2Goals : match.team1Goals) : null,
         kickoff: kickoffs[day] ?? '',
       });
     }
   }
 
-  const ahead: MatchdayEntry[] = fixtures.map((fixture) => {
-    const info = teams[fixture.opponentId];
-    return {
-      day: fixture.day,
-      ahead: true,
-      points: null,
-      played: false,
-      opponentId: fixture.opponentId,
-      opponentName: info?.name ?? null,
-      opponentPosition: info?.position ?? 0,
-      trend: trendOfPosition(info?.position ?? 0, teamCount),
-      home: fixture.home,
-      goalsFor: null,
-      goalsAgainst: null,
-      kickoff: fixture.kickoff,
-    };
-  });
-
   // Nur Spieltage dieser Saison. Ohne Nummer ließe sich der Eintrag nirgends
   // verorten: zur neuen Saison stehen dort noch die Punkte der alten, und die
   // gehören nicht in eine Achse, die bei Spieltag 1 anfängt.
   const inSeason = played.filter((day) => day.day > 0);
+
+  // Der laufende Spieltag steht schon links der Naht; seine Ansetzung rechts
+  // noch einmal zu zeigen, wäre dasselbe Spiel mit demselben Wappen doppelt.
+  const seen = new Set(inSeason.map((day) => day.day));
+  const ahead: MatchdayEntry[] = fixtures
+    .filter((fixture) => !seen.has(fixture.day))
+    .map((fixture) => {
+      const info = teams[fixture.opponentId];
+      return {
+        day: fixture.day,
+        ahead: true,
+        points: null,
+        played: false,
+        pending: false,
+        opponentId: fixture.opponentId,
+        opponentName: info?.name ?? null,
+        opponentPosition: info?.position ?? 0,
+        trend: trendOfPosition(info?.position ?? 0, teamCount),
+        home: fixture.home,
+        goalsFor: null,
+        goalsAgainst: null,
+        kickoff: fixture.kickoff,
+      };
+    });
+
   return [...inSeason, ...ahead];
 }
 

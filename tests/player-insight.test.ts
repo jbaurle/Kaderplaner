@@ -228,6 +228,54 @@ describe('buildMatchdays', () => {
     expect(days.find((day) => day.day === 34)!.kickoff).toBe('');
   });
 
+  it('zeigt beim laufenden Spieltag den Gegner schon vor dem Anpfiff', () => {
+    const days = buildMatchdays(input({
+      teams,
+      kickoffs: { 35: '2026-05-09T13:30:00Z' },
+      weekly: {
+        mc: 35,
+        lastMatchdayPoints: [0, 128],
+        hasPlayedFlags: [false, true],
+        matchSummary: [
+          ...matchSummary,
+          { day: 35, state: 0, team1Id: '2', team2Id: '10', team1Goals: 0, team2Goals: 0 },
+        ],
+      },
+    }));
+
+    const current = days.find((day) => day.day === 35)!;
+    expect(current.pending).toBe(true);
+    expect(current.opponentName).toBe('Bremen');
+    expect(current.home).toBe(true);
+    // Ergebnis erst nach dem Abpfiff: die 0:0 aus state 0 sind keins.
+    expect(current.goalsFor).toBeNull();
+    expect(current.kickoff).toBe('2026-05-09T13:30:00Z');
+    // Der gespielte Spieltag daneben bleibt, wie er war.
+    expect(days.find((day) => day.day === 34)!.pending).toBe(false);
+  });
+
+  it('lässt die Ansetzung weg, die links schon als laufender Spieltag steht', () => {
+    const days = buildMatchdays(input({
+      teams,
+      fixtures: [
+        { opponentId: '10', home: true, day: 35, kickoff: '2026-05-09T13:30:00Z' },
+        { opponentId: '9', home: false, day: 36, kickoff: '2026-05-16T13:30:00Z' },
+      ],
+      weekly: {
+        mc: 35,
+        lastMatchdayPoints: [0],
+        hasPlayedFlags: [false],
+        matchSummary: [
+          { day: 35, state: 0, team1Id: '2', team2Id: '10', team1Goals: 0, team2Goals: 0 },
+        ],
+      },
+    }));
+
+    expect(days.map((day) => day.day)).toEqual([35, 36]);
+    expect(days[0]!.ahead).toBe(false);
+    expect(days[1]!.ahead).toBe(true);
+  });
+
   it('hängt die kommenden Ansetzungen mit Einschätzung hinten an', () => {
     const days = buildMatchdays(input({
       teams,

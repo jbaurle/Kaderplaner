@@ -112,6 +112,14 @@ function dateShort(kickoff: string): string {
   return month ? `${date.getDate()}. ${month}` : '';
 }
 
+/** Anstosszeit, etwa "15:30". Leer, wenn kein Zeitstempel vorliegt. */
+function timeShort(kickoff: string): string {
+  if (!kickoff) return '';
+  const date = new Date(kickoff);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+}
+
 /**
  * Wie viele Spieltage die Tabelle schon zählt. Der nächste angesetzte Spieltag
  * sagt es genauer als die Zahl der Kacheln: die Punkte reichen nur so weit
@@ -417,19 +425,22 @@ function renderMatchdays(insight: PlayerInsight): string {
       `;
     }
 
+    // Der laufende Spieltag vor dem Anpfiff: statt Punkten die Anstosszeit,
+    // und nicht gedämpft, denn "kein Einsatz" wäre die falsche Aussage.
+    const clock = day.pending ? timeShort(day.kickoff) : '';
     const scoreline = day.goalsFor === null
       ? '&nbsp;'
       : `${day.goalsFor}:${day.goalsAgainst}`;
     const title = `Spieltag ${number}`
       + (day.opponentName ? `, gegen ${escapeHtml(day.opponentName)}` : '')
-      + (day.played ? `, ${day.points} Punkte` : ', nicht gespielt');
+      + (day.played ? `, ${day.points} Punkte` : day.pending ? ', steht noch aus' : ', nicht gespielt');
     return `
-      <span class="pd-day${day.played ? '' : ' pd-day--out'}"${place} title="${title}">
+      <span class="pd-day${day.played || day.pending ? '' : ' pd-day--out'}"${place} title="${title}">
         <span class="pd-day-num">${number}</span>
         ${badge}
         <span class="pd-day-note ${resultClass(day)}">${scoreline}</span>
-        <span class="pd-day-main">${day.played ? day.points : '&middot;'}</span>
-        <span class="pd-day-unit">${day.played ? 'Punkte' : '&nbsp;'}</span>
+        <span class="pd-day-main">${day.played ? day.points : clock || '&middot;'}</span>
+        <span class="pd-day-unit">${day.played ? 'Punkte' : clock ? 'Uhr' : '&nbsp;'}</span>
         <span class="pd-day-date">${date}</span>
       </span>
     `;
