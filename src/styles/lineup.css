@@ -505,8 +505,6 @@ body.is-lineup-open {
   object-position: 50% 14%;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.65);
-  /* Fürs Wachsen als Tauschziel, siehe `.tok.is-over`. */
-  transition: transform 120ms ease-out;
 }
 
 /* Fehlt der Freisteller, steht hier das Wappen und braucht Luft. */
@@ -833,9 +831,9 @@ body.is-lineup-open {
 }
 
 /*
- * Der Spieler, der beim Loslassen ersetzt würde. Deutlich mehr als der
- * schmale Ring der Kandidaten: er wächst und sein Ring pulst, sonst geht er
- * auf dem Handy unter dem schwebenden Ghost und neben der Hand verloren.
+ * Der Spieler, der beim Loslassen ersetzt würde. Ruhig und statisch: die
+ * eigentliche Rückmeldung ist der Ghost, der über ihm andockt. Ein Puls
+ * stand hier schon und flackerte bei jedem Zielwechsel neu an.
  */
 .tok.is-over {
   position: relative;
@@ -843,43 +841,7 @@ body.is-lineup-open {
 }
 
 .tok.is-over .tok-photo {
-  transform: scale(1.18);
   box-shadow: 0 0 0 4px #ffffff;
-}
-
-/*
- * Der Puls als eigener Ring mit Transform und Opacity: das läuft auf dem
- * Compositor. Ein animierter box-shadow malte jedes Bild neu und stockte
- * auf dem Handy, sobald die Move-Ereignisse den Thread auslasteten.
- */
-.tok.is-over .tok-img::after {
-  content: '';
-  position: absolute;
-  /* Am Rand des auf 1.18 gewachsenen Kreises samt seinem 4px-Ring. */
-  inset: calc(-9% - 4px);
-  border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.8);
-  pointer-events: none;
-  animation: tok-over-pulse 700ms ease-out infinite;
-}
-
-@keyframes tok-over-pulse {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(1.4);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tok.is-over .tok-img::after {
-    animation: none;
-    transform: scale(1.2);
-    opacity: 0.5;
-  }
 }
 
 .bench-card.is-swappable {
@@ -930,6 +892,15 @@ body.is-lineup-open {
 
 .lineup-ghost.is-touch {
   opacity: 1;
+}
+
+/*
+ * Angedockt: der Ghost gleitet auf sein Tauschziel und rastet dort ein,
+ * statt am Finger zu kleben. Der Übergang gilt nur in diesem Zustand und
+ * kurz danach; beim Folgen am Finger federte er sonst jede Bewegung nach.
+ */
+.lineup-ghost.is-docked {
+  transition: transform 150ms ease-out;
 }
 
 .lineup-ghost.is-touch .lineup-ghost-body {

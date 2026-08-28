@@ -227,6 +227,16 @@ interface DragState {
   drop: DropAction | null;
   /** Anwärter auf den nächsten Tauschzustand, siehe `settleSwap`. */
   pending: { key: string; since: number } | null;
+  /** Kreisbreite und Anheben des Ghosts, gesetzt in `startDrag`. */
+  size: number;
+  lift: number;
+  /** Letzte Zeigerlage, damit der Entprell-Timer nicht mit alten Koordinaten nachfasst. */
+  lastX: number;
+  lastY: number;
+  /** Der Spieler, auf dem der Ghost gerade angedockt ist. */
+  docked: PlayerId | null;
+  /** Wann das Andocken endete; kurz danach gleitet der Ghost noch zum Finger zurück. */
+  undockedAt: number;
 }
 
 export class LineupPage {
@@ -594,6 +604,12 @@ export class LineupPage {
       gap: null,
       drop: null,
       pending: null,
+      size: 0,
+      lift: 0,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      docked: null,
+      undockedAt: 0,
     };
   }
 
@@ -646,11 +662,8 @@ export class LineupPage {
     if (!drag.active && !this.decideGesture(drag, event)) return;
 
     event.preventDefault();
-    if (drag.ghost) {
-      const x = event.clientX + drag.offset.x;
-      const y = event.clientY + drag.offset.y;
-      drag.ghost.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
-    }
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
     this.updateDropTarget(drag, event.clientX, event.clientY);
   }
 
@@ -736,6 +749,7 @@ export class LineupPage {
     const source = this.elementOf(drag.id);
     // Vor dem Ausheben messen: gleich ist der Platz zu und der Kreis fort.
     const size = this.tokenSize();
+    drag.size = size;
     drag.offset = grabOffset(source, drag.startX, drag.startY, size);
 
     // Der gezogene Kreis hängt am Finger, sein Platz in der Reihe schließt
@@ -762,7 +776,8 @@ export class LineupPage {
     // nicht, der Pfeil deckt nichts zu.
     if (drag.touch) {
       ghost.classList.add('is-touch');
-      ghost.style.setProperty('--ghost-lift', `${Math.round(size * 0.5 + 16)}px`);
+      drag.lift = Math.round(size * 0.5 + 16);
+      ghost.style.setProperty('--ghost-lift', `${drag.lift}px`);
     }
     this.layer.appendChild(ghost);
     drag.ghost = ghost;
@@ -774,6 +789,7 @@ export class LineupPage {
     drag.drop = this.settleSwap(drag, this.resolveDrop(drag, x, y), x, y);
     this.showGap(drag);
     this.autoScroll(x, y);
+    this.placeGhost(drag, x, y);
     if (!drag.drop) return;
 
     // Beim Einreihen sagt die Lücke, was passiert. Hervorgehoben wird nur,
@@ -785,6 +801,44 @@ export class LineupPage {
     } else if (drag.drop.kind === 'swap') {
       this.elementOf(drag.drop.withId)?.classList.add('is-over');
     }
+  }
+
+  /**
+   * Der Ghost folgt dem Finger, bis ein Tauschziel gehalten wird: dann dockt
+   * er an und schwebt über dem Zielkreis, bis das Ziel fällt. Die Rückmeldung
+   * ist damit der Ghost selbst, nicht mehr eine Animation am Ziel: was
+   * angedockt ist, wird ersetzt. Der Anker liegt um den Lift tiefer als die
+   * gewünschte Lage, weil der Körper selbst um den Lift angehoben ist.
+   */
+  private placeGhost(drag: DragState, x: number, y: number): void {
+    const ghost = drag.ghost;
+    if (!ghost) return;
+    const targetId = drag.drop?.kind === 'swap' ? drag.drop.withId : null;
+    const img = targetId
+      ? this.elementOf(targetId)?.querySelector<HTMLElement>('.tok-img, .card-img')
+      : null;
+    if (targetId && img) {
+      const r = img.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2 - drag.size * 0.55 + drag.lift;
+      ghost.classList.add('is-docked');
+      ghost.style.transform = `translate(${tx}px, ${ty}px) translate(-50%, -50%)`;
+      drag.docked = targetId;
+      drag.undockedAt = 0;
+      return;
+    }
+    if (drag.docked) {
+      drag.docked = null;
+      drag.undockedAt = performance.now();
+    }
+    // Nach dem Abdocken gleitet der Ghost zum Finger zurück; erst danach
+    // folgt er wieder hart, sonst federte jede Bewegung nach.
+    if (drag.undockedAt && performance.now() - drag.undockedAt > 200) {
+      ghost.classList.remove('is-docked');
+      drag.undockedAt = 0;
+    }
+    ghost.style.transform =
+      `translate(${x + drag.offset.x}px, ${y + drag.offset.y}px) translate(-50%, -50%)`;
   }
 
   /**
@@ -828,7 +882,7 @@ export class LineupPage {
    */
   private resolveDrop(drag: DragState, x: number, y: number): DropAction | null {
     const under = document.elementFromPoint(x, y) as HTMLElement | null;
-    if (!under) return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag);
+    if (!under) return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag, x, y);
 
     if (drag.from === 'pitch' && under.closest('[data-bench]')) return { kind: 'remove' };
 
@@ -843,7 +897,7 @@ export class LineupPage {
     if (otherId && otherId !== drag.id && this.canSwap(drag, otherId)) {
       return { kind: 'swap', withId: otherId };
     }
-    return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag);
+    return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag, x, y);
   }
 
   /**
@@ -877,9 +931,12 @@ export class LineupPage {
       drag.pending = { key, since: performance.now() };
       // Steht der Finger ab jetzt still, kommt kein Move-Ereignis mehr, das
       // den stabil gewordenen Stand übernehmen könnte: einmal nachfassen.
+      // Mit der letzten Zeigerlage, nicht der von hier: bis der Timer feuert,
+      // kann der Finger weitergewandert sein, und ein Nachfassen an der alten
+      // Stelle holte längst verlassene Ziele zurück.
       window.setTimeout(() => {
         if (this.drag === drag && drag.active && drag.pending?.key === key) {
-          this.updateDropTarget(drag, x, y);
+          this.updateDropTarget(drag, drag.lastX, drag.lastY);
         }
       }, SWAP_SETTLE_MS + 20);
       return cur;
@@ -916,10 +973,22 @@ export class LineupPage {
    * die Schwellen zuckte beim Vorbeiziehen jeder gestreifte Nachbar auf,
    * und am Mittelpunkt zwischen zwei Nachbarn kippte das Ziel hin und her.
    */
-  private swapUnderGhost(drag: DragState): DropAction | null {
-    const body = drag.ghost?.querySelector('.lineup-ghost-body');
-    if (!body) return null;
-    const ghost = body.getBoundingClientRect();
+  private swapUnderGhost(drag: DragState, x: number, y: number): DropAction | null {
+    if (!drag.ghost || drag.size <= 0) return null;
+    // Die natürliche Lage des Körpers am Finger, gerechnet statt gemessen:
+    // der angedockte Ghost steht auf seinem Ziel und hielte es sonst für
+    // immer fest.
+    const side = drag.size * (drag.touch ? 1.12 : 1);
+    const cx = x + drag.offset.x;
+    const cy = y + drag.offset.y - drag.lift;
+    const ghost = {
+      left: cx - side / 2,
+      right: cx + side / 2,
+      top: cy - side / 2,
+      bottom: cy + side / 2,
+      width: side,
+      height: side,
+    };
     // `drag.drop` trägt hier noch das Ziel der vorigen Bewegung.
     const held = drag.drop?.kind === 'swap' ? drag.drop.withId : null;
     let heldArea = 0;
