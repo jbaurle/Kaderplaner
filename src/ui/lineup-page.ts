@@ -822,7 +822,7 @@ export class LineupPage {
    */
   private resolveDrop(drag: DragState, x: number, y: number): DropAction | null {
     const under = document.elementFromPoint(x, y) as HTMLElement | null;
-    if (!under) return this.swapUnderGhost(drag);
+    if (!under) return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag);
 
     if (drag.from === 'pitch' && under.closest('[data-bench]')) return { kind: 'remove' };
 
@@ -837,7 +837,24 @@ export class LineupPage {
     if (otherId && otherId !== drag.id && this.canSwap(drag, otherId)) {
       return { kind: 'swap', withId: otherId };
     }
-    return this.swapUnderGhost(drag);
+    return this.heldNearFinger(drag, x, y) ?? this.swapUnderGhost(drag);
+  }
+
+  /**
+   * Rutscht der Finger am Rand des getroffenen Spielers einen Millimeter ab,
+   * bleibt das Ziel stehen: erst gut 16 px neben dem Element ist es wirklich
+   * verlassen. Ohne den Saum wechselten sich Finger-Treffer und Ghost-Pfad
+   * im Takt des Fingerzitterns ab, und die Markierung blinkte.
+   */
+  private heldNearFinger(drag: DragState, x: number, y: number): DropAction | null {
+    if (drag.drop?.kind !== 'swap') return null;
+    const el = this.elementOf(drag.drop.withId);
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    const slack = 16;
+    if (x < r.left - slack || x > r.right + slack) return null;
+    if (y < r.top - slack || y > r.bottom + slack) return null;
+    return drag.drop;
   }
 
   /**
@@ -845,9 +862,10 @@ export class LineupPage {
    * schiebt, meint diesen, auch wenn der Finger selbst noch tiefer steht.
    * Liegt am Fingerpunkt also nichts, zählt die Überschneidung des
    * Ghost-Körpers: die größte gewinnt. Mit Hysterese: ein neues Ziel braucht
-   * ein Viertel der kleineren Fläche, dem gehaltenen reicht ein Zehntel.
-   * Ohne die Schwellen zuckte beim Vorbeiziehen jeder gestreifte Nachbar
-   * auf, und am Rand kippte das Ziel mit jeder Bewegung.
+   * ein Viertel der kleineren Fläche, dem gehaltenen reicht ein Zehntel,
+   * und es gibt erst ab, wenn ein anderes ein Drittel besser liegt. Ohne
+   * die Schwellen zuckte beim Vorbeiziehen jeder gestreifte Nachbar auf,
+   * und am Mittelpunkt zwischen zwei Nachbarn kippte das Ziel hin und her.
    */
   private swapUnderGhost(drag: DragState): DropAction | null {
     const body = drag.ghost?.querySelector('.lineup-ghost-body');
@@ -855,6 +873,7 @@ export class LineupPage {
     const ghost = body.getBoundingClientRect();
     // `drag.drop` trägt hier noch das Ziel der vorigen Bewegung.
     const held = drag.drop?.kind === 'swap' ? drag.drop.withId : null;
+    let heldArea = 0;
     let best: { id: PlayerId; area: number } | null = null;
     for (const el of this.layer.querySelectorAll<HTMLElement>('[data-player-id]')) {
       const id = el.dataset['playerId'];
@@ -865,9 +884,13 @@ export class LineupPage {
       if (w <= 0 || h <= 0) continue;
       const area = w * h;
       const smaller = Math.min(ghost.width * ghost.height, rect.width * rect.height);
-      if (area < smaller * (id === held ? 0.1 : 0.25)) continue;
+      if (id === held && area >= smaller * 0.1) heldArea = area;
+      if (area < smaller * 0.25) continue;
       if (best && area <= best.area) continue;
       if (this.canSwap(drag, id)) best = { id, area };
+    }
+    if (held && heldArea > 0 && (!best || best.id === held || best.area <= heldArea * 1.3)) {
+      return { kind: 'swap', withId: held };
     }
     return best ? { kind: 'swap', withId: best.id } : null;
   }
