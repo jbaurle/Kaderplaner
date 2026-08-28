@@ -18,11 +18,13 @@
   padding: 10px 10px calc(24px + env(safe-area-inset-bottom, 0px));
   outline: none;
   /* Langes Drücken auf einem Spieler ist hier der Beginn eines Zuges. Ohne
-     diese beiden Zeilen zeigt iOS stattdessen die Bildvorschau mit Teilen-
-     Menü, und die Namen ließen sich beim Ziehen markieren. */
+     diese Zeilen zeigt iOS stattdessen die Bildvorschau mit Teilen-Menü,
+     die Namen ließen sich beim Ziehen markieren, und über der gedrückten
+     Kachel läge das graue Tap-Highlight, die ganze Geste lang. */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
   /*
    * Höhenbudget des Rasens: alles ausser dem Feld braucht rund 320 px, Kopf,
    * Knöpfe, Bank und Fuß zusammen. Was übrig bleibt, bekommt das Feld, und
