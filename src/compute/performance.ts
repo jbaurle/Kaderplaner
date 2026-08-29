@@ -27,10 +27,10 @@ export interface SeasonStats {
 /** Einstufung eines Spieltags für Farbe und Balken. */
 export type MatchdayGrade = 'good' | 'mid' | 'weak' | 'neg' | 'out' | 'none';
 
-export function seasonStats(season: PerformanceSeason): SeasonStats {
-  const played = season.matchdays.filter((day) => day.points !== null);
-  const total = played.reduce((sum, day) => sum + (day.points ?? 0), 0);
-  const highest = played.reduce((max, day) => Math.max(max, day.points ?? 0), 0);
+export function seasonStats(season: PerformanceSeason, now = Date.now()): SeasonStats {
+  const played = season.matchdays.filter((day) => finalPoints(day, now) !== null);
+  const total = played.reduce((sum, day) => sum + (finalPoints(day, now) ?? 0), 0);
+  const highest = played.reduce((max, day) => Math.max(max, finalPoints(day, now) ?? 0), 0);
   return {
     total,
     played: played.length,
@@ -38,6 +38,28 @@ export function seasonStats(season: PerformanceSeason): SeasonStats {
     average: played.length > 0 ? Math.round(total / played.length) : 0,
     max: Math.max(highest, 1),
   };
+}
+
+/**
+ * Puffer nach Anstoß, bevor Kickbase-Punkte als verlässlich gelten. Innerhalb
+ * dieses Fensters kann `points` noch der Live-Zwischenstand sein statt des
+ * Endergebnisses (siehe Chabot, Spieltag 1: `state` stand längst auf fertig,
+ * die Punkte lagen trotzdem noch tagelang daneben - dieser Puffer fängt nur
+ * das kurze Live-Fenster ab, nicht diese Verzögerung).
+ */
+export const LIVE_BUFFER_MS = 2.5 * 60 * 60 * 1000;
+
+export function isMatchLive(day: PerformanceMatchday, now = Date.now()): boolean {
+  if (!day.kickoff) return false;
+  const kickoff = new Date(day.kickoff).getTime();
+  if (Number.isNaN(kickoff)) return false;
+  const elapsed = now - kickoff;
+  return elapsed >= 0 && elapsed < LIVE_BUFFER_MS;
+}
+
+/** `day.points`, aber `null` solange das Spiel noch im Live-Fenster steckt. */
+function finalPoints(day: PerformanceMatchday, now: number): number | null {
+  return isMatchLive(day, now) ? null : day.points;
 }
 
 /**
@@ -67,12 +89,13 @@ export function matchdaysBySlot(season: PerformanceSeason): (PerformanceMatchday
  * Einstufung am eigenen Schnitt, nicht an einer festen Grenze: 50 Punkte sind
  * für einen Torwart gut und für einen Stürmer mager.
  */
-export function gradeOf(day: PerformanceMatchday | null, average: number): MatchdayGrade {
+export function gradeOf(day: PerformanceMatchday | null, average: number, now = Date.now()): MatchdayGrade {
   if (day === null) return 'none';
-  if (day.points === null) return 'out';
-  if (day.points < 0) return 'neg';
-  if (day.points >= average * 1.25) return 'good';
-  if (day.points >= average * 0.6) return 'mid';
+  const points = finalPoints(day, now);
+  if (points === null) return 'out';
+  if (points < 0) return 'neg';
+  if (points >= average * 1.25) return 'good';
+  if (points >= average * 0.6) return 'mid';
   return 'weak';
 }
 

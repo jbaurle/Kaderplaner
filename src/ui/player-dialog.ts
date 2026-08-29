@@ -20,6 +20,7 @@ import type {
 import type { ScoreDetail } from '../compute/optimizer.js';
 import {
   gradeOf,
+  isMatchLive,
   matchdaysBySlot,
   pickSeasons,
   seasonStats,
@@ -664,7 +665,7 @@ function renderPerfColumn(
   const crest = day
     ? `<img class="pd-perf-crest" src="${escapeHtml(teamLogoUrl(day.opponentId))}" alt="" width="15" height="15">`
     : '<span class="pd-perf-crest"></span>';
-  const points = day === null || day.points === null
+  const points = day === null || day.points === null || isMatchLive(day)
     ? '<span class="pd-perf-num">&nbsp;</span>'
     : `<span class="pd-perf-num">${day.points}</span>`;
   const classes = ['pd-perf-col', `pd-perf-col--${grade}`, switched ? 'pd-perf-col--switch' : '']
@@ -702,22 +703,24 @@ function renderPerfColumn(
  */
 function perfBarHeight(day: PerformanceMatchday | null, stats: SeasonStats): number {
   if (day === null) return 0;
-  if (day.points === null) return 3;
+  if (day.points === null || isMatchLive(day)) return 3;
   if (day.points < 0) return 4;
   return Math.max(3, Math.round((day.points / stats.max) * PERF_BAR));
 }
 
 function perfTitle(day: PerformanceMatchday | null): string {
   if (day === null) return 'Kein Spieltag';
-  const points = day.points === null ? 'nicht gespielt' : `${day.points} Punkte`;
+  const points = isMatchLive(day) ? 'läuft noch' : day.points === null ? 'nicht gespielt' : `${day.points} Punkte`;
   return `Spieltag ${day.day}, ${points}`;
 }
 
 function renderPerfCallout(day: PerformanceMatchday): string {
   const result = `${day.goalsFor}:${day.goalsAgainst}`;
-  const tail = day.points === null
-    ? '<span>·</span> nicht im Kader'
-    : `<span>·</span> ${day.minutes}′ <span>·</span> <b>${day.points}</b> Punkte`;
+  const tail = isMatchLive(day)
+    ? '<span>·</span> läuft noch'
+    : day.points === null
+      ? '<span>·</span> nicht im Kader'
+      : `<span>·</span> ${day.minutes}′ <span>·</span> <b>${day.points}</b> Punkte`;
   return `
     Spieltag <b>${day.day}</b>
     <img src="${escapeHtml(teamLogoUrl(day.teamId))}" alt="" width="16" height="16">
