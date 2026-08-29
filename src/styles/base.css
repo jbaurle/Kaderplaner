@@ -163,6 +163,12 @@ html[data-theme='dark'] {
 /* Erbt in jeden Scrollbereich: Seite, Dialog, Tabellenhost. */
 html {
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  /*
+   * Der Platz der Bildlaufleiste bleibt reserviert. Ohne das verschwindet
+   * sie, sobald ein Dialog die Seite anhält (body overflow: hidden), und
+   * der zentrierte Inhalt verschiebt sich um ihre Breite.
+   */
+  scrollbar-gutter: stable;
 }
 
 html,
