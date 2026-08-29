@@ -242,18 +242,25 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             Transfer-Spielraum und schicke deine optimierte Aufstellung direkt
             an Kickbase.
           </p>
-          <a class="lp-more" href="/features.html">
-            Features im Überblick
-            <span class="lp-more-arrow" aria-hidden="true">→</span>
-          </a>
           <!--
-            Entweder Knopf oder Hinweis, nie beides: der Knopf steht nur da,
-            wenn der Browser die Installation von sich aus anbietet (siehe
-            ui/install.ts), und blendet dann den Hinweis per CSS aus. Ohne
-            Angebot erklärt der Hinweis den Weg zu Fuß. Am Handy stehen sie
-            direkt unter dem Karussell.
+            Die beiden Seitenlinks untereinander, darunter linksbündig der
+            Installations-Knopf. Der Knopf steht nur da, wenn der Browser
+            die Installation von sich aus anbietet (siehe ui/install.ts),
+            und blendet den Hinweis per CSS aus; der Hinweis selbst
+            erscheint nur auf Touch-Geräten. Am Handy löst sich der Block
+            auf, dort stehen Knopf und Hinweis unter dem Karussell.
           -->
-          <div class="lp-install-row">
+          <div class="lp-actions">
+            <div class="lp-links">
+              <a class="lp-more" href="/features.html">
+                Features im Überblick
+                <span class="lp-more-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="lp-more" href="/score.html">
+                Score im Detail
+                <span class="lp-more-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
             <button type="button" class="lp-install" id="lp-install" hidden>
               App installieren
             </button>
@@ -426,15 +433,15 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     });
   }
 
-  // Ist die App hier schon installiert, sind Knopf wie Hinweis überflüssig:
-  // die ganze Zeile verschwindet. Die Antwort kommt asynchron und nur aus
-  // Chrome; wo sie fehlt, bleibt die Zeile stehen.
-  const installRow = host.querySelector<HTMLElement>('.lp-install-row');
-  if (installRow) {
-    void isAppInstalled().then((installed) => {
-      if (installed && installRow.isConnected) installRow.hidden = true;
-    });
-  }
+  // Ist die App hier schon installiert, sind Knopf wie Hinweis überflüssig;
+  // die Links bleiben. Die Antwort kommt asynchron und nur aus Chrome, wo
+  // sie fehlt, bleibt es beim bisherigen Stand.
+  const appHint = host.querySelector<HTMLElement>('.lp-app-hint');
+  void isAppInstalled().then((installed) => {
+    if (!installed) return;
+    if (appHint?.isConnected) appHint.hidden = true;
+    if (installButton?.isConnected) installButton.hidden = true;
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();

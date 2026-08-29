@@ -935,7 +935,6 @@ html[data-theme='dark'] .lp-panel {
   display: inline-flex;
   align-items: baseline;
   gap: 6px;
-  margin-top: 14px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -957,19 +956,21 @@ html[data-theme='dark'] .lp-panel {
   font-weight: 400;
 }
 
-/* Knopf und Handy-Hinweis in einer Zeile, mit Luft zum Feature-Link darüber:
-   sie sind ein eigener Block, kein Anhang des Links. */
-.lp-install-row {
+/* Die Seitenlinks untereinander, darunter der Installations-Knopf und
+   zuletzt der Hinweis, alles an derselben linken Kante. */
+.lp-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 16px;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
-/* `hidden` muss über flex und dem contents am Handy gewinnen: die Zeile
-   verschwindet ganz, wenn die App hier schon installiert ist. */
-.lp-install-row[hidden] {
-  display: none;
+.lp-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 /* Der Hinweis auf den Startbildschirm, der Ersatz für den fehlenden
@@ -1003,9 +1004,9 @@ html[data-theme='dark'] .lp-panel {
   flex-shrink: 0;
   width: fit-content;
   align-items: center;
-  /* Um Polster und Rand nach links gezogen: die Beschriftung steht damit
-     bündig unter dem Text darüber, der Rahmen hängt in den Rand. */
-  margin: 0 0 0 -15px;
+  /* Der Rahmen sitzt an der Textkante der Links, nicht die Beschriftung.
+     Oben etwas Luft zusätzlich zum Spaltenabstand der Zeile. */
+  margin: 8px 0 0;
   padding: 8px 14px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
@@ -1085,7 +1086,8 @@ html[data-theme='dark'] .lp-panel {
 
   /* Am Handy stehen Knopf und Hinweis untereinander, die Zeile löst sich
      auf. Ohne das trüge die leere Zeile im Anmelde-Reiter ihren Abstand. */
-  .lp-install-row {
+  .lp-actions,
+  .lp-links {
     display: contents;
   }
 
@@ -1404,4 +1406,10 @@ html[data-theme='dark'] .lp-panel {
   .lp-hero[data-tab] .lp-app-hint {
     display: none;
   }
+}
+
+/* Bei installierter App per JS versteckt, muss die Anzeige-Regeln der
+   Anmeldeseite bei gleicher Spezifität überstimmen (Dateiende). */
+.lp-hero[data-tab] .lp-app-hint[hidden] {
+  display: none;
 }
