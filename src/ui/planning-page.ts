@@ -1169,7 +1169,7 @@ function collectFormationHelp(
 
 function friendlyMessage(err: unknown): string {
   if (err instanceof KickbaseError) {
-    if (err.status === 0) return 'Netzwerkfehler. Bitte erneut versuchen.';
+    if (err.status === 0) return 'Kickbase ist gerade nicht erreichbar. Bitte später erneut versuchen.';
     return `Ladefehler (${err.status}). Bitte erneut versuchen.`;
   }
   if (err instanceof Error) return err.message;
@@ -1178,7 +1178,7 @@ function friendlyMessage(err: unknown): string {
 
 function friendlyScoreMessage(err: unknown): string {
   if (err instanceof KickbaseError) {
-    if (err.status === 0) return 'Score-Berechnung fehlgeschlagen (Netzwerkfehler). Bitte erneut versuchen.';
+    if (err.status === 0) return 'Score-Berechnung fehlgeschlagen: Kickbase ist gerade nicht erreichbar. Bitte später erneut versuchen.';
     return `Score-Berechnung fehlgeschlagen (${err.status}). Bitte erneut versuchen.`;
   }
   if (err instanceof Error) return `Score-Berechnung fehlgeschlagen: ${err.message}`;
