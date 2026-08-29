@@ -249,4 +249,11 @@ footer span {
   footer {
     padding-inline: 18px;
   }
+
+  /* Enger und eine Stufe kleiner: die drei Rechtslinks passen so auch am
+     Handy in eine Zeile, statt "Nutzungsbedingungen" umzubrechen. */
+  footer {
+    gap: 6px;
+    font-size: 12px;
+  }
 }
