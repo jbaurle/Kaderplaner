@@ -590,7 +590,7 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
       ${renderHalf(slots, 0, half, stats, selectedDay)}
       ${renderHalf(slots, half, slots.length, stats, selectedDay)}
     </div>
-    <p class="pd-legend">
+    <p class="pd-legend pd-perf-legend">
       Ein Tipp auf einen Spieltag zeigt Ergebnis und Minuten. Graue Stummel
       sind Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}
     </p>

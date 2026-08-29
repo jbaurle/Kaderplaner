@@ -2594,6 +2594,14 @@ body.is-dialog-open {
   color: var(--text-muted);
 }
 
+/* Die Legende unter den Punktereihen: mittig und mit etwas Luft nach oben,
+   wie die Kennzahlenzeile darüber. Steht nach `.pd-legend`, sonst verliert
+   der Abstand bei gleicher Spezifität. */
+.pd-body .pd-perf-legend {
+  margin-top: 14px;
+  text-align: center;
+}
+
 /* ---------- Punkte je Spieltag ---------- */
 
 /*
@@ -2646,7 +2654,7 @@ body.is-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 285px;
+  min-height: 289px;
   text-align: center;
 }
 
@@ -2948,7 +2956,7 @@ body.is-dialog-open {
 
   /* Im breiten Dialog läuft die Legende kürzer, der Platzhalter mit ihr. */
   .pd-body .pd-perf-empty {
-    min-height: 275px;
+    min-height: 279px;
   }
 }
 
