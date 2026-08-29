@@ -2825,12 +2825,12 @@ body.is-dialog-open {
   gap: 6px;
   white-space: nowrap;
   padding: 5px 9px;
-  /* Amber wie der Zielring im Aufstellungsdialog (`.tok.is-over`): der Rand
-     mit Schein hebt die Blase von Balken und Grund ab, ohne zu blinken. */
-  border: 1.5px solid #f59e0b;
+  /* Dieselbe Farbe wie der Rahmen um die angetippte Spalte: Blase und
+     Markierung lesen sich so als ein Paar. */
+  border: 1.5px solid var(--text-strong);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  box-shadow: 0 0 0 3px rgb(245 158 11 / 0.18), 0 8px 22px rgb(0 0 0 / 0.5);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.5);
   font-size: 12px;
   color: var(--text);
   cursor: default;
@@ -2843,7 +2843,7 @@ body.is-dialog-open {
   left: calc(50% - var(--callout-shift, 0px));
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: #f59e0b;
+  border-top-color: var(--text-strong);
 }
 
 .pd-perf-callout img {
