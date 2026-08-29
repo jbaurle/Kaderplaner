@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Der Score im Detail – Kickbase Kaderplaner</title>
+  <meta name="description" content="Wie der Score entsteht: Startelf, Form, Sockel und Verfügbarkeit, dazu die Auswahl der besten Elf.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/legal.css">
+  <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
+       Startbildschirm liegt. Diese Seite öffnet dort im selben Fenster. -->
+  <meta name="theme-color" content="#12181c">
+  <!-- Siehe index.html: Dunkel ist der Standard, nur gespeichertes "light" bleibt hell. -->
+  <script>
+    (function () {
+      try {
+        // Im Score-Dialog der App eingebettet: Kopf und Fusszeile gehören
+        // dort dem Dialog, legal.css blendet sie über data-embed aus.
+        if (location.search.indexOf('embed') !== -1) {
+          document.documentElement.setAttribute('data-embed', '');
+        }
+        var stored = localStorage.getItem('kb.theme');
+        if (stored === '"light"' || stored === 'light') {
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#f4f6f9');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="/"><img src="/favicon.svg" width="26" height="26" alt=""> Kickbase Kaderplaner</a>
+      <a class="top-back" href="/">Zur Startseite &rarr;</a>
+    </div>
+    <div class="box">
+      <h1>Der Score im Detail</h1>
+      <p class="lead">
+        Der Score bewertet die aktuelle Verfassung eines Spielers für den
+        kommenden Spieltag auf einer Skala von 0 bis 100 %. Er dient vor
+        allem dem direkten Vergleich innerhalb deines Kaders.
+      </p>
+
+      <p class="formula">
+        Score = (55 % Startelf + 35 % Form + 10 % Sockel) × Verfügbarkeit
+      </p>
+
+      <p>
+        Im Spielerdialog werden diese Komponenten als Balken dargestellt. Der
+        Gegner fließt bewusst nicht in diese Prozentzahl ein: Ein schweres
+        Spiel verändert die Qualität des Spielers nicht. Die Ansetzung wird
+        stattdessen separat als Wappen mit Tendenzpfeil aufgeführt.
+      </p>
+
+      <h2>Startelf (55 %)</h2>
+      <p>
+        Der wichtigste Faktor, denn nur wer spielt, punktet. Die
+        Kickbase-Einstufung (1 bis 5) wird in Prozentwerte übersetzt
+        (100, 85, 65, 40, 20 %). Um Scheinsicherheiten abzufedern, fließen
+        die tatsächlichen Einsätze der letzten Wochen zu 30 % als Korrektiv
+        ein: Gilt jemand auf dem Papier als gesetzt, saß aber zuletzt nur auf
+        der Bank, sinkt der Wert. Fehlt eine offizielle Prognose, zählen die
+        Einsätze allein.
+      </p>
+
+      <h2>Form (35 %)</h2>
+      <p>
+        Bewertet die Punkte der jüngsten Spieltage mit abklingender
+        Gewichtung (letzter Spieltag 100 %, davor 70 %, 49 % usw.),
+        kombiniert mit dem Gesamtsaisonschnitt (Verhältnis 70 zu 30).
+        50 Punkte entsprechen 0 %, ab 170 Punkten werden 100 % erreicht.
+        Spiele ohne Einsatz bleiben unberücksichtigt.
+      </p>
+
+      <h2>Sockel (10 %)</h2>
+      <p>
+        Ein fester Grundwert, damit ein einsatzbereiter Spieler rechnerisch
+        nie bei null landet.
+      </p>
+
+      <h2>Verfügbarkeit (Multiplikator)</h2>
+      <p>Wirkt als Faktor auf das Gesamtergebnis:</p>
+      <ul>
+        <li><strong>Fit:</strong> Multiplikator 1,0 (voller Wert, mindestens
+          10 % durch den Sockel).</li>
+        <li><strong>Ausfall / Rot:</strong> Multiplikator 0 (der Score fällt
+          sofort auf 0 %).</li>
+        <li><strong>Angeschlagen / Fraglich:</strong> Reduziert den
+          Gesamtwert prozentual.</li>
+      </ul>
+
+      <h2>Gegner und die grün markierte Elf</h2>
+      <p>
+        Die grün markierten Plätze zeigen nicht stur die elf Spieler mit den
+        höchsten Scores. Der Optimizer testet alle zehn Formationen und
+        berücksichtigt weitere Kriterien:
+      </p>
+      <ul>
+        <li><strong>Gegner-Schwierigkeit:</strong> Bei nahezu gleichem Score
+          zieht der Spieler mit dem leichteren Gegner (gemessen am
+          umgekehrten Tabellenplatz) an Konkurrenten vorbei.</li>
+        <li><strong>Paar-Effekte:</strong> Mehrere Spieler aus demselben
+          Verein pushen sich leicht, während direkte Duelle gegeneinander im
+          eigenen Kader dämpfend wirken.</li>
+        <li><strong>Finanzielle Machbarkeit:</strong> Priorität hat die beste
+          Elf, bei der der Verkauf aller übrigen Akteure das Konto bis zum
+          Spieltag ins Plus bringt. Ist das rechnerisch unmöglich, wird die
+          sportlich stärkste Elf gezeigt und die Unterdeckung
+          ausgewiesen.</li>
+      </ul>
+
+      <h2>Was der Score nicht ist</h2>
+      <ul>
+        <li>Keine absolute Punktprognose (72 % bedeutet nicht
+          72 Punkte).</li>
+        <li>Keine Bewertung von Marktwert, Kaufpreis oder Rendite.</li>
+        <li>Kein Ersatz für die Kaderstruktur (viele starke Verteidiger
+          helfen nicht bei Stürmermangel).</li>
+      </ul>
+
+      <h2>Einschränkung in der Saisonpause</h2>
+      <p>
+        Vor dem ersten Spieltag steht die Tabelle bei null. Die Form speist
+        sich noch aus der Vorsaison, und die Startelf-Wahrscheinlichkeit
+        trägt fast das gesamte Gewicht. Sobald drei Spieltage absolviert
+        sind, greifen Gegnereinstufung und Tabellendaten wieder mit voller
+        Aussagekraft.
+      </p>
+
+    </div>
+
+    <footer>
+      <a href="/legal-notice.html">Impressum</a><span aria-hidden="true">·</span>
+      <a href="/privacy.html">Datenschutz</a><span aria-hidden="true">·</span>
+      <a href="/terms.html">Nutzungsbedingungen</a>
+    </footer>
+  </div>
+</body>
+</html>

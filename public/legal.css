@@ -54,6 +54,15 @@ html {
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
+/* Die Score-Formel als eigener Kasten, wie .help-formula in der App. */
+.formula {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
 body {
   margin: 0;
   padding: 24px 20px 40px;
