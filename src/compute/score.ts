@@ -300,10 +300,15 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
   // Ungleich, nicht kleiner: zur neuen Saison fällt `mc` von 34 auf 0. Mit
   // `<` gilt dann jeder Eintrag vom Saisonende weiter, und `mdsum` hätte
   // dauerhaft kein offenes Spiel mehr.
+  // Auch bei gleichem `mc` erneut laden, wenn das eigene Spiel des aktuellen
+  // Spieltags im gecachten Eintrag noch läuft (state != 2): sonst friert der
+  // Live-Zwischenstand ein und bleibt es bis zum nächsten Spieltagswechsel.
   const squadIds = squad.map((p) => p.id);
   const missing = squadIds.filter((id) => {
     const entry = cache.weeklyDetails[id];
-    return !entry || entry.mc !== tableMc;
+    if (!entry || entry.mc !== tableMc) return true;
+    const current = entry.matchSummary.find((m) => m.day === tableMc);
+    return current !== undefined && current.state !== 2;
   });
 
   if (missing.length > 0) {

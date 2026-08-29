@@ -157,12 +157,13 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
     const points = weekly.lastMatchdayPoints;
     for (let i = points.length - 1; i >= 0; i--) {
       const day = weekly.mc > i ? weekly.mc - i : 0;
-      // Auch das noch nicht angepfiffene Spiel (state 0) nennt schon Gegner
-      // und Ort, nur das Ergebnis gibt es erst nach dem Abpfiff.
+      // Auch das noch nicht angepfiffene oder laufende Spiel (state 0 oder 1)
+      // nennt schon Gegner und Ort, nur das Ergebnis gibt es erst nach dem
+      // Abpfiff (state 2) - sonst wäre der Zwischenstand das Endergebnis.
       const match = day === 0
         ? undefined
         : weekly.matchSummary.find((m) => m.day === day);
-      const pending = match !== undefined && match.state === 0;
+      const pending = match !== undefined && match.state !== 2;
       const home = match ? match.team1Id === row.teamId : null;
       const opponentId = match ? (home ? match.team2Id : match.team1Id) : null;
       played.push({
