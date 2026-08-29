@@ -93,12 +93,19 @@ export function pickSeasons(performance: PlayerPerformance | null): {
 }
 
 /**
- * Welche Saison beim Öffnen offen steht. Die laufende, sobald sie einen
- * Einsatz zeigt, sonst die vorige: vor dem ersten Spieltag stünde der Dialog
- * sonst auf einer leeren Spalte.
+ * Welche Saison beim Öffnen offen steht. Die laufende, sobald in ihr ein
+ * Spieltag angepfiffen wurde, auch ohne eigenen Einsatz: die Saison läuft
+ * dann. Vorher die vorige, sonst stünde der Dialog auf leeren Spalten.
  */
-export function defaultSeasonId(performance: PlayerPerformance | null): string | null {
+export function defaultSeasonId(performance: PlayerPerformance | null, now = Date.now()): string | null {
   const { current, previous } = pickSeasons(performance);
-  if (current && current.matchdays.some((day) => day.points !== null)) return current.id;
+  if (current && seasonStarted(current, now)) return current.id;
   return previous?.id ?? current?.id ?? null;
+}
+
+/* Punkte zählen auch ohne Anstoßzeit: Kickbase führt sie nicht immer. */
+function seasonStarted(season: PerformanceSeason, now: number): boolean {
+  return season.matchdays.some((day) =>
+    day.points !== null
+    || (day.kickoff !== '' && new Date(day.kickoff).getTime() <= now));
 }

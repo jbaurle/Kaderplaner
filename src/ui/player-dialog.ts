@@ -556,7 +556,7 @@ function renderSeasonTabs(view: PerformanceView): string {
             aria-pressed="${season.id === view.seasonId}"
             title="${escapeHtml(season.title)}">${label}</button>
   `;
-  return `<div class="pd-tabs">${tab(current, 'Diese Saison')}${tab(previous, 'Letzte Saison')}</div>`;
+  return `<div class="pd-tabs">${tab(current, 'Aktuelle Saison')}${tab(previous, 'Letzte Saison')}</div>`;
 }
 
 function renderPerformanceEmpty(view: PerformanceView): string {
@@ -583,7 +583,6 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
 
   const slots = matchdaysBySlot(season);
   const half = Math.ceil(slots.length / 2);
-  const selected = selectedDay === null ? null : slots[selectedDay - 1] ?? null;
 
   return `
     ${renderSeasonStats(stats)}
@@ -591,10 +590,9 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
       ${renderHalf(slots, 0, half, stats, selectedDay)}
       ${renderHalf(slots, half, slots.length, stats, selectedDay)}
     </div>
-    <p class="pd-perf-detail">${renderPerfDetail(selected)}</p>
     <p class="pd-legend">
-      Balken ist die Punktzahl, darunter Gegner und Punkte. Graue Stummel sind
-      Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}
+      Ein Tipp auf einen Spieltag zeigt Ergebnis und Minuten. Graue Stummel
+      sind Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}
     </p>
   `;
 }
@@ -684,10 +682,17 @@ function renderPerfColumn(
     return `<span class="${classes}" title="${perfTitle(day)}">${body}</span>`;
   }
 
+  // Die Sprechblase zum angetippten Spieltag hängt an seiner Spalte und liegt
+  // über dem Inhalt: die Abschnittshöhe bleibt gleich. Läuft sie seitlich aus
+  // dem Dialog, schiebt `wireModal` sie über --callout-shift zurück.
+  const callout = day.day === selectedDay
+    ? `<span class="pd-perf-callout">${renderPerfCallout(day)}</span>`
+    : '';
+
   return `
     <button type="button" class="${classes}" data-perf-day="${day.day}"
             aria-pressed="${day.day === selectedDay}"
-            title="${perfTitle(day)}">${body}</button>
+            title="${perfTitle(day)}">${body}${callout}</button>
   `;
 }
 
@@ -708,8 +713,7 @@ function perfTitle(day: PerformanceMatchday | null): string {
   return `Spieltag ${day.day}, ${points}`;
 }
 
-function renderPerfDetail(day: PerformanceMatchday | null): string {
-  if (!day) return 'Tippe einen Spieltag an.';
+function renderPerfCallout(day: PerformanceMatchday): string {
   const result = `${day.goalsFor}:${day.goalsAgainst}`;
   const tail = day.points === null
     ? '<span>·</span> nicht im Kader'

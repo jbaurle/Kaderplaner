@@ -2638,21 +2638,22 @@ body.is-dialog-open {
 
 /*
  * Platzhalter, wenn es keine Spieltage zu zeigen gibt. Die Fläche bleibt so
- * hoch wie der gefüllte Abschnitt: 20 px Kennzahlen samt Abstand, 210 px die
- * beiden Reihen, 26 px die Zeile zum angetippten Spieltag. Ohne das klappt der
- * Dialog beim Umschalten der Saison zusammen.
+ * hoch wie der gefüllte Abschnitt samt Legende, damit beide Saisons gleich
+ * hoch stehen und der Dialog beim Umschalten nicht springt. Der Wert ist im
+ * Browser gemessen.
  */
 .pd-body .pd-perf-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 268px;
+  min-height: 285px;
   text-align: center;
 }
 
 .pd-perf-stats {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 4px;
   margin: 0 0 8px;
   font-size: 11px;
@@ -2700,11 +2701,15 @@ body.is-dialog-open {
 
 .pd-perf-half {
   display: grid;
-  grid-template-columns: repeat(var(--perf-cols, 17), 1fr);
+  /* minmax(0, 1fr) statt 1fr: eine Spalte mit breiter Punktzahl darf nicht
+     über ihren Anteil hinauswachsen, alle Spalten bleiben gleich breit. */
+  grid-template-columns: repeat(var(--perf-cols, 17), minmax(0, 1fr));
   gap: 2px;
 }
 
 .pd-perf-col {
+  /* Anker der Sprechblase zum angetippten Spieltag. */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -2741,15 +2746,16 @@ body.is-dialog-open {
 }
 
 /*
- * 8 px, fett und eng: drei Ziffern brauchen so 14 px, die Spalte hat 18. Mit
- * tabellarischen Ziffern stehen sie in jeder Spalte gleich breit.
+ * So groß, wie die Spalte hergibt: drei Ziffern brauchen bei 10 px rund 17 px,
+ * die Spalte hat auf dem Handy 18, dazu die 2 px Fuge. Mit tabellarischen
+ * Ziffern stehen sie in jeder Spalte gleich breit.
  */
 .pd-perf-num {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   text-align: center;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   color: var(--text-strong);
   font-variant-numeric: tabular-nums;
 }
@@ -2803,29 +2809,53 @@ body.is-dialog-open {
 }
 
 /*
- * Die Zeile zum angetippten Spieltag. Sie steht immer da, auch leer: sonst
- * springt beim ersten Tippen alles darunter nach unten.
+ * Die Sprechblase zum angetippten Spieltag, über seinem Balken. Sie liegt
+ * über dem Inhalt, die Abschnittshöhe ändert sich also nie. --callout-shift
+ * schiebt sie zurück in den Dialog, wenn sie am Rand ausliefe; der Pfeil
+ * wandert gegenläufig und bleibt so über der Spalte.
  */
-.pd-perf-detail {
+.pd-perf-callout {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--callout-shift, 0px)));
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 26px;
-  margin: 8px 0 0;
-  padding: 4px 6px;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  background: var(--summary-bg);
-  font-size: 11px;
+  background: var(--bg);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  font-size: 12px;
   color: var(--text-muted);
+  cursor: default;
 }
 
-.pd-perf-detail img {
+.pd-perf-callout::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(50% - var(--callout-shift, 0px));
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--border-strong);
+}
+
+.pd-perf-callout img {
   width: 16px;
   height: 16px;
   object-fit: contain;
 }
 
-.pd-perf-detail b {
+/* Die Trennpunkte, leiser als der Text, wie in der Kennzahlenzeile. */
+.pd-perf-callout span {
+  color: var(--border-strong);
+}
+
+.pd-perf-callout b {
   color: var(--text-strong);
   font-variant-numeric: tabular-nums;
 }
@@ -2906,6 +2936,17 @@ body.is-dialog-open {
   .pd-day-main--clock {
     font-size: 15px;
     line-height: 1.1;
+  }
+
+  /* Breite Spalten tragen eine grössere Punktzahl: drei Ziffern brauchen bei
+     12 px rund 20 px, die Spalte hat hier gut 30. */
+  .pd-perf-num {
+    font-size: 12px;
+  }
+
+  /* Im breiten Dialog läuft die Legende kürzer, der Platzhalter mit ihr. */
+  .pd-body .pd-perf-empty {
+    min-height: 275px;
   }
 }
 

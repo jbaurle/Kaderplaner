@@ -185,13 +185,27 @@ describe('pickSeasons und defaultSeasonId', () => {
     expect(previous?.id).toBe('35');
   });
 
-  it('öffnet die vorige Saison, solange die laufende keinen Einsatz zeigt', () => {
-    expect(defaultSeasonId(performance)).toBe('35');
+  it('öffnet die vorige Saison, solange die laufende nicht angepfiffen ist', () => {
+    const fresh: PlayerPerformance = {
+      seasons: [
+        season('35', [matchday(1, 100)]),
+        season('42', [matchday(1, null, { kickoff: '2099-08-01T13:30:00Z' })]),
+      ],
+    };
+    expect(defaultSeasonId(fresh)).toBe('35');
   });
 
-  it('öffnet die laufende, sobald sie Punkte trägt', () => {
+  it('öffnet die laufende, sobald ein Spieltag angepfiffen ist, auch ohne Einsatz', () => {
+    // Der Anstoß von Spieltag 1 liegt in der Vergangenheit, `points` ist null.
+    expect(defaultSeasonId(performance)).toBe('42');
+  });
+
+  it('öffnet die laufende, sobald sie Punkte trägt, auch ohne Anstoßzeit', () => {
     const started: PlayerPerformance = {
-      seasons: [season('35', [matchday(1, 100)]), season('42', [matchday(1, 55)])],
+      seasons: [
+        season('35', [matchday(1, 100)]),
+        season('42', [matchday(1, 55, { kickoff: '' })]),
+      ],
     };
     expect(defaultSeasonId(started)).toBe('42');
   });

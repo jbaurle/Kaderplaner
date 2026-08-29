@@ -990,6 +990,22 @@ export class PlanningPage {
       });
     }
 
+    // Die Sprechblase zum angetippten Spieltag steht mittig über ihrer Spalte.
+    // An den Randspalten liefe sie aus dem Dialog, deshalb wird hier gemessen
+    // und der Überstand über --callout-shift zurückgeschoben; der Pfeil im CSS
+    // wandert gegenläufig und bleibt über der Spalte.
+    const callout = backdrop.querySelector<HTMLElement>('.pd-perf-callout');
+    const dialogBox = callout?.closest<HTMLElement>('.dialog-box');
+    if (callout && dialogBox) {
+      const edge = 8;
+      const bubble = callout.getBoundingClientRect();
+      const box = dialogBox.getBoundingClientRect();
+      const shift = bubble.left < box.left + edge
+        ? box.left + edge - bubble.left
+        : Math.min(0, box.right - edge - bubble.right);
+      if (shift !== 0) callout.style.setProperty('--callout-shift', `${shift}px`);
+    }
+
     // Die offene Liga trägt keine Id, ein Klick darauf lädt also nichts neu.
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-league-id]')) {
       el.addEventListener('click', () => {
