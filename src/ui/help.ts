@@ -1,19 +1,17 @@
 /**
- * Hilfe-Overlays. Drei Inhalte, ein Rahmen:
+ * Hilfe-Overlay: die datenabhängige Begründung, warum keine gültige
+ * Formation möglich ist. Features und Score haben eigene Seiten
+ * (features.html, score.html), die Fußzeile verlinkt sie direkt.
  *
- *   - `features`   die Features-Seite, eingebettet als Rahmen.
- *   - `score`      die Score-Seite, eingebettet als Rahmen.
- *   - `formation`  datenabhängige Begründung, warum keine gültige
- *                  Formation möglich ist.
- *
- * Reine Renderer. Öffnen, Schliessen und die Auswahl steuert
- * `planning-page.ts` über `state.modal`.
+ * Reiner Renderer. Öffnen, Schliessen und die Auswahl steuert
+ * `planning-page.ts` über `state.modal`; `renderHelpModal` ist der Rahmen
+ * für alle Overlays der Seite.
  */
 
 import { VALID_FORMATIONS, type PositionLabel } from '../compute/optimizer.js';
 import { escapeHtml } from './format.js';
 
-export type HelpModal = 'features' | 'score' | 'formation';
+export type HelpModal = 'formation';
 
 const POSITIONS: readonly PositionLabel[] = ['TW', 'ABW', 'MF', 'ANG'];
 
@@ -44,29 +42,6 @@ export function renderHelpModal(title: string, bodyHtml: string, subtitle = ''):
     </div>
   `;
 }
-
-export const FEATURES_HELP_TITLE = 'Features im Überblick';
-
-/*
- * Kein eigener Text mehr: der Dialog zeigt die Features-Seite selbst, damit
- * es nur eine Fassung gibt. ?embed=1 blendet dort Kopf und Fusszeile aus,
- * das Thema liest die Seite selbst aus dem localStorage.
- */
-export const FEATURES_HELP_BODY = `
-  <iframe class="help-frame" src="/features.html?embed=1"
-          title="Features im Überblick"></iframe>
-`;
-
-export const SCORE_HELP_TITLE = 'Der Score im Detail';
-
-/*
- * Wie bei den Features: der Dialog zeigt die Score-Seite selbst, damit es
- * nur eine Fassung gibt. ?embed=1 blendet dort Kopf, Fusszeile und H1 aus.
- */
-export const SCORE_HELP_BODY = `
-  <iframe class="help-frame" src="/score.html?embed=1"
-          title="Der Score im Detail"></iframe>
-`;
 
 export const FORMATION_HELP_TITLE = 'Warum keine gültige Formation?';
 

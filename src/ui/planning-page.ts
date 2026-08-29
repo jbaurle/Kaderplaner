@@ -48,11 +48,7 @@ import { LineupPage, kickbaseLineup, type LineupPlayer } from './lineup-page.js'
 import {
   renderFormationHelpBody,
   renderHelpModal,
-  FEATURES_HELP_BODY,
-  FEATURES_HELP_TITLE,
   FORMATION_HELP_TITLE,
-  SCORE_HELP_BODY,
-  SCORE_HELP_TITLE,
   type FormationHelpInput,
   type HelpModal,
 } from './help.js';
@@ -667,7 +663,7 @@ export class PlanningPage {
     for (const el of props.host.querySelectorAll<HTMLElement>('[data-modal]')) {
       el.addEventListener('click', () => {
         const kind = el.dataset['modal'];
-        if (kind === 'features' || kind === 'score' || kind === 'formation' || kind === 'league') {
+        if (kind === 'formation' || kind === 'league') {
           this.openModal(kind);
         }
       });
@@ -802,12 +798,6 @@ export class PlanningPage {
   }
 
   private renderModal(view: PlanningView): string {
-    if (this.state.modal === 'features') {
-      return renderHelpModal(FEATURES_HELP_TITLE, FEATURES_HELP_BODY);
-    }
-    if (this.state.modal === 'score') {
-      return renderHelpModal(SCORE_HELP_TITLE, SCORE_HELP_BODY);
-    }
     if (this.state.modal === 'formation') {
       return renderHelpModal(
         FORMATION_HELP_TITLE,
@@ -1103,9 +1093,9 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
       <span class="amount-hint">Beträge in Mio. €</span>
       <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
-        <button type="button" data-modal="score">Der Score im Detail</button>
+        <a href="/features.html">Features im Überblick</a>
         <span class="legend-sep" aria-hidden="true">·</span>
-        <button type="button" data-modal="features">Features im Überblick</button>
+        <a href="/score.html">Score im Detail</a>
       </span>
       ${LEGAL_LINKS}
     </p>

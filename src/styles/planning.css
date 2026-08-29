@@ -1423,17 +1423,6 @@ body.is-dialog-open {
   color: var(--text-strong);
 }
 
-/* Die Features-Seite als Rahmen im Dialog. Feste Höhe, der Inhalt scrollt im
-   Rahmen selbst; das Polster des Dialogkörpers wird aufgehoben, die Seite
-   bringt ihr eigenes mit. */
-.help-frame {
-  display: block;
-  width: calc(100% + 40px);
-  height: min(74vh, 920px);
-  margin: -16px -20px -20px;
-  border: 0;
-}
-
 .help-formula {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
@@ -1666,7 +1655,6 @@ body.is-dialog-open {
  * aus der 13 px hohen Zeile ein Ziel von rund 26 px, ohne dass man es sieht.
  */
 .footline-links a,
-.footline-links button,
 .footline-legal a {
   padding: 6px 2px;
   border: 0;
@@ -1680,7 +1668,6 @@ body.is-dialog-open {
 
 @media (hover: hover) {
   .footline-links a:hover,
-  .footline-links button:hover,
   .footline-legal a:hover {
     color: var(--text);
   }

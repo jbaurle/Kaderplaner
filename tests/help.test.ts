@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FEATURES_HELP_BODY, renderFormationHelpBody, renderHelpModal } from '../src/ui/help.js';
+import { renderFormationHelpBody, renderHelpModal } from '../src/ui/help.js';
 
 describe('renderFormationHelpBody', () => {
   it('reports each tied formation with its own shortfall', () => {
@@ -40,19 +40,6 @@ describe('renderFormationHelpBody', () => {
       unavailable: [],
     });
     expect(body).not.toContain('Am nächsten dran');
-  });
-});
-
-describe('FEATURES_HELP_BODY', () => {
-  it('bettet die Features-Seite im Embed-Modus ein', () => {
-    expect(FEATURES_HELP_BODY).toContain('<iframe');
-    expect(FEATURES_HELP_BODY).toContain('/features.html?embed=1');
-  });
-
-  it('closes every tag it opens', () => {
-    const open = FEATURES_HELP_BODY.match(/<(?!\/)([a-z]+)/g) ?? [];
-    const close = FEATURES_HELP_BODY.match(/<\/([a-z]+)/g) ?? [];
-    expect(open.length).toBe(close.length);
   });
 });
 
