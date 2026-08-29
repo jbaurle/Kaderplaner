@@ -11,7 +11,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { KickbaseError } from '../src/api/kickbase.js';
-import { LineupPage, type LineupPlayer } from '../src/ui/lineup-page.js';
+import { kickbaseLineup, LineupPage, type LineupPlayer } from '../src/ui/lineup-page.js';
 import type { PositionLabel } from '../src/compute/optimizer.js';
 
 // jsdom kennt kein Scrollen. Die Seite schiebt das Band an die Gruppe, sobald
@@ -163,5 +163,59 @@ describe('Fehler beim Senden', () => {
   it('nennt sonst wenigstens den Status', async () => {
     const text = await submitFailing(new KickbaseError(503, 'Service Unavailable'));
     expect(text).toContain('503');
+  });
+});
+
+/**
+ * Kickbase merkt sich die Reihenfolge der gesendeten Liste (`lo` je Spieler).
+ * Der Knopf sperrt deshalb nur, wenn Namen UND Anordnung dem Stand bei
+ * Kickbase entsprechen: eine umgestellte Elf ist eine neue Aufstellung.
+ */
+describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
+  // Eine gültige 4-4-2 in Kickbase-Reihenfolge, lo 0 bis 10.
+  const AT_KICKBASE: LineupPlayer[] = [
+    player('tw', 'Trapp', 'TW'),
+    ...['a', 'b', 'c', 'd'].map((id) => player(id, `Abw ${id}`, 'ABW')),
+    ...['e', 'f', 'g', 'h'].map((id) => player(id, `Mf ${id}`, 'MF')),
+    ...['i', 'j'].map((id) => player(id, `Ang ${id}`, 'ANG')),
+  ].map((p, index) => ({ ...p, isInLineup: true, lineupOrder: index }));
+
+  function submitLabel(initialIds: string[]): string {
+    const page = new LineupPage({
+      players: AT_KICKBASE,
+      budget: 0,
+      scores: {},
+      bestEleven: null,
+      initialIds,
+      onChange: () => {},
+      onSubmit: () => Promise.resolve(),
+      onClose: () => {},
+      onUnauthorized: () => {},
+    });
+    page.open();
+    const layer = document.querySelector<HTMLElement>('.lineup-layer');
+    if (!layer) throw new Error('Ebene fehlt');
+    return layer.querySelector('[data-action="submit"]')?.textContent?.trim() ?? '';
+  }
+
+  it('sperrt den Knopf, wenn der Entwurf dem Kickbase-Stand entspricht', () => {
+    expect(submitLabel(AT_KICKBASE.map((p) => p.id))).toBe('Bereits aufgestellt');
+  });
+
+  it('gibt den Knopf frei, wenn dieselbe Elf umgestellt ist', () => {
+    const swapped = ['tw', 'b', 'a', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    expect(submitLabel(swapped)).toBe('Aufstellen · 4-4-2');
+  });
+});
+
+describe('kickbaseLineup', () => {
+  it('ordnet die Elf nach lo und lässt die Bank weg', () => {
+    const players: LineupPlayer[] = [
+      { ...player('bank', 'Bank', 'MF'), isInLineup: false, lineupOrder: null },
+      { ...player('zwei', 'Zwei', 'ABW'), isInLineup: true, lineupOrder: 2 },
+      { ...player('null', 'Null', 'TW'), isInLineup: true, lineupOrder: 0 },
+      { ...player('eins', 'Eins', 'ABW'), isInLineup: true, lineupOrder: 1 },
+    ];
+    expect(kickbaseLineup(players)).toEqual(['null', 'eins', 'zwei']);
   });
 });

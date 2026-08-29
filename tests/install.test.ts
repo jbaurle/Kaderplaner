@@ -6,7 +6,13 @@
  */
 
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { canInstall, initInstallPrompt, promptInstall, watchInstall } from '../src/ui/install.js';
+import {
+  canInstall,
+  initInstallPrompt,
+  isAppInstalled,
+  promptInstall,
+  watchInstall,
+} from '../src/ui/install.js';
 
 // Einmal, wie in main.ts: jeder weitere Aufruf hinge einen zweiten Zuhörer
 // ans Fenster und meldete jede Änderung doppelt.
@@ -70,5 +76,38 @@ fireBeforeInstallPrompt();
 
     window.dispatchEvent(new Event('appinstalled'));
     expect(canInstall()).toBe(false);
+  });
+});
+
+/** jsdom kennt weder matchMedia noch getInstalledRelatedApps, beides Stubs. */
+describe('isAppInstalled', () => {
+  function stubStandalone(matches: boolean): void {
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches }));
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete (navigator as { getInstalledRelatedApps?: unknown }).getInstalledRelatedApps;
+  });
+
+  it('meldet true, wenn die Seite standalone läuft', async () => {
+    stubStandalone(true);
+    await expect(isAppInstalled()).resolves.toBe(true);
+  });
+
+  it('meldet true, wenn Chrome die App über related_applications kennt', async () => {
+    stubStandalone(false);
+    (navigator as { getInstalledRelatedApps?: unknown }).getInstalledRelatedApps =
+      vi.fn().mockResolvedValue([{ platform: 'webapp' }]);
+    await expect(isAppInstalled()).resolves.toBe(true);
+  });
+
+  it('meldet false ohne Antwortweg oder bei leerer Antwort', async () => {
+    stubStandalone(false);
+    await expect(isAppInstalled()).resolves.toBe(false);
+
+    (navigator as { getInstalledRelatedApps?: unknown }).getInstalledRelatedApps =
+      vi.fn().mockResolvedValue([]);
+    await expect(isAppInstalled()).resolves.toBe(false);
   });
 });
