@@ -243,7 +243,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             an Kickbase.
           </p>
           <a class="lp-more" href="/features.html">
-            Alle Features im Überblick
+            Features im Überblick
             <span class="lp-more-arrow" aria-hidden="true">→</span>
           </a>
           <!--

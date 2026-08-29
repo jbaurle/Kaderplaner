@@ -45,7 +45,7 @@ export function renderHelpModal(title: string, bodyHtml: string, subtitle = ''):
   `;
 }
 
-export const FEATURES_HELP_TITLE = 'Alle Features im Überblick';
+export const FEATURES_HELP_TITLE = 'Features im Überblick';
 
 /*
  * Kein eigener Text mehr: der Dialog zeigt die Features-Seite selbst, damit
@@ -54,7 +54,7 @@ export const FEATURES_HELP_TITLE = 'Alle Features im Überblick';
  */
 export const FEATURES_HELP_BODY = `
   <iframe class="help-frame" src="/features.html?embed=1"
-          title="Alle Features im Überblick"></iframe>
+          title="Features im Überblick"></iframe>
 `;
 
 export const SCORE_HELP_TITLE = 'Wie der Score entsteht';

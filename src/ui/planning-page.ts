@@ -1105,7 +1105,7 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
       <span class="footline-links">
         <button type="button" data-modal="score">Der Score im Detail</button>
         <span class="legend-sep" aria-hidden="true">·</span>
-        <button type="button" data-modal="features">Alle Features im Überblick</button>
+        <button type="button" data-modal="features">Features im Überblick</button>
       </span>
       ${LEGAL_LINKS}
     </p>
