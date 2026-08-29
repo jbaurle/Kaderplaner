@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Features – Kickbase Kaderplaner</title>
+  <title>Features im Überblick – Kickbase Kaderplaner</title>
   <meta name="description" content="Kader mit Score, vier Szenarien, Spielerdialog und Aufstellung: was der Kaderplaner zeigt und wie er rechnet.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
@@ -14,11 +14,6 @@
   <script>
     (function () {
       try {
-        // Im Features-Dialog der App eingebettet: Kopf und Fusszeile gehören
-        // dort dem Dialog, legal.css blendet sie über data-embed aus.
-        if (location.search.indexOf('embed') !== -1) {
-          document.documentElement.setAttribute('data-embed', '');
-        }
         var stored = localStorage.getItem('kb.theme');
         if (stored === '"light"' || stored === 'light') {
           var meta = document.querySelector('meta[name="theme-color"]');
@@ -37,7 +32,11 @@
       <a class="top-back" href="/">Zur Startseite &rarr;</a>
     </div>
     <div class="box">
-      <h1>Features</h1>
+      <h1>Features im Überblick</h1>
+      <a class="cross-link" href="/score.html">
+        Score im Detail
+        <span aria-hidden="true">→</span>
+      </a>
       <p class="lead">
         Der Kaderplaner ist deine strategische Entscheidungshilfe für Kickbase.
         Er bewertet jeden Spieler mit einem Leistungs-Score und simuliert in

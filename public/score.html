@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Der Score im Detail – Kickbase Kaderplaner</title>
+  <title>Score im Detail – Kickbase Kaderplaner</title>
   <meta name="description" content="Wie der Score entsteht: Startelf, Form, Sockel und Verfügbarkeit, dazu die Auswahl der besten Elf.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
@@ -14,11 +14,6 @@
   <script>
     (function () {
       try {
-        // Im Score-Dialog der App eingebettet: Kopf und Fusszeile gehören
-        // dort dem Dialog, legal.css blendet sie über data-embed aus.
-        if (location.search.indexOf('embed') !== -1) {
-          document.documentElement.setAttribute('data-embed', '');
-        }
         var stored = localStorage.getItem('kb.theme');
         if (stored === '"light"' || stored === 'light') {
           var meta = document.querySelector('meta[name="theme-color"]');
@@ -37,7 +32,11 @@
       <a class="top-back" href="/">Zur Startseite &rarr;</a>
     </div>
     <div class="box">
-      <h1>Der Score im Detail</h1>
+      <h1>Score im Detail</h1>
+      <a class="cross-link" href="/features.html">
+        Features im Überblick
+        <span aria-hidden="true">→</span>
+      </a>
       <p class="lead">
         Der Score bewertet die aktuelle Verfassung eines Spielers für den
         kommenden Spieltag auf einer Skala von 0 bis 100 %. Er dient vor

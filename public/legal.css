@@ -97,21 +97,6 @@ a {
   padding: 4px 32px 20px;
 }
 
-/*
- * Eingebettet im Features-Dialog der App (?embed=1, siehe features.html):
- * Kopf und Fusszeile gehören dort dem Dialog, die Seite zeigt nur die Karte.
- * Auch die H1 fällt weg, der Dialogtitel benennt den Inhalt schon.
- */
-[data-embed] body {
-  padding: 0;
-}
-
-[data-embed] .top,
-[data-embed] footer,
-[data-embed] .box h1 {
-  display: none;
-}
-
 .brand {
   display: inline-flex;
   align-items: center;
@@ -151,6 +136,20 @@ h1 {
   font-size: 24px;
   font-weight: 700;
   color: var(--text-strong);
+}
+
+/* Der Querverweis auf die Schwesterseite, direkt unter der Überschrift:
+   Features und Score verweisen aufeinander. */
+.cross-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: -10px 0 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 h2 {
