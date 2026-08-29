@@ -617,6 +617,12 @@
   .planning-shell .opp-slot:nth-child(n + 2) {
     display: flex;
   }
+  /* Und Platz für lange Namen: 12ch schnitten "Castro-Mont…", obwohl die
+     Zeile frei war. Schmaler bleibt der enge Deckel, dort verdrängte ein
+     langer Name sonst die Beträge. */
+  .planning-shell .name-text {
+    max-width: min(20ch, calc(100% - 28px));
+  }
 }
 
 /* Ab hier ist Luft für weitere Zellenpolster. */
