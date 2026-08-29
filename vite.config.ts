@@ -1,5 +1,27 @@
 import { execSync } from 'node:child_process';
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type Plugin } from 'vitest/config';
+
+/**
+ * Cloudflare liefert die statischen Seiten unter der endungslosen Adresse
+ * aus (/features statt /features.html) und leitet die .html-Fassung dorthin
+ * um. Die internen Links zeigen deshalb auf die endungslose Form; im
+ * Dev-Server fiele so eine Adresse sonst in den SPA-Fallback und zeigte die
+ * App statt der Seite.
+ */
+function cleanUrls(): Plugin {
+  const pages = new Set(['/features', '/score', '/privacy', '/terms', '/legal-notice']);
+  return {
+    name: 'clean-urls',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const url = req.url ?? '';
+        const path = url.split('?')[0] ?? '';
+        if (pages.has(path)) req.url = `${path}.html${url.slice(path.length)}`;
+        next();
+      });
+    },
+  };
+}
 
 /**
  * Commit des Builds. In Workers Builds liefert die Umgebung
@@ -19,6 +41,7 @@ function buildCommit(): string {
 
 export default defineConfig({
   base: './',
+  plugins: [cleanUrls()],
   define: {
     __BUILD_COMMIT__: JSON.stringify(buildCommit()),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),

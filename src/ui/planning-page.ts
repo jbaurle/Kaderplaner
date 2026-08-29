@@ -1093,9 +1093,9 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
       <span class="amount-hint">Beträge in Mio. €</span>
       <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
-        <a href="/features.html">Features im Überblick</a>
+        <a href="/features">Features im Überblick</a>
         <span class="legend-sep" aria-hidden="true">·</span>
-        <a href="/score.html">Score im Detail</a>
+        <a href="/score">Score im Detail</a>
       </span>
       ${LEGAL_LINKS}
     </p>
@@ -1112,11 +1112,11 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
  */
 const LEGAL_LINKS = `
   <span class="footline-legal">
-    <a href="/legal-notice.html" target="_blank" rel="noopener">Impressum</a>
+    <a href="/legal-notice" target="_blank" rel="noopener">Impressum</a>
     <span class="legend-sep" aria-hidden="true">·</span>
-    <a href="/privacy.html" target="_blank" rel="noopener">Datenschutz</a>
+    <a href="/privacy" target="_blank" rel="noopener">Datenschutz</a>
     <span class="legend-sep" aria-hidden="true">·</span>
-    <a href="/terms.html" target="_blank" rel="noopener">Nutzungsbedingungen</a>
+    <a href="/terms" target="_blank" rel="noopener">Nutzungsbedingungen</a>
   </span>
 `;
 

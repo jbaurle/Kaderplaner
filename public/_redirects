@@ -1,8 +1,10 @@
-# Alte deutsche Adressen der Rechtsseiten, dauerhaft umgeleitet.
-/datenschutz.html /privacy.html 301
-/impressum.html /legal-notice.html 301
-/nutzungsbedingungen.html /terms.html 301
+# Alte deutsche Adressen der Rechtsseiten, dauerhaft umgeleitet. Ziel ist
+# die endungslose Form, unter der Cloudflare die Seiten ausliefert: die
+# .html-Fassung wäre nur ein zweiter Sprung.
+/datenschutz.html /privacy 301
+/impressum.html /legal-notice 301
+/nutzungsbedingungen.html /terms 301
 
 # Die Funktionsseite heißt jetzt Features, alte Links laufen weiter.
-/functions.html /features.html 301
+/functions.html /features 301
 /functions /features 301

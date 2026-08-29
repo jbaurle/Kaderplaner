@@ -252,11 +252,11 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           -->
           <div class="lp-actions">
             <div class="lp-links">
-              <a class="lp-more" href="/features.html">
+              <a class="lp-more" href="/features">
                 Features im Überblick
                 <span class="lp-more-arrow" aria-hidden="true">→</span>
               </a>
-              <a class="lp-more" href="/score.html">
+              <a class="lp-more" href="/score">
                 Score im Detail
                 <span class="lp-more-arrow" aria-hidden="true">→</span>
               </a>
@@ -267,7 +267,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             <p class="lp-app-hint">
               Auf dem Startbildschirm abgelegt startet der Kaderplaner wie
               eine App.
-              <a href="/features.html#als-app-ablegen">So geht das</a>
+              <a href="/features#als-app-ablegen">So geht das</a>
             </p>
           </div>
           <p class="lp-legal">Inoffizielles Fan-Tool, keine Verbindung zu Kickbase.
@@ -277,9 +277,9 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
       </div>
 
       <footer class="lp-foot">
-        <a href="/legal-notice.html">Impressum</a><span aria-hidden="true">·</span>
-        <a href="/privacy.html">Datenschutz</a><span aria-hidden="true">·</span>
-        <a href="/terms.html">Nutzungsbedingungen</a><span aria-hidden="true">·</span>
+        <a href="/legal-notice">Impressum</a><span aria-hidden="true">·</span>
+        <a href="/privacy">Datenschutz</a><span aria-hidden="true">·</span>
+        <a href="/terms">Nutzungsbedingungen</a><span aria-hidden="true">·</span>
         <a href="${REPO_URL}" target="_blank" rel="noopener">Quellcode</a>
         <button type="button" class="icon-btn icon-btn--theme" id="lp-theme-btn"
                 title="${themeToggleLabel(getTheme())}" aria-label="${themeToggleLabel(getTheme())}">
