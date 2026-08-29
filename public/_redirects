@@ -2,3 +2,7 @@
 /datenschutz.html /privacy.html 301
 /impressum.html /legal-notice.html 301
 /nutzungsbedingungen.html /terms.html 301
+
+# Die Funktionsseite heißt jetzt Features, alte Links laufen weiter.
+/functions.html /features.html 301
+/functions /features 301

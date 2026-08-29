@@ -3,22 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Was die App kann – Kickbase Kaderplaner</title>
+  <title>Features – Kickbase Kaderplaner</title>
   <meta name="description" content="Kader mit Score, vier Szenarien, Spielerdialog und Aufstellung: was der Kaderplaner zeigt und wie er rechnet.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
   <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
        Startbildschirm liegt. Diese Seite öffnet dort im selben Fenster. -->
-  <meta name="theme-color" content="#f4f6f9">
-  <!-- Siehe index.html: setzt den Dunkel-Modus vor dem ersten Bildaufbau. -->
+  <meta name="theme-color" content="#12181c">
+  <!-- Siehe index.html: Dunkel ist der Standard, nur gespeichertes "light" bleibt hell. -->
   <script>
     (function () {
       try {
+        // Im Features-Dialog der App eingebettet: Kopf und Fusszeile gehören
+        // dort dem Dialog, legal.css blendet sie über data-embed aus.
+        if (location.search.indexOf('embed') !== -1) {
+          document.documentElement.setAttribute('data-embed', '');
+        }
         var stored = localStorage.getItem('kb.theme');
-        if (stored === '"dark"' || stored === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        if (stored === '"light"' || stored === 'light') {
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', '#12181c');
+          if (meta) meta.setAttribute('content', '#f4f6f9');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
         }
       } catch (e) {}
     })();
@@ -31,7 +37,7 @@
       <a class="top-back" href="/">Zur Startseite &rarr;</a>
     </div>
     <div class="box">
-      <h1>Was die App kann</h1>
+      <h1>Features</h1>
       <p class="lead">
         Der Kaderplaner ist deine strategische Entscheidungshilfe für Kickbase.
         Er bewertet jeden Spieler mit einem Leistungs-Score und simuliert in

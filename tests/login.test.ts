@@ -31,7 +31,7 @@ function render(notice?: string): HTMLElement {
 }
 
 describe('renderLogin', () => {
-  it('zeigt ohne Hinweis die übliche Zeile und startet bei "Was die App kann"', () => {
+  it('zeigt ohne Hinweis die übliche Zeile und startet bei "Features"', () => {
     const host = render();
 
     expect(host.querySelector('.lp-panel-note')?.textContent).toContain('Kostenlos');

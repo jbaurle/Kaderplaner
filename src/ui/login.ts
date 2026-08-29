@@ -75,7 +75,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <!--
           Nur am Handy sichtbar: dort ist neben dem Formular kein Platz für
           Bilder und Text, ab 720px zeigt die Bühne beides zugleich und die
-          Reiter bleiben aus. "Was die App kann" steht zuerst und aktiv: wer
+          Reiter bleiben aus. "Features" steht zuerst und aktiv: wer
           neu hier ist, sieht erst den Beleg, bevor er sein Passwort eintippt.
           Kommt jemand mit einem Hinweis zurück, etwa nach abgelaufener
           Sitzung, steht stattdessen das Formular vorne.
@@ -83,7 +83,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <div class="lp-tabs" role="tablist">
           <button type="button" class="lp-tab${infoTab.active}" role="tab" id="lp-tab-info"
                   aria-selected="${infoTab.selected}" aria-controls="lp-panel-info" data-tab-target="info" tabindex="${infoTab.index}">
-            Was die App kann
+            Features
           </button>
           <button type="button" class="lp-tab${loginTab.active}" role="tab" id="lp-tab-login"
                   aria-selected="${loginTab.selected}" aria-controls="login-form" data-tab-target="login" tabindex="${loginTab.index}">
@@ -228,22 +228,22 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           </div>
 
           <p class="lp-body">
-            Jeder Spieler bekommt einen Score, 0 bis 100 %: Form, Startelf-Prognose
-            und Verfügbarkeit. Wie schwer der Gegner ist, siehst du daneben.
+            Score statt Bauchgefühl. Jeder Spieler wird anhand von Form,
+            Startelf-Prognose und Status von 0 bis 100 % bewertet, inklusive
+            Gegner-Check.
           </p>
           <p class="lp-body">
-            Verkäufe spielst du vorher durch: Konto, Kreditlinie und die Aufstellung
-            rechnen sofort mit. In vier Spalten hakst du ab, wen du abgeben würdest,
-            und siehst den neuen Kontostand, bevor du etwas anfasst.
+            Plane deine Spieltage im Voraus. Simuliere Verkäufe in vier Spalten
+            und behalte Kontostand, Kreditlinie und eine gültige Startelf live
+            im Blick, ganz ohne Risiko für deinen echten Kader.
           </p>
           <p class="lp-body">
-            Ein Klick auf den Spielernamen öffnet seinen Dialog: Score, die letzten
-            Spieltage, die nächsten Gegner und was ein Verkauf am Spielraum ändert.
-            Dazu die Aufstellung auf dem Spielfeld, die sich an Kickbase
-            zurückschicken lässt.
+            Analysiere einzelne Spieler bis ins Detail, kalkuliere den echten
+            Transfer-Spielraum und schicke deine optimierte Aufstellung direkt
+            an Kickbase.
           </p>
-          <a class="lp-more" href="/functions.html">
-            Was die App kann
+          <a class="lp-more" href="/features.html">
+            Alle Features im Überblick
             <span class="lp-more-arrow" aria-hidden="true">→</span>
           </a>
           <!--
@@ -255,7 +255,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           <p class="lp-app-hint">
             Am Handy lässt sich der Kaderplaner auf den Startbildschirm legen und
             startet dann wie eine App.
-            <a href="/functions.html#als-app-ablegen">So geht das</a>.
+            <a href="/features.html#als-app-ablegen">So geht das</a>.
           </p>
           <!--
             Nur sichtbar, wenn der Browser die Installation von sich aus
