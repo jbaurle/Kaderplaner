@@ -64,6 +64,8 @@ export interface PlanningRow {
    */
   gainLoss: number;
   isInLineup: boolean;
+  /** Platz in der Aufstellung laut Kickbase, null wenn nicht aufgestellt. */
+  lineupOrder: number | null;
   /** Team id — nur für das Vereinswappen in der Namensspalte. */
   teamId: string;
   /** Verfügbarkeit laut Kickbase, 0 heißt fit. */
@@ -256,6 +258,7 @@ export function planningRowFromMarketPlayer(player: MarketPlayer): PlanningRow {
     mvgl: 0,
     gainLoss: 0,
     isInLineup: false,
+    lineupOrder: null,
     teamId: player.teamId,
     status: player.status,
     probability: player.probability,
@@ -291,6 +294,7 @@ function buildRow(
     // Kaufpreis = Marktwert - G/V. Beides kommt von Kickbase, der Rest folgt.
     gainLoss: saleValue - (player.marketValue - player.mvgl),
     isInLineup: player.isInLineup,
+    lineupOrder: player.lineupOrder,
     teamId: player.teamId,
     status: player.status,
     probability: player.probability,

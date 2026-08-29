@@ -23,6 +23,7 @@ function row(overrides: Partial<PlanningRow> & { id: string }): PlanningRow {
     mvgl: overrides.mvgl ?? 0,
     gainLoss: overrides.gainLoss ?? 0,
     isInLineup: overrides.isInLineup ?? true,
+    lineupOrder: overrides.lineupOrder ?? null,
     teamId: overrides.teamId ?? '2',
     status: overrides.status ?? 0,
     probability: overrides.probability ?? 0,

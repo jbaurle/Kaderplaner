@@ -44,7 +44,7 @@ import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
 import { loadOptimizerCache } from '../state/optimizer.js';
 import { buildLabel } from './build-info.js';
 import { escapeHtml } from './format.js';
-import { LineupPage, type LineupPlayer } from './lineup-page.js';
+import { LineupPage, kickbaseLineup, type LineupPlayer } from './lineup-page.js';
 import {
   renderFormationHelpBody,
   renderHelpModal,
@@ -704,10 +704,11 @@ export class PlanningPage {
       probability: row.probability,
       imagePath: row.imagePath,
       isInLineup: row.isInLineup,
+      lineupOrder: row.lineupOrder,
     }));
     const known = new Set(players.map((p) => p.id));
     const stored = loadLineup(this.props.leagueId, known);
-    const initialIds = stored ?? players.filter((p) => p.isInLineup).map((p) => p.id);
+    const initialIds = stored ?? kickbaseLineup(players);
     const scores = this.state.scores;
 
     new LineupPage({

@@ -168,8 +168,8 @@ describe('KickbaseClient', () => {
       const client = new KickbaseClient('tok');
       const { players } = await client.getSquad('league-1');
       expect(players).toEqual([
-        { id: 'p1', name: 'Dahmen',     position: 1, marketValue: 100, mvgl:   5, isInLineup: true,  averagePoints: 90, status: 0, probability: 1, teamId: 'tA', imagePath: 'content/file/a.png' },
-        { id: 'p2', name: 'Bensebaini', position: 2, marketValue: 200, mvgl: -10, isInLineup: false, averagePoints: 80, status: 1, probability: 0, teamId: 'tB', imagePath: '' },
+        { id: 'p1', name: 'Dahmen',     position: 1, marketValue: 100, mvgl:   5, isInLineup: true,  lineupOrder: 1,    averagePoints: 90, status: 0, probability: 1, teamId: 'tA', imagePath: 'content/file/a.png' },
+        { id: 'p2', name: 'Bensebaini', position: 2, marketValue: 200, mvgl: -10, isInLineup: false, lineupOrder: null, averagePoints: 80, status: 1, probability: 0, teamId: 'tB', imagePath: '' },
       ]);
     });
 

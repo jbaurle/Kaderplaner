@@ -289,6 +289,7 @@ function toSquadPlayer(wire: WireSquadPlayer): SquadPlayer {
     marketValue: wire.mv,
     mvgl: wire.mvgl,
     isInLineup: wire.lo != null,
+    lineupOrder: wire.lo ?? null,
     averagePoints: wire.ap ?? 0,
     status: wire.st ?? 0,
     probability: wire.prob ?? 0,

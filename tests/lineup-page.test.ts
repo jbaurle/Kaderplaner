@@ -29,6 +29,7 @@ function player(id: string, name: string, pos: PositionLabel): LineupPlayer {
     probability: 0,
     imagePath: '',
     isInLineup: false,
+    lineupOrder: null,
   };
 }
 

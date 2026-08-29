@@ -27,6 +27,12 @@ export interface SquadPlayer {
   /** "G/V seit Kauf" — gain/loss since the player was bought. */
   mvgl: number;
   isInLineup: boolean;
+  /**
+   * Platz in der Aufstellung — wire `lo`, 0-basiert in der Reihenfolge der
+   * zuletzt gesendeten Liste (TW, ABW, MF, ANG). null, wenn er nicht
+   * aufgestellt ist.
+   */
+  lineupOrder: number | null;
   /** Average points — wire `ap`. Used by the optimizer's form fallback. */
   averagePoints: number;
   /** Availability — wire `st`. 0 = fit. */

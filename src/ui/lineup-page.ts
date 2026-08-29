@@ -60,6 +60,20 @@ export interface LineupPlayer {
   imagePath: string;
   /** Aufstellung laut Kickbase, Grundlage für "aktuelle Elf". */
   isInLineup: boolean;
+  /** Platz in der Aufstellung laut Kickbase, null wenn nicht aufgestellt. */
+  lineupOrder: number | null;
+}
+
+/**
+ * Die Elf, wie sie bei Kickbase steht: nach `lo` geordnet, das ist die
+ * Reihenfolge der zuletzt gesendeten Liste. So startet der Entwurf mit der
+ * Anordnung, die Kickbase gerade zeigt.
+ */
+export function kickbaseLineup(players: readonly LineupPlayer[]): PlayerId[] {
+  return players
+    .filter((p) => p.isInLineup)
+    .sort((a, b) => (a.lineupOrder ?? 0) - (b.lineupOrder ?? 0))
+    .map((p) => p.id);
 }
 
 export interface LineupPageProps {
@@ -479,7 +493,7 @@ export class LineupPage {
       if (!best) return;
       this.order = dedupe(best.filter((id) => this.byId.has(id)));
     } else if (action === 'current') {
-      this.order = this.props.players.filter((p) => p.isInLineup).map((p) => p.id);
+      this.order = kickbaseLineup(this.props.players);
     } else if (action === 'clear') {
       this.order = [];
     } else {
@@ -563,15 +577,15 @@ export class LineupPage {
    * Steht dieser Entwurf schon bei Kickbase? Zwei Quellen: was diese Sitzung
    * gesendet hat, und was der Kader beim Öffnen gemeldet hat. Die zweite
    * deckt den Fall ab, dass jemand das Blatt nach dem Senden neu aufmacht,
-   * die erste den, dass er es offen lässt. Die Anordnung auf dem Platz
-   * zählt dabei nicht, Kickbase bekommt nur die Namen.
+   * die erste den, dass er es offen lässt. Verglichen wird die gesendete
+   * Liste samt Anordnung: Kickbase führt je Spieler einen Platz (`lo`),
+   * ein Umstellen derselben Elf ist also eine neue Aufstellung.
    */
   private isAtKickbase(): boolean {
-    const draft = idKey(this.order);
+    const draft = idKey(this.submitOrder());
     if (draft === '') return false;
     if (this.sentIds === draft) return true;
-    const live = idKey(this.props.players.filter((p) => p.isInLineup).map((p) => p.id));
-    return live === draft;
+    return idKey(kickbaseLineup(this.props.players)) === draft;
   }
 
   private handlePointerDown(event: PointerEvent): void {
@@ -1394,12 +1408,13 @@ function renderNote(note: Note | null, slot: 'hint' | 'send'): string {
 }
 
 /**
- * Kennzeichen einer Elf, unabhängig von der Anordnung: Kickbase bekommt nur
- * die Formation und die Namen, und die Formation folgt aus den Namen. Ein
- * Umsortieren in der Reihe soll den Knopf also nicht wieder freigeben.
+ * Kennzeichen einer Elf samt Anordnung. Nicht sortiert: Kickbase merkt sich
+ * die Reihenfolge der Liste (`lo` je Spieler), ein Umstellen derselben elf
+ * Namen ist also eine neue Aufstellung und gibt den Knopf wieder frei.
+ * Verglichen wird immer die Reihenfolge von `submitOrder`.
  */
 function idKey(ids: readonly PlayerId[]): string {
-  return [...ids].sort().join(',');
+  return ids.join(',');
 }
 
 /**
