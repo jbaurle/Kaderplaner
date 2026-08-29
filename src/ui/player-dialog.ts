@@ -439,7 +439,7 @@ function renderMatchdays(insight: PlayerInsight): string {
         <span class="pd-day-num">${number}</span>
         ${badge}
         <span class="pd-day-note ${resultClass(day)}">${scoreline}</span>
-        <span class="pd-day-main">${day.played ? day.points : clock || '&middot;'}</span>
+        <span class="pd-day-main${clock ? ' pd-day-main--clock' : ''}">${day.played ? day.points : clock || '&middot;'}</span>
         <span class="pd-day-unit">${day.played ? 'Punkte' : clock ? 'Uhr' : '&nbsp;'}</span>
         <span class="pd-day-date">${date}</span>
       </span>
