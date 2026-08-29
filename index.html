@@ -17,21 +17,22 @@
       Das regelt `display: standalone` im Manifest; iOS vor 16.4 liest das
       Manifest nicht, dafür steht das alte Apple-Meta daneben. Chrome mahnt es
       als veraltet an und will `mobile-web-app-capable`, also beide.
-      `theme-color` färbt die Statusleiste und steht hier hell, das Skript
-      darunter zieht Dunkel nach.
+      `theme-color` färbt die Statusleiste und steht dunkel wie der Standard,
+      das Skript darunter zieht Hell nach, wenn es gespeichert ist.
     -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Kaderplaner" />
-    <meta name="theme-color" content="#f4f6f9" />
+    <meta name="theme-color" content="#12181c" />
 
     <!--
-      Setzt den Dunkel-Modus, bevor irgendetwas gezeichnet wird, sonst blitzt
-      die Seite hell auf und springt danach um. Das echte Umschalten übernimmt
-      src/ui/theme.ts, hier nur der gespeicherte Stand vorab.
+      Setzt das Design, bevor irgendetwas gezeichnet wird, sonst blitzt die
+      Seite auf und springt danach um. Dunkel ist der Standard: nur ein
+      gespeichertes "light" hält die Seite hell. Das echte Umschalten
+      übernimmt src/ui/theme.ts.
 
       Derselbe Schlüssel wie storage/local.ts (Namespace "kb."). Der Wrapper
-      schreibt durch JSON.stringify, im Speicher steht also "dark" mit
+      schreibt durch JSON.stringify, im Speicher steht also "light" mit
       Anführungszeichen. Beide Schreibweisen gelten hier, damit dieses Skript
       nicht still ins Leere läuft, falls der Wrapper das Format ändert; ein
       Test in tests/theme.test.ts hält die Erwartung fest.
@@ -40,10 +41,11 @@
       (function () {
         try {
           var stored = localStorage.getItem('kb.theme');
-          if (stored === '"dark"' || stored === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
+          if (stored === '"light"' || stored === 'light') {
             var meta = document.querySelector('meta[name="theme-color"]');
-            if (meta) meta.setAttribute('content', '#12181c');
+            if (meta) meta.setAttribute('content', '#f4f6f9');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
           }
         } catch (e) {}
       })();

@@ -51,7 +51,8 @@ export function toggleTheme(): Theme {
 
 export function initTheme(): void {
   if (document.documentElement.hasAttribute('data-theme')) return;
-  if (load<Theme>(KEY) === 'dark') {
+  // Dunkel ist der Standard: nur ein gespeichertes "light" bleibt hell.
+  if (load<Theme>(KEY) !== 'light') {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
   applyThemeColor(getTheme());

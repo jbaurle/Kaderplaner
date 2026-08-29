@@ -4,9 +4,10 @@
  * Bundle da ist. Nur die erste Stelle prüft TypeScript.
  *
  * Diese Tests halten fest, worauf sich das Skript verlässt: Schlüssel
- * `kb.theme`, Wert `dark` mit oder ohne Anführungszeichen, und `data-theme`
- * auf `<html>`. Ändert jemand den Storage-Wrapper, fällt es hier auf und
- * nicht erst als weißes Aufblitzen im Browser.
+ * `kb.theme`, Wert `light` mit oder ohne Anführungszeichen, `data-theme`
+ * auf `<html>`, und Dunkel als Standard ohne gespeicherten Stand. Ändert
+ * jemand den Storage-Wrapper, fällt es hier auf und nicht erst als
+ * Aufblitzen im Browser.
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
@@ -15,10 +16,11 @@ import { getTheme, initTheme, setTheme, toggleTheme } from '../src/ui/theme.js';
 /** Dieselbe Zeile wie in index.html, nur ohne den Rahmen drumherum. */
 function runBootstrapScript(): void {
   const stored = localStorage.getItem('kb.theme');
-  if (stored === '"dark"' || stored === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
+  if (stored === '"light"' || stored === 'light') {
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', '#12181c');
+    if (meta) meta.setAttribute('content', '#f4f6f9');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 }
 
@@ -26,7 +28,7 @@ function runBootstrapScript(): void {
 function addThemeColorMeta(): HTMLMetaElement {
   const meta = document.createElement('meta');
   meta.setAttribute('name', 'theme-color');
-  meta.setAttribute('content', '#f4f6f9');
+  meta.setAttribute('content', '#12181c');
   document.head.appendChild(meta);
   return meta;
 }
@@ -61,10 +63,16 @@ describe('theme', () => {
 
   it('das Inline-Skript findet, was setTheme hinterlegt hat', () => {
     const meta = addThemeColorMeta();
-    setTheme('dark');
-    document.documentElement.removeAttribute('data-theme');
-    meta.setAttribute('content', '#f4f6f9');
+    setTheme('light');
+    meta.setAttribute('content', '#12181c');
 
+    runBootstrapScript();
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+    expect(meta.getAttribute('content')).toBe('#f4f6f9');
+  });
+
+  it('ohne gespeicherten Stand startet das Inline-Skript dunkel', () => {
+    const meta = addThemeColorMeta();
     runBootstrapScript();
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     expect(meta.getAttribute('content')).toBe('#12181c');
@@ -85,9 +93,14 @@ describe('theme', () => {
   });
 
   it('initTheme holt den Stand nach, wenn das Inline-Skript nicht lief', () => {
-    setTheme('dark');
+    setTheme('light');
     document.documentElement.removeAttribute('data-theme');
 
+    initTheme();
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+  });
+
+  it('initTheme setzt ohne gespeicherten Stand dunkel', () => {
     initTheme();
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });

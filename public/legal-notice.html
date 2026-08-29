@@ -9,16 +9,17 @@
   <link rel="stylesheet" href="/legal.css">
   <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
        Startbildschirm liegt. Diese Seite öffnet dort im selben Fenster. -->
-  <meta name="theme-color" content="#f4f6f9">
-  <!-- Siehe index.html: setzt den Dunkel-Modus vor dem ersten Bildaufbau. -->
+  <meta name="theme-color" content="#12181c">
+  <!-- Siehe index.html: Dunkel ist der Standard, nur gespeichertes "light" bleibt hell. -->
   <script>
     (function () {
       try {
         var stored = localStorage.getItem('kb.theme');
-        if (stored === '"dark"' || stored === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        if (stored === '"light"' || stored === 'light') {
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', '#12181c');
+          if (meta) meta.setAttribute('content', '#f4f6f9');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
         }
       } catch (e) {}
     })();
