@@ -71,5 +71,28 @@
       <a href="/terms.html">Nutzungsbedingungen</a>
     </footer>
   </div>
+  <!--
+    "Zur Startseite" wird zu "Zurück", wenn der Besucher von einer eigenen
+    Seite kommt: history.back() holt die App aus dem Back-Forward-Cache,
+    mit Zustand und Scrollposition, statt sie neu zu laden. Ohne eigene
+    Vorgeschichte (Seite direkt geöffnet) bleibt der normale Link auf /.
+  -->
+  <script>
+    (function () {
+      var back = document.querySelector('.top-back');
+      if (!back) return;
+      var cameFromHere = false;
+      try {
+        cameFromHere = history.length > 1
+          && document.referrer.indexOf(location.origin + '/') === 0;
+      } catch (e) {}
+      if (!cameFromHere) return;
+      back.innerHTML = '&larr; Zurück';
+      back.addEventListener('click', function (event) {
+        event.preventDefault();
+        history.back();
+      });
+    })();
+  </script>
 </body>
 </html>
