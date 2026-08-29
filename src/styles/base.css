@@ -1003,7 +1003,9 @@ html[data-theme='dark'] .lp-panel {
   flex-shrink: 0;
   width: fit-content;
   align-items: center;
-  margin: 0;
+  /* Um Polster und Rand nach links gezogen: die Beschriftung steht damit
+     bündig unter dem Text darüber, der Rahmen hängt in den Rand. */
+  margin: 0 0 0 -15px;
   padding: 8px 14px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
