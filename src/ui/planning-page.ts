@@ -1103,7 +1103,7 @@ function renderFootline(scores: ScoreResult | null, isScoring: boolean): string 
       <span class="amount-hint">Beträge in Mio. €</span>
       <span class="footline-build">${escapeHtml(buildLabel())}</span>
       <span class="footline-links">
-        <button type="button" data-modal="score">Wie der Score entsteht</button>
+        <button type="button" data-modal="score">Der Score im Detail</button>
         <span class="legend-sep" aria-hidden="true">·</span>
         <button type="button" data-modal="features">Alle Features im Überblick</button>
       </span>
