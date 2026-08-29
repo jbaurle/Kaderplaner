@@ -57,6 +57,26 @@ export function watchInstall(watcher: () => void): () => void {
 }
 
 /**
+ * Ist die App hier schon installiert? Zwei Quellen: sie läuft gerade
+ * standalone, oder Chrome kennt sie über `related_applications` im Manifest
+ * (`getInstalledRelatedApps`). Andere Browser können die Frage nicht
+ * beantworten und melden false; dort bleibt der Hinweis eben stehen.
+ */
+export async function isAppInstalled(): Promise<boolean> {
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  const nav = navigator as Navigator & {
+    getInstalledRelatedApps?: () => Promise<unknown[]>;
+  };
+  if (!nav.getInstalledRelatedApps) return false;
+  try {
+    const apps = await nav.getInstalledRelatedApps();
+    return apps.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Öffnet den Dialog des Browsers. Das Ereignis trägt nur einen Aufruf, danach
  * ist es verbraucht, egal wie der Nutzer sich entscheidet.
  */

@@ -9,6 +9,9 @@
   "display": "standalone",
   "background_color": "#12181c",
   "theme_color": "#12181c",
+  "related_applications": [
+    { "platform": "webapp", "url": "https://kaderplaner.de/manifest.webmanifest" }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",

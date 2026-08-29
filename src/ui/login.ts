@@ -18,7 +18,7 @@
 import { KickbaseError } from '../api/kickbase.js';
 import { escapeHtml } from './format.js';
 import { getTheme, toggleTheme, THEME_ICON, themeToggleLabel } from './theme.js';
-import { canInstall, promptInstall, watchInstall } from './install.js';
+import { canInstall, isAppInstalled, promptInstall, watchInstall } from './install.js';
 
 /** Repo hinter „Der Code liegt offen". Der Link trägt erst, wenn es öffentlich ist. */
 const REPO_URL = 'https://github.com/jbaurle/Kaderplaner';
@@ -247,24 +247,22 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             <span class="lp-more-arrow" aria-hidden="true">→</span>
           </a>
           <!--
-            Steht bewusst an dieser Stelle: am Handy fallen die drei Absätze
-            und der Link darüber weg, dann rückt der Hinweis direkt unter das
-            Karussell. Also genau dorthin, wo jemand mit dem Telefon in der
-            Hand liest und ihn brauchen kann.
+            Entweder Knopf oder Hinweis, nie beides: der Knopf steht nur da,
+            wenn der Browser die Installation von sich aus anbietet (siehe
+            ui/install.ts), und blendet dann den Hinweis per CSS aus. Ohne
+            Angebot erklärt der Hinweis den Weg zu Fuß. Am Handy stehen sie
+            direkt unter dem Karussell.
           -->
-          <p class="lp-app-hint">
-            Am Handy lässt sich der Kaderplaner auf den Startbildschirm legen und
-            startet dann wie eine App.
-            <a href="/features.html#als-app-ablegen">So geht das</a>.
-          </p>
-          <!--
-            Nur sichtbar, wenn der Browser die Installation von sich aus
-            anbietet, siehe ui/install.ts. Chrome versteckt sie je nach
-            Fassung tief im Menü, hier steht sie im Blick.
-          -->
-          <button type="button" class="lp-install" id="lp-install" hidden>
-            App installieren
-          </button>
+          <div class="lp-install-row">
+            <button type="button" class="lp-install" id="lp-install" hidden>
+              App installieren
+            </button>
+            <p class="lp-app-hint">
+              Am Handy und Tablet lässt sich der Kaderplaner auf den
+              Startbildschirm legen.
+              <a href="/features.html#als-app-ablegen">So geht das</a>
+            </p>
+          </div>
           <p class="lp-legal">Inoffizielles Fan-Tool, keine Verbindung zu Kickbase.
             Verwendete Bilder gehören der Bundesliga bzw. der DFL.</p>
         </div>
@@ -425,6 +423,16 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     sync();
     installButton.addEventListener('click', () => {
       void promptInstall();
+    });
+  }
+
+  // Ist die App hier schon installiert, sind Knopf wie Hinweis überflüssig:
+  // die ganze Zeile verschwindet. Die Antwort kommt asynchron und nur aus
+  // Chrome; wo sie fehlt, bleibt die Zeile stehen.
+  const installRow = host.querySelector<HTMLElement>('.lp-install-row');
+  if (installRow) {
+    void isAppInstalled().then((installed) => {
+      if (installed && installRow.isConnected) installRow.hidden = true;
     });
   }
 

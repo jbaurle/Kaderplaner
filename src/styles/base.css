@@ -957,23 +957,53 @@ html[data-theme='dark'] .lp-panel {
   font-weight: 400;
 }
 
-/* Der Hinweis auf den Startbildschirm, eine Zeile unter dem Link in die
-   Hilfe. Kleiner als der Fließtext, aber in dessen Farbe: gedämpft stünde er
-   direkt über dem Kleingedruckten und läse sich als dessen erste Zeile. */
+/* Knopf und Handy-Hinweis in einer Zeile, mit Luft zum Feature-Link darüber:
+   sie sind ein eigener Block, kein Anhang des Links. */
+.lp-install-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+/* `hidden` muss über flex und dem contents am Handy gewinnen: die Zeile
+   verschwindet ganz, wenn die App hier schon installiert ist. */
+.lp-install-row[hidden] {
+  display: none;
+}
+
+/* Der Hinweis auf den Startbildschirm, der Ersatz für den fehlenden
+   Installations-Knopf. Deutlich kleiner als der Fließtext, aber in dessen
+   Farbe: gedämpft stünde er zu nah am Kleingedruckten darunter. */
 .lp-app-hint {
-  margin: 14px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0;
+  max-width: 380px;
+  font-size: 11px;
+  line-height: 1.45;
   color: var(--text);
+}
+
+/* Der Weg dorthin auf eigener Zeile, damit er als Handlung lesbar bleibt. */
+.lp-app-hint a {
+  display: block;
+  margin-top: 3px;
+  width: fit-content;
+}
+
+/* Bietet der Browser die Installation an, ersetzt der Knopf den Hinweis. */
+.lp-install:not([hidden]) + .lp-app-hint {
+  display: none;
 }
 
 /* Der Knopf zur Installation, siehe ui/install.ts. Umrissen statt gefüllt:
    das Grün gehört dem Anmelden, und wer hier landet, will sich anmelden und
    nicht zuerst etwas installieren. */
 .lp-install {
-  display: inline-flex;
+  display: flex;
+  flex-shrink: 0;
+  width: fit-content;
   align-items: center;
-  margin: 10px 0 0;
+  margin: 0;
   padding: 8px 14px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
@@ -1051,7 +1081,13 @@ html[data-theme='dark'] .lp-panel {
     display: block;
   }
 
-  /* Nur im Reiter „Was die App kann“: neben dem Formular zählt das Anmelden,
+  /* Am Handy stehen Knopf und Hinweis untereinander, die Zeile löst sich
+     auf. Ohne das trüge die leere Zeile im Anmelde-Reiter ihren Abstand. */
+  .lp-install-row {
+    display: contents;
+  }
+
+  /* Nur im Reiter „Features“: neben dem Formular zählt das Anmelden,
      dort wären Hinweis und Knopf nur eine zweite Aufforderung. */
   .lp-app-hint,
   .lp-install {
@@ -1060,10 +1096,17 @@ html[data-theme='dark'] .lp-panel {
 
   .lp-hero[data-tab="info"] .lp-app-hint {
     display: block;
+    margin-top: 14px;
   }
 
   .lp-hero[data-tab="info"] .lp-install:not([hidden]) {
     display: inline-flex;
+    margin-top: 10px;
+  }
+
+  /* Auch hier ersetzt der angebotene Knopf den Hinweis. */
+  .lp-hero[data-tab="info"] .lp-install:not([hidden]) + .lp-app-hint {
+    display: none;
   }
 
   .lp-hero[data-tab="info"] .lp-panel {
