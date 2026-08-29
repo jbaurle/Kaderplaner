@@ -258,8 +258,8 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
               App installieren
             </button>
             <p class="lp-app-hint">
-              Am Handy und Tablet lässt sich der Kaderplaner auf den
-              Startbildschirm legen.
+              Auf dem Startbildschirm abgelegt startet der Kaderplaner wie
+              eine App.
               <a href="/features.html#als-app-ablegen">So geht das</a>
             </p>
           </div>

@@ -1391,3 +1391,15 @@ html[data-theme='dark'] .lp-panel {
   background: var(--row-hover);
   border-color: var(--border-strong);
 }
+
+/*
+ * Der Startbildschirm-Hinweis gilt dem Gerät in der Hand: an einem Rechner
+ * mit Maus bleibt er weg, dort führt der Weg über den Installations-Knopf
+ * oder das Browsermenü. Steht am Dateiende, damit er die Anzeige-Regeln
+ * der Anmeldeseite bei gleicher Spezifität überstimmt.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .lp-hero[data-tab] .lp-app-hint {
+    display: none;
+  }
+}
