@@ -16,6 +16,11 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.06);
   --radius: 8px;
 
+  /* Wie in base.css: ohne Angabe nimmt der Browser sein Systemgrau, im
+     Dunkel-Modus steht dann ein weißer Balken neben der dunklen Seite,
+     auch im Features-Dialog der App. */
+  --scrollbar-thumb: #cbd5e1;
+
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
@@ -36,12 +41,17 @@
   --primary: #9fb0bb;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --scrollbar-thumb: #3f4b54;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 body {
