@@ -1,7 +1,7 @@
 /**
  * Hilfe-Overlays. Drei Inhalte, ein Rahmen:
  *
- *   - `features`   statische Übersicht, was die App kann.
+ *   - `features`   die Features-Seite, eingebettet als Rahmen.
  *   - `score`      statische Erklärung, wie der Score zustande kommt.
  *   - `formation`  datenabhängige Begründung, warum keine gültige
  *                  Formation möglich ist.
@@ -45,171 +45,16 @@ export function renderHelpModal(title: string, bodyHtml: string, subtitle = ''):
   `;
 }
 
-export const FEATURES_HELP_TITLE = 'Was die App kann';
+export const FEATURES_HELP_TITLE = 'Alle Features im Überblick';
 
+/*
+ * Kein eigener Text mehr: der Dialog zeigt die Features-Seite selbst, damit
+ * es nur eine Fassung gibt. ?embed=1 blendet dort Kopf und Fusszeile aus,
+ * das Thema liest die Seite selbst aus dem localStorage.
+ */
 export const FEATURES_HELP_BODY = `
-  <p>
-    Der Kaderplaner ist eine Entscheidungshilfe für Kickbase. Er zeigt deinen
-    Kader mit einem Score je Spieler und lässt dich in vier Spalten
-    durchspielen, wen du verkaufst und was danach auf dem Konto steht.
-  </p>
-
-  <dl class="help-list">
-    <dt>Kader mit Score</dt>
-    <dd>
-      Jede Zeile ist ein Spieler: Erlös, Gewinn und Verlust seit dem Kauf,
-      Score in Prozent und der nächste Gegner. <strong>Fett</strong> gesetzte
-      Namen stehen gerade in deiner Aufstellung bei Kickbase, deiner Elf also.
-      Die grün markierten Zellen sind etwas anderes: die beste Elf nach Score,
-      die ein Optimizer über alle zehn Formationen sucht. Wo beides
-      auseinanderfällt, lohnt der Blick.
-    </dd>
-
-    <dt>Spielerdialog</dt>
-    <dd>
-      Ein Tipp auf einen Spielernamen öffnet ihn. Oben steht, wer er ist und
-      was er wert ist. Neben dem Statuspunkt führt <strong>News</strong> auf
-      eine Suche nach Nachrichten zu ihm, bei einem Ausfall geht der Grund mit
-      in die Anfrage: Kickbase nennt nur das Wort, wie lange jemand fehlt,
-      steht nur in den Nachrichten. Darunter der Score mit seinen drei Teilen
-      als Balken. Dann die Spieltage: links die gespielten mit Punkten, Gegner und
-      Ergebnis, rechts die nächsten drei mit Tabellenplatz und Einschätzung.
-      <p>
-        Darunter steht, was ein Verkauf auslöst, und zwar mit zwei Zahlen,
-        die es sonst nirgends gibt. Dein Spielraum ist Kontostand plus 33 % vom
-        Teamwert: verkaufst du einen Spieler, steigt das Konto um seinen
-        Erlös, die Kreditlinie fällt aber um 33 % seines Marktwerts. Netto
-        bleibt weniger übrig, als der Erlös verspricht. Und die beste Elf
-        wird ohne ihn noch einmal gerechnet, damit dasteht, was der Verkauf
-        sportlich kostet.
-      </p>
-      <p>
-        Ganz unten die Punkte je Spieltag, ein Balken je Spieltag mit dem
-        Wappen des Gegners und der Punktzahl darunter. Der Umschalter wechselt
-        zwischen dieser und der letzten Saison, ein Tipp auf einen Spieltag
-        zeigt Ergebnis und Einsatzminuten. Ein senkrechter Strich steht dort,
-        wo ein Spieler mitten in der Saison den Verein gewechselt hat.
-      </p>
-    </dd>
-
-    <dt>Erlös statt Marktwert</dt>
-    <dd>
-      In der Spalte steht, was ein Verkauf bringt. Meistens ist das Kickbases
-      Marktwert. Hat aber ein Mitspieler ein Gebot auf deinen Spieler gelegt
-      und liegt es darüber, zählt das Gebot: das bekommst du, wenn du es
-      annimmst. Liegt es darunter, bleibt der Marktwert stehen, denn an
-      Kickbase verkaufen geht immer. Mit dem Erlös rechnen auch die
-      Szenariospalten und die Zeile <strong>Verkäufe</strong>.
-    </dd>
-
-    <dt>Im Transfermarkt</dt>
-    <dd>
-      Ein <span class="help-sample-listed">blauer Name</span> heißt: den
-      Spieler hast du selbst auf den Markt gestellt. Der Spielerdialog zeigt
-      dann oben, was du aufgerufen hast und wie weit das vom Marktwert weg
-      ist. Liegen Gebote, führt der Knopf daneben direkt zu ihnen. Eine
-      Frist steht dort nicht: dein Angebot läuft nicht ab, es steht, bis du
-      es zurückziehst oder ein Gebot annimmst.
-    </dd>
-
-    <dt>Gebote sehen</dt>
-    <dd>
-      Ein <span class="help-sample-offer">grüner Betrag</span> in der
-      Erlös-Spalte heißt: dahinter liegt ein Gebot. Ein Tipp darauf zeigt alle
-      Gebote mit Namen und Bild des Managers, das höchste zuerst, dazu
-      Marktwert, Kaufpreis und was unterm Strich als Gewinn oder Verlust
-      bleibt. Auch <strong>G/V</strong> rechnet bei diesen Spielern gegen das
-      Gebot, sonst widersprächen sich die beiden Spalten. Was Kickbase selbst
-      ausweist, steht weiter im Dialog.
-      <p>
-        Gebote gibt es nur, solange der Spieler auf dem Markt steht: nimmst du
-        ihn herunter oder läuft die Zeit ab, ist die Spalte wieder der blanke
-        Marktwert. Angenommen oder abgelehnt wird in Kickbase, hier wird nur
-        gerechnet.
-      </p>
-    </dd>
-
-    <dt>Vier Szenariospalten</dt>
-    <dd>
-      In S1 bis S3 hakst du an, wen du verkaufen würdest. BANK ist keine
-      Auswahl: dort steht jeder zum Verkauf, der gerade nicht in deiner Elf
-      steht. Über der Tabelle
-      rechnen <strong>Kontostand (neu)</strong>, <strong>Verkäufe</strong> und
-      <strong>Gebote</strong> live mit, dazu steht in der Spalte, ob mit den
-      übrigen Spielern noch eine gültige Formation zustande kommt.
-    </dd>
-
-    <dt>Gegner am nächsten Spieltag</dt>
-    <dd>
-      Als Wappen mit Pfeil. Er teilt die Tabelle in Drittel: ein Gegner aus dem
-      unteren Drittel bekommt einen grünen Pfeil nach oben, einer aus dem
-      oberen einen roten nach unten, das Mittelfeld bleibt ohne Zeichen. Mit
-      dem eigenen Verein wird dabei nicht verglichen. Die Daten kommen aus dem
-      Spielplan des Wettbewerbs. Der Gegner steht bewusst neben dem Score und nicht darin:
-      die Prozentzahl bewertet den Spieler, die Ansetzung liest du selbst dazu.
-    </dd>
-
-    <dt>Transferblock</dt>
-    <dd>
-      Unter dem Kader stehen deine offenen Gebote, auch die aus der
-      Kickbase-App. Jedes Gebot geht in jeder Spalte vom Kontostand ab, der
-      Spieler zählt zum Kader. Ein Häkchen heißt auch hier verkaufen und bringt
-      den Marktwert zurück, nicht das Gebot: wer über Marktwert bietet, sieht
-      hier genau diese Differenz. Kein Erlös wie oben, denn auf einen Spieler,
-      der dir noch gar nicht gehört, kann niemand bei dir bieten.
-    </dd>
-
-    <dt>Aufstellung</dt>
-    <dd>
-      Der Knopf <strong>Aufstellung</strong> im Kopf öffnet ein Spielfeld, der
-      Formations-Chip daneben, etwa <strong>5-4-1</strong>, führt zum selben
-      Ort. Dort stellst du die Elf zusammen und schickst sie zurück an
-      Kickbase. Der Entwurf bleibt bis dahin lokal.
-    </dd>
-  </dl>
-
-  <h3>Bedienung</h3>
-  <ul class="help-list-plain">
-    <li><strong>Laden</strong> holt Kontostand, Kader und Markt neu. Der
-      Score-Lauf hängt sich von selbst dahinter, die Tabelle steht schon
-      vorher.</li>
-    <li>Auf schmalen Geräten zeigt die Tabelle eine Szenariospalte, der
-      Umschalter darüber wechselt sie. Ab Tablet stehen alle vier
-      nebeneinander.</li>
-    <li>Der <strong>←</strong>-Knopf über S1 bis S3 übernimmt die Werte aus
-      BANK, samt Zugängen. <strong>×</strong> räumt die Spalte ab.</li>
-    <li>Der Liganame im Kopf öffnet die Ligaauswahl.</li>
-    <li>Der <strong>Mond</strong> im Kopf schaltet auf Dunkel und zurück. Die
-      Wahl gilt für diesen Browser und steht beim nächsten Besuch wieder so
-      da.</li>
-    <li>Jeder Dialog schließt mit Escape, mit dem Kreuz oben rechts oder mit
-      einem Klick daneben.</li>
-  </ul>
-
-  <h3>Was der Kaderplaner nicht macht</h3>
-  <p>
-    Keine Kaufkraft der Mitspieler. Von ihnen siehst du nur, was bei dir
-    ankommt: Gebote auf deine eigenen Spieler, mit Name und Betrag. Bietest du
-    selbst auf jemanden, steht dort dein Gebot und sonst nichts, nicht einmal,
-    wie viele andere mitbieten: Kickbase gibt die Zahl nicht heraus. Kontostand,
-    Kader und Teamwert der anderen genauso wenig. Schätzen ließe sich das nur mit einem Server, der die
-    ganze Saison jeden Kader mitschreibt, und die Zahl wäre am Ende ungenauer
-    als die Entscheidung, die sie stützen soll.
-  </p>
-
-  <h3>Was gespeichert wird</h3>
-  <p>
-    Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus
-    dem Browser an. Im lokalen Speicher dieses Browsers liegen Anmeldung, Szenarien,
-    Aufstellungsentwurf, die Wahl zwischen Hell und Dunkel und ein
-    Zwischenspeicher mit Spielerdetails und Tabelle, damit nicht jeder Klick neu
-    abruft.
-  </p>
-
-  <p class="help-note">
-    Außer der Aufstellung ist alles nur lesend. Verkaufen, kaufen und bieten
-    passiert weiter in Kickbase, hier wird nur gerechnet.
-  </p>
+  <iframe class="help-frame" src="/features.html?embed=1"
+          title="Alle Features im Überblick"></iframe>
 `;
 
 export const SCORE_HELP_TITLE = 'Wie der Score entsteht';

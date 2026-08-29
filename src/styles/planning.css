@@ -1417,6 +1417,17 @@ body.is-dialog-open {
   color: var(--text-strong);
 }
 
+/* Die Features-Seite als Rahmen im Dialog. Feste Höhe, der Inhalt scrollt im
+   Rahmen selbst; das Polster des Dialogkörpers wird aufgehoben, die Seite
+   bringt ihr eigenes mit. */
+.help-frame {
+  display: block;
+  width: calc(100% + 40px);
+  height: min(74vh, 920px);
+  margin: -16px -20px -20px;
+  border: 0;
+}
+
 .help-formula {
   padding: 10px 12px;
   border-radius: var(--radius-sm);

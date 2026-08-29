@@ -44,10 +44,9 @@ describe('renderFormationHelpBody', () => {
 });
 
 describe('FEATURES_HELP_BODY', () => {
-  it('names every block of the page', () => {
-    for (const term of ['Score', 'S1 bis S3', 'BANK', 'Gegner', 'Gebote', 'Aufstellung']) {
-      expect(FEATURES_HELP_BODY).toContain(term);
-    }
+  it('bettet die Features-Seite im Embed-Modus ein', () => {
+    expect(FEATURES_HELP_BODY).toContain('<iframe');
+    expect(FEATURES_HELP_BODY).toContain('/features.html?embed=1');
   });
 
   it('closes every tag it opens', () => {

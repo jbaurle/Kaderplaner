@@ -78,6 +78,21 @@ a {
   padding: 4px 32px 20px;
 }
 
+/*
+ * Eingebettet im Features-Dialog der App (?embed=1, siehe features.html):
+ * Kopf und Fusszeile gehören dort dem Dialog, die Seite zeigt nur die Karte.
+ * Auch die H1 fällt weg, der Dialogtitel benennt den Inhalt schon.
+ */
+[data-embed] body {
+  padding: 0;
+}
+
+[data-embed] .top,
+[data-embed] footer,
+[data-embed] .box h1 {
+  display: none;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
