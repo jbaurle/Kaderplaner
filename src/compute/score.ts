@@ -81,6 +81,14 @@ export interface OpponentsView {
 
 const EMPTY_SCHEDULE: CompetitionMatchdays = { currentDay: 0, matches: [] };
 
+/**
+ * Wie lange ein Eintrag ohne Einsatz am abgepfiffenen Spieltag stehen bleibt,
+ * bevor erneut gefragt wird. Kickbase trägt die Punkte manchmal erst nach dem
+ * Schlusspfiff nach; eine Stunde holt das ein, ohne bei jedem Laden für jeden
+ * Bankspieler eine Anfrage zu kosten.
+ */
+const POINTLESS_RECHECK_MS = 60 * 60 * 1000;
+
 export const EMPTY_OPPONENTS: OpponentsView = {
   fixtures: {},
   teams: {},
@@ -308,7 +316,14 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
     const entry = cache.weeklyDetails[id];
     if (!entry || entry.mc !== tableMc) return true;
     const current = entry.matchSummary.find((m) => m.day === tableMc);
-    return current !== undefined && current.state !== 2;
+    if (current === undefined) return false;
+    if (current.state !== 2) return true;
+    // Abgepfiffen, aber der Eintrag kennt keinen Einsatz: Kickbase trägt die
+    // Punkte teils erst nach dem Schlusspfiff nach, und ohne `mc`-Wechsel
+    // fragt hier sonst bis zum nächsten Spieltag niemand mehr nach. Wer
+    // wirklich auf der Bank saß, sieht genauso aus, deshalb gedrosselt.
+    if (entry.hasPlayedFlags[0]) return false;
+    return Date.now() - (entry.takenAt ?? 0) > POINTLESS_RECHECK_MS;
   });
 
   if (missing.length > 0) {
@@ -318,6 +333,7 @@ export async function computeScores(input: ComputeScoresInput): Promise<ScoreRes
       const d = details[i]!;
       cache.weeklyDetails[id] = {
         mc: tableMc,
+        takenAt: Date.now(),
         firstName: d.firstName,
         statusText: d.statusText,
         matchSummary: d.matchSummary,

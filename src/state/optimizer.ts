@@ -27,6 +27,12 @@ export interface OptimizerCacheTable {
 export interface OptimizerCacheWeekly {
   /** Stand: höchster `matchesPlayed` der Tabelle beim Abruf dieses Eintrags. */
   mc: number;
+  /**
+   * Zeitpunkt des Abrufs. Nur für den Nachschlag bei einem abgepfiffenen
+   * Spieltag ohne Einsatz, siehe `computeScores`. Fehlt bei Einträgen aus
+   * älteren Fassungen; die gelten dann als abgelaufen.
+   */
+  takenAt?: number;
   /** Vorname, nur für den Spielerdialog. Leer, wenn Kickbase keinen führt. */
   firstName: string;
   /** Klartext zum Ausfall, etwa "Back problems". Leer, wenn fit. */

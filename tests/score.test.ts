@@ -182,6 +182,59 @@ describe('computeScores', () => {
     expect(result.byPlayer).toBeDefined();
   });
 
+  const FINISHED_DAY_25 = [
+    { day: 25, state: 2, team1Id: 't1', team2Id: 't2', team1Goals: 1, team2Goals: 0 },
+  ];
+
+  function cacheWithFinishedDay(played: boolean, takenAt: number) {
+    const cache = emptyOptimizerCache();
+    cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
+    cache.weeklyDetails = {
+      a: {
+        mc: 25, takenAt, firstName: '', statusText: '',
+        matchSummary: FINISHED_DAY_25,
+        lastMatchdayPoints: [played ? 80 : 0], hasPlayedFlags: [played],
+      },
+    };
+    saveOptimizerCache(LEAGUE, cache);
+  }
+
+  async function runWithOnePlayer() {
+    const client = {
+      getCompetitionTable: vi.fn().mockResolvedValue(table(25)),
+      getCompetitionMatchdays: vi.fn().mockResolvedValue(EMPTY_SCHEDULE),
+      getPlayerDetailsBatch: vi.fn().mockResolvedValue([details()]),
+    };
+    await computeScores({
+      client: client as never,
+      leagueId: LEAGUE,
+      squad: [squadPlayer({ id: 'a' })],
+      squadFreshFields: { a: FRESH },
+      budget: 100_000_000,
+    });
+    return client;
+  }
+
+  // Kickbase trägt die Punkte teils erst nach dem Schlusspfiff nach. Ohne
+  // diesen Nachschlag bliebe der Eintrag bis zum nächsten Spieltag auf null.
+  it('refetches a finished matchday whose cached entry shows no appearance', async () => {
+    cacheWithFinishedDay(false, Date.now() - 2 * 60 * 60 * 1000);
+    const client = await runWithOnePlayer();
+    expect(client.getPlayerDetailsBatch).toHaveBeenCalledWith(LEAGUE, ['a']);
+  });
+
+  it('asks at most hourly: a fresh entry without appearance stays', async () => {
+    cacheWithFinishedDay(false, Date.now() - 5 * 60 * 1000);
+    const client = await runWithOnePlayer();
+    expect(client.getPlayerDetailsBatch).not.toHaveBeenCalled();
+  });
+
+  it('leaves a finished matchday alone once the player featured', async () => {
+    cacheWithFinishedDay(true, 0);
+    const client = await runWithOnePlayer();
+    expect(client.getPlayerDetailsBatch).not.toHaveBeenCalled();
+  });
+
   it('on a new matchday (max mc increased), refetches all player details', async () => {
     const cache = emptyOptimizerCache();
     cache.table = { takenAt: 1, mc: 25, teams: table(25).teams };
