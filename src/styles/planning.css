@@ -2129,6 +2129,35 @@ body.is-dialog-open {
 .pd-value b.pd-pos, .pd-cell-value.pd-pos, .pd-pos { color: var(--success); }
 .pd-value b.pd-neg, .pd-cell-value.pd-neg, .pd-neg { color: var(--error); }
 
+/*
+ * Marktwert-Trend, eine Zeile unter den Beträgen. Klein und mittig, damit die
+ * drei großen Zahlen darüber die Zeile behalten. Die Farbe kommt aus
+ * `.pd-pos`/`.pd-neg`, wie bei "G/V seit Kauf".
+ */
+.pd-mvtrend {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  margin: 9px 0 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.pd-mvtrend span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.pd-mvtrend b {
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .pd-unit {
   margin: 8px 0 0;
   text-align: center;

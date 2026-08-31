@@ -35,6 +35,14 @@ export interface SquadPlayer {
   lineupOrder: number | null;
   /** Average points — wire `ap`. Used by the optimizer's form fallback. */
   averagePoints: number;
+  /**
+   * Marktwertänderung der letzten 24 Stunden in Euro — wire `tfhmvt`.
+   * Gegen die Marktwerthistorie geprüft (31.08.2026): exakt Marktwert heute
+   * minus Marktwert gestern.
+   */
+  mvChange1d: number;
+  /** Marktwertänderung der letzten sieben Tage in Euro — wire `sdmvt`. */
+  mvChange7d: number;
   /** Availability — wire `st`. 0 = fit. */
   status: number;
   /** Kickbase start probability 1..5 — wire `prob`. 0 = unknown. */
@@ -146,6 +154,10 @@ export interface WireSquadPlayer {
   pos: number;
   mv: number;
   mvgl: number;
+  /** Marktwertänderung 24 Stunden, in Euro. */
+  tfhmvt?: number;
+  /** Marktwertänderung sieben Tage, in Euro. */
+  sdmvt?: number;
   lo: number | null;
   ap?: number;
   st?: number;

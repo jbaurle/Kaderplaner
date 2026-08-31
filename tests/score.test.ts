@@ -58,6 +58,8 @@ function squadPlayer(overrides: Partial<SquadPlayer> & { id: string }): SquadPla
     position: overrides.position ?? 3,
     marketValue: overrides.marketValue ?? 1_000_000,
     mvgl: overrides.mvgl ?? 0,
+    mvChange1d: overrides.mvChange1d ?? 0,
+    mvChange7d: overrides.mvChange7d ?? 0,
     isInLineup: overrides.isInLineup ?? false,
     lineupOrder: overrides.lineupOrder ?? null,
     averagePoints: overrides.averagePoints ?? 0,

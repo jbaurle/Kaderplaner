@@ -902,6 +902,8 @@ export class PlanningPage {
       marketValue: row.marketValue,
       saleValue: row.saleValue,
       mvgl: row.mvgl,
+      mvChange1d: row.mvChange1d,
+      mvChange7d: row.mvChange7d,
       score: score ?? null,
       listing: row.listing,
       bestOffer: row.bestOffer,

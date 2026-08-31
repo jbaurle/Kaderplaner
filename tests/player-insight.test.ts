@@ -21,6 +21,8 @@ function row(overrides: Partial<PlanningRow> & { id: string }): PlanningRow {
     saleValue: overrides.saleValue ?? marketValue,
     bestOffer: overrides.bestOffer ?? 0,
     mvgl: overrides.mvgl ?? 0,
+    mvChange1d: overrides.mvChange1d ?? 0,
+    mvChange7d: overrides.mvChange7d ?? 0,
     gainLoss: overrides.gainLoss ?? 0,
     isInLineup: overrides.isInLineup ?? true,
     lineupOrder: overrides.lineupOrder ?? null,

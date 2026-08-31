@@ -291,6 +291,8 @@ function toSquadPlayer(wire: WireSquadPlayer): SquadPlayer {
     isInLineup: wire.lo != null,
     lineupOrder: wire.lo ?? null,
     averagePoints: wire.ap ?? 0,
+    mvChange1d: wire.tfhmvt ?? 0,
+    mvChange7d: wire.sdmvt ?? 0,
     status: wire.st ?? 0,
     probability: wire.prob ?? 0,
     teamId: wire.tid ?? '',

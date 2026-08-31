@@ -160,7 +160,7 @@ describe('KickbaseClient', () => {
       const { setResponse } = captureCalls();
       setResponse(jsonResponse({
         it: [
-          { i: 'p1', n: 'Dahmen',     pos: 1, mv: 100, mvgl:   5, lo: 1,    ap: 90, st: 0, prob: 1, tid: 'tA', pim: 'content/file/a.png' },
+          { i: 'p1', n: 'Dahmen',     pos: 1, mv: 100, mvgl:   5, lo: 1,    ap: 90, st: 0, prob: 1, tid: 'tA', pim: 'content/file/a.png', tfhmvt: -7, sdmvt: -30 },
           { i: 'p2', n: 'Bensebaini', pos: 2, mv: 200, mvgl: -10, lo: null, ap: 80, st: 1, prob: 0, tid: 'tB' },
         ],
       }));
@@ -168,8 +168,8 @@ describe('KickbaseClient', () => {
       const client = new KickbaseClient('tok');
       const { players } = await client.getSquad('league-1');
       expect(players).toEqual([
-        { id: 'p1', name: 'Dahmen',     position: 1, marketValue: 100, mvgl:   5, isInLineup: true,  lineupOrder: 1,    averagePoints: 90, status: 0, probability: 1, teamId: 'tA', imagePath: 'content/file/a.png' },
-        { id: 'p2', name: 'Bensebaini', position: 2, marketValue: 200, mvgl: -10, isInLineup: false, lineupOrder: null, averagePoints: 80, status: 1, probability: 0, teamId: 'tB', imagePath: '' },
+        { id: 'p1', name: 'Dahmen',     position: 1, marketValue: 100, mvgl:   5, mvChange1d: -7, mvChange7d: -30, isInLineup: true,  lineupOrder: 1,    averagePoints: 90, status: 0, probability: 1, teamId: 'tA', imagePath: 'content/file/a.png' },
+        { id: 'p2', name: 'Bensebaini', position: 2, marketValue: 200, mvgl: -10, mvChange1d:  0, mvChange7d:   0, isInLineup: false, lineupOrder: null, averagePoints: 80, status: 1, probability: 0, teamId: 'tB', imagePath: '' },
       ]);
     });
 

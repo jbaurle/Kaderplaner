@@ -67,6 +67,8 @@ function dialogInput(overrides: Partial<PlayerDialogInput> = {}): PlayerDialogIn
     marketValue: overrides.marketValue ?? 10_000_000,
     saleValue: overrides.saleValue ?? 10_000_000,
     mvgl: overrides.mvgl ?? 0,
+    mvChange1d: overrides.mvChange1d ?? 0,
+    mvChange7d: overrides.mvChange7d ?? 0,
     score: overrides.score ?? null,
     listing: overrides.listing ?? null,
     bestOffer: overrides.bestOffer ?? 0,
@@ -93,6 +95,22 @@ describe('planningRowFromMarketPlayer', () => {
     expect(row.listing).toBeNull();
     expect(row.gainLoss).toBe(0);
     expect(row.mvgl).toBe(0);
+  });
+});
+
+describe('renderPlayerDialog: Marktwert-Trend', () => {
+  it('zeigt beide Zeiträume mit Pfeil und Betrag ohne Vorzeichen', () => {
+    const html = renderPlayerDialog(dialogInput({ mvChange1d: -372_176, mvChange7d: 2_590_095 }));
+    expect(html).toContain('pd-mvtrend');
+    expect(html).toContain('▼ 0,37');
+    expect(html).toContain('▲ 2,59');
+    expect(html).toContain('heute');
+    expect(html).toContain('7 Tage');
+  });
+
+  it('lässt die Zeile weg, wenn Kickbase keine Trendwerte liefert', () => {
+    const html = renderPlayerDialog(dialogInput({ mvChange1d: 0, mvChange7d: 0 }));
+    expect(html).not.toContain('pd-mvtrend');
   });
 });
 

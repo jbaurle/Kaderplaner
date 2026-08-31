@@ -58,6 +58,10 @@ export interface PlanningRow {
   bestOffer: number;
   /** "G/V seit Kauf" laut Kickbase, gerechnet gegen den Marktwert. */
   mvgl: number;
+  /** Marktwertänderung 24 Stunden, in Euro. 0 bei einem Marktspieler. */
+  mvChange1d: number;
+  /** Marktwertänderung sieben Tage, in Euro. 0 bei einem Marktspieler. */
+  mvChange7d: number;
   /**
    * G/V gegen `saleValue`. Ohne Gebot identisch mit `mvgl`, sonst um die
    * Differenz besser: der Kaufpreis steckt schon in `marketValue - mvgl`.
@@ -256,6 +260,9 @@ export function planningRowFromMarketPlayer(player: MarketPlayer): PlanningRow {
     saleValue: player.marketValue,
     bestOffer: 0,
     mvgl: 0,
+    // Der Transfermarkt liefert keine Trendwerte, nur das Pfeil-Flag.
+    mvChange1d: 0,
+    mvChange7d: 0,
     gainLoss: 0,
     isInLineup: false,
     lineupOrder: null,
@@ -291,6 +298,8 @@ function buildRow(
     saleValue,
     bestOffer,
     mvgl: player.mvgl,
+    mvChange1d: player.mvChange1d,
+    mvChange7d: player.mvChange7d,
     // Kaufpreis = Marktwert - G/V. Beides kommt von Kickbase, der Rest folgt.
     gainLoss: saleValue - (player.marketValue - player.mvgl),
     isInLineup: player.isInLineup,

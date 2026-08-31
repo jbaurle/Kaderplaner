@@ -59,6 +59,10 @@ export interface PlayerDialogInput {
   saleValue: number;
   /** "G/V seit Kauf" laut Kickbase. */
   mvgl: number;
+  /** Marktwertänderung der letzten 24 Stunden, in Euro. */
+  mvChange1d: number;
+  /** Marktwertänderung der letzten sieben Tage, in Euro. */
+  mvChange7d: number;
   /** Score und Teilwerte, null solange kein Lauf durch ist. */
   score: { score: number; detail: ScoreDetail } | null;
   /** Das eigene Angebot im Transfermarkt, null wenn er nicht drin steht. */
@@ -222,10 +226,39 @@ function renderHead(input: PlayerDialogInput): string {
         <span class="pd-value"><span>Erlös</span><b>${formatMio(input.saleValue)}</b></span>
         <span class="pd-value"><span>G/V seit Kauf</span><b class="${input.mvgl < 0 ? 'pd-neg' : 'pd-pos'}">${formatSignedMio(input.mvgl)}</b></span>
       </div>
+      ${renderTrend(input)}
       <p class="pd-unit">Alle Beträge in Mio. €</p>
       ${renderMarket(input)}
     </header>
   `;
+}
+
+/**
+ * Der Marktwert-Trend als eigene Zeile unter den Beträgen: was der Marktwert
+ * heute und über sieben Tage gemacht hat. Beides steht schon im Kader, das
+ * kostet keine eigene Anfrage.
+ *
+ * Sind beide Werte 0, bleibt die Zeile weg: ein Transferkandidat aus dem
+ * Markt hat sie nicht, Kickbase liefert sie nur zum eigenen Kader.
+ */
+function renderTrend(input: PlayerDialogInput): string {
+  if (input.mvChange1d === 0 && input.mvChange7d === 0) return '';
+  return `
+      <p class="pd-mvtrend">
+        <span>Trend ${trendAmount(input.mvChange1d)} heute</span>
+        <span>${trendAmount(input.mvChange7d)} 7 Tage</span>
+      </p>`;
+}
+
+/**
+ * Pfeil und Betrag ohne Vorzeichen: die Richtung steht im Pfeil, das Minus
+ * daneben wäre doppelt. Der Pfeil selbst sagt einem Screenreader nichts,
+ * deshalb trägt der Betrag sie als Text.
+ */
+function trendAmount(change: number): string {
+  const down = change < 0;
+  const label = `${down ? 'gefallen um' : 'gestiegen um'} ${formatMio(Math.abs(change))} Mio.`;
+  return `<b class="${down ? 'pd-neg' : 'pd-pos'}" aria-label="${label}">${down ? '▼' : '▲'} ${formatMio(Math.abs(change))}</b>`;
 }
 
 /**
