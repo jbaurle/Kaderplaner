@@ -154,6 +154,42 @@ html[data-theme='dark'] {
 
 }
 
+/*
+ * ==================================================================
+ * Overlays im Dunkel-Modus: Dialoge, Aufstellung und Statistik sollen
+ * sich klar von der Seite abheben. Im Hellen reicht dafür Weiß auf
+ * Grau, im Dunkeln liegen --card und --bg zu dicht beieinander.
+ *
+ * Drei Griffe, alle nur hier:
+ * 1. Der Schleier wird dunkler, die Seite dahinter sinkt weg.
+ * 2. Die Flächen-Token im Blatt rücken eine Stufe hoch. Weil alle
+ *    zusammen steigen, bleiben die Abstufungen im Inneren erhalten,
+ *    der ganze Dialog liegt nur höher.
+ * 3. Ein heller Haarrand plus tiefer Schatten zeichnet die Kante.
+ * ================================================================== */
+html[data-theme='dark'] .dialog-shade,
+html[data-theme='dark'] .lineup-layer,
+html[data-theme='dark'] .stats-layer {
+  background: rgba(2, 5, 8, 0.72);
+}
+
+html[data-theme='dark'] .dialog-box,
+html[data-theme='dark'] .lineup-sheet,
+html[data-theme='dark'] .stats-sheet {
+  --bg: #1b2328;
+  --card: #242e35;
+  --border: #38444d;
+  --border-strong: #4b5862;
+  --row-even: #28323a;
+  --row-hover: #2e3a43;
+  --summary-bg: #28323a;
+  --scen-switch-bg: #28323a;
+
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 20px 44px rgba(0, 0, 0, 0.6);
+}
+
 *,
 *::before,
 *::after {
