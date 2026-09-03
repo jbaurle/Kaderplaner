@@ -429,14 +429,25 @@ export class LineupPage {
     });
     // Fehlende Freisteller antwortet das CDN mit 403. `error` steigt nicht
     // auf, deshalb in der Erfassungsphase mithören und aufs Wappen wechseln.
+    // Ein kurzer Netzwerkaussetzer sieht am `<img>` genauso aus wie ein 403,
+    // deshalb erst einmal denselben Pfad neu laden, bevor aufgegeben wird.
     this.layer.addEventListener(
       'error',
       (event) => {
         const img = event.target;
         if (!(img instanceof HTMLImageElement)) return;
+        if (!img.dataset['retried']) {
+          img.dataset['retried'] = '1';
+          const src = img.src;
+          window.setTimeout(() => {
+            img.src = src;
+          }, 300);
+          return;
+        }
         const fallback = img.dataset['fallback'];
         if (!fallback) return;
         delete img.dataset['fallback'];
+        delete img.dataset['retried'];
         img.src = fallback;
         img.classList.add('is-logo');
       },
