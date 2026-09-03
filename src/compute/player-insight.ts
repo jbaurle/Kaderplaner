@@ -8,9 +8,10 @@
  * Kein DOM, kein Netz, kein localStorage. Alles kommt als Eingabe herein.
  */
 
-import type { MatchSummary, PlayerId } from '../api/types.js';
+import type { MatchSummary, PlayerId, PlayerPerformance } from '../api/types.js';
 import { countPositions } from './lineup.js';
 import { VALID_FORMATIONS } from './optimizer.js';
+import { isMatchLive, pickSeasons } from './performance.js';
 import type { PlanningRow, PositionLabel } from './planning.js';
 import { bestElevenWithout, trendOfPosition, type Fixture, type LineupInput, type TeamInfo, type Trend } from './score.js';
 import type { ScoreDetail } from './optimizer.js';
@@ -130,6 +131,12 @@ export interface PlayerInsightInput {
     hasPlayedFlags: readonly boolean[];
     matchSummary: readonly MatchSummary[];
   } | null;
+  /**
+   * Für die verlässlicheren Punkte je Spieltag, siehe `buildMatchdays`. Null,
+   * solange sie noch nicht geladen ist (sie kommt erst mit dem Öffnen des
+   * Dialogs).
+   */
+  performance: PlayerPerformance | null;
 }
 
 export interface PlayerInsight {
@@ -148,10 +155,17 @@ export interface PlayerInsight {
  * wurde, deshalb steht bei day 0 in der Anzeige keine Nummer statt einer
  * falschen. Gegner und Ergebnis kommen aus `matchSummary`, das nur ein Fenster
  * von rund drei Spieltagen führt: was darüber hinausgeht, zeigt nur Punkte.
+ *
+ * Die Punktzahl selbst kommt, wenn möglich, aus `/performance` statt aus
+ * `weekly`: Kickbase trägt Punkte in `ph` teils tagelang nicht nach, während
+ * `/performance` für denselben Spieltag schon den richtigen Wert führt (siehe
+ * Chabot, Spieltag 1, `performance.ts`). `weekly` bleibt der Fallback, solange
+ * `/performance` noch nicht geladen ist.
  */
 export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
   const { row, weekly, fixtures, kickoffs, teams, teamCount } = input;
   const played: MatchdayEntry[] = [];
+  const currentSeason = pickSeasons(input.performance).current;
 
   if (weekly) {
     const points = weekly.lastMatchdayPoints;
@@ -166,10 +180,14 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
       const pending = match !== undefined && match.state !== 2;
       const home = match ? match.team1Id === row.teamId : null;
       const opponentId = match ? (home ? match.team2Id : match.team1Id) : null;
+      const seasonDay = day > 0 ? currentSeason?.matchdays.find((d) => d.day === day) : undefined;
+      const reliablePoints = seasonDay && seasonDay.points !== null && !isMatchLive(seasonDay)
+        ? seasonDay.points
+        : null;
       played.push({
         day,
         ahead: false,
-        points: points[i] ?? 0,
+        points: reliablePoints ?? points[i] ?? 0,
         played: weekly.hasPlayedFlags[i] ?? false,
         pending,
         opponentId,

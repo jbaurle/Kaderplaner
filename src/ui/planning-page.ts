@@ -886,6 +886,7 @@ export class PlanningPage {
             matchSummary: weekly.matchSummary,
           }
         : null,
+      performance: this.state.performance[row.id] ?? null,
     });
 
     return renderPlayerDialog({

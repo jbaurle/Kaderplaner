@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MatchSummary } from '../src/api/types.js';
+import type { MatchSummary, PlayerPerformance } from '../src/api/types.js';
 import type { PlanningRow } from '../src/compute/planning.js';
 import {
   buildMatchdays,
@@ -50,6 +50,7 @@ function input(overrides: Partial<PlayerInsightInput> = {}): PlayerInsightInput 
     teams: overrides.teams ?? {},
     teamCount: overrides.teamCount ?? 18,
     weekly: overrides.weekly ?? null,
+    performance: overrides.performance ?? null,
   };
 }
 
@@ -172,6 +173,49 @@ describe('buildMatchdays', () => {
     expect(days.map((day) => day.day)).toEqual([32, 33, 34]);
     expect(days.map((day) => day.points)).toEqual([0, 94, 128]);
     expect(days.map((day) => day.played)).toEqual([false, true, true]);
+  });
+
+  it('nimmt bei einem gespielten Spieltag die Punkte aus /performance statt aus weekly, wenn sie vorliegen', () => {
+    // Chabot, Spieltag 1: `weekly` (aus `ph`) blieb bei 32 stehen, obwohl
+    // Kickbase in `/performance` längst 17 führte.
+    const performance: PlayerPerformance = {
+      seasons: [{
+        id: '35',
+        title: '2026/2027',
+        competition: 'Bundesliga',
+        matchdays: [
+          { day: 33, points: 12, minutes: 90, teamId: '2', opponentId: '9', goalsFor: 3, goalsAgainst: 0, kickoff: '' },
+          { day: 34, points: 17, minutes: 90, teamId: '2', opponentId: '10', goalsFor: 2, goalsAgainst: 1, kickoff: '' },
+        ],
+      }],
+    };
+    const days = buildMatchdays(input({
+      teams,
+      performance,
+      weekly: {
+        mc: 34,
+        lastMatchdayPoints: [32, 94],
+        hasPlayedFlags: [true, true],
+        matchSummary,
+      },
+    }));
+
+    expect(days.map((day) => day.points)).toEqual([12, 17]);
+  });
+
+  it('bleibt bei den Punkten aus weekly, solange /performance für den Spieltag nichts weiß', () => {
+    const days = buildMatchdays(input({
+      teams,
+      performance: { seasons: [{ id: '35', title: '2026/2027', competition: 'Bundesliga', matchdays: [] }] },
+      weekly: {
+        mc: 34,
+        lastMatchdayPoints: [128, 94],
+        hasPlayedFlags: [true, true],
+        matchSummary,
+      },
+    }));
+
+    expect(days.map((day) => day.points)).toEqual([94, 128]);
   });
 
   it('holt Gegner und Ergebnis aus dem Spielplan, aus Sicht des eigenen Vereins', () => {
