@@ -1,0 +1,544 @@
+/* ---------- Statistik ---------- */
+
+/*
+ * Die Manager-Rangliste liegt wie die Aufstellung als eigene Ebene über dem
+ * Kaderplaner und hängt an `document.body`. Farben wie im Spielerdialog:
+ * Kacheln auf --bg ohne Rahmen, Plus in --success, Minus in --error, Balken
+ * nach Güte in den --grade-Tönen.
+ */
+.stats-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(17, 24, 39, 0.45);
+  padding: 10px 10px calc(24px + env(safe-area-inset-bottom, 0px));
+  outline: none;
+}
+
+body.is-stats-open {
+  overflow: hidden;
+}
+
+.stats-sheet {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Die Karten der Meilensteine messen sich am Blatt, nicht am Fenster. */
+  container-type: inline-size;
+}
+
+/* Titel links, Schließen rechts, wie in der Aufstellung. */
+.stats-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.stats-tabs {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Reiter als Links wie die Vorlagen der Aufstellung, der offene kräftiger. */
+.stats-tab {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 2px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.stats-tab:hover {
+  color: var(--text);
+}
+
+.stats-tab.is-active {
+  color: var(--text-strong);
+  text-decoration-color: var(--text-strong);
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Bausteine ---------- */
+
+.st-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.st-section-head--gap {
+  margin-top: 6px;
+}
+
+.st-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.st-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.st-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--row-even);
+  flex: none;
+}
+
+/* Ohne Bild stehen die Initialen im Kreis, wie bei den Geboten. */
+.st-avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--row-hover);
+}
+
+.st-avatar--big {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.st-manager {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.st-name {
+  font-weight: 600;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-note {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.st-note--error {
+  color: var(--error);
+}
+
+.st-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.st-placeholder {
+  margin: 0;
+  padding: 22px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.st-retry {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  margin-left: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.st-pos {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.st-neg {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ---------- Ich: Kopf, Balken, Kennzahlen ---------- */
+
+.st-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.st-place {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-strong);
+}
+
+.st-place small {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.st-hero-main {
+  flex: 1;
+  min-width: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.st-hero-main b {
+  display: block;
+  font-size: 13px;
+  color: var(--text-strong);
+}
+
+.st-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 92px;
+}
+
+.st-day {
+  flex: 1;
+  max-width: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+
+.st-stack {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Der graue Balken dahinter ist der Tagesbeste. */
+.st-best {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--border);
+  border-radius: 3px 3px 0 0;
+}
+
+.st-mine {
+  position: relative;
+  width: 100%;
+  background: var(--grade-mid);
+  border-radius: 3px 3px 0 0;
+}
+
+.st-mine--good {
+  background: var(--grade-good);
+}
+
+.st-mine--weak {
+  background: var(--grade-weak);
+}
+
+/* Der offene Spieltag ist schraffiert: sein Wert ist noch ein Zwischenstand. */
+.st-mine--open {
+  background: repeating-linear-gradient(45deg, var(--grade-mid) 0 3px, transparent 3px 6px);
+}
+
+.st-daynum {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.st-rank {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.st-rank--first {
+  color: var(--success);
+}
+
+.st-figures {
+  display: flex;
+  gap: 8px;
+}
+
+.st-fig {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.st-fig span {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.st-fig b {
+  display: block;
+  margin-top: 1px;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.st-fig b.st-neg {
+  color: var(--error);
+}
+
+/* ---------- Saison: Podium und Meilensteine ---------- */
+
+.st-podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin: 2px 0 4px;
+}
+
+.st-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 30%;
+  min-width: 0;
+}
+
+.st-slot .st-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 12px;
+}
+
+.st-slot-name {
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-slot-points {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-step {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: var(--row-hover);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.st-slot--first .st-step {
+  background: var(--top11-bg);
+  color: var(--text-strong);
+}
+
+.st-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.st-card {
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  min-width: 0;
+}
+
+.st-card-label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.st-card-value {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.st-card-holder {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.st-card-holder .st-avatar {
+  width: 16px;
+  height: 16px;
+  font-size: 7px;
+}
+
+/* Breites Blatt: drei Karten je Reihe. */
+@container (min-width: 540px) {
+  .st-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- Tabelle: Manager mal Spieltage ---------- */
+
+/*
+ * Die Kreuztabelle blättert seitwärts bis zum Rand des Blatts, nicht nur bis
+ * zu seinem Polster: sonst stünde rechts ein 12 px breiter Streifen leer,
+ * während die Spalte dahinter abgeschnitten ist.
+ */
+.st-matrix-scroll {
+  overflow-x: auto;
+  margin: 0 -12px;
+  padding: 0 12px;
+}
+
+.st-matrix {
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-matrix th,
+.st-matrix td {
+  padding: 6px 6px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.st-matrix thead th {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.st-matrix tbody td {
+  border-bottom: 1px solid var(--border);
+}
+
+/*
+ * Der Name bleibt beim Blättern stehen. Er braucht einen deckenden Grund,
+ * sonst schieben sich die Spalten sichtbar darunter durch; die Ich-Zeile
+ * legt ihr durchscheinendes Grün deshalb über die Kartenfarbe.
+ */
+.st-matrix .st-col-name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  background: var(--card);
+  padding-right: 10px;
+}
+
+.st-matrix tbody tr.is-me td {
+  background: var(--top11-bg);
+  color: var(--text-strong);
+}
+
+.st-matrix tbody tr.is-me .st-col-name {
+  background: linear-gradient(var(--top11-bg), var(--top11-bg)), var(--card);
+}
+
+.st-matrix .st-col-total {
+  font-weight: 700;
+  color: var(--text-strong);
+  border-right: 1px solid var(--border);
+}
+
+.st-matrix thead th.st-col-open,
+.st-matrix .st-dot {
+  color: var(--warning-text);
+}
+
+.st-cell-win {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.st-cell-open {
+  color: var(--warning-text);
+  font-style: italic;
+}
+
+.st-matrix .st-col-gap {
+  color: var(--text-muted);
+}

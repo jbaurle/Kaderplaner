@@ -45,6 +45,7 @@ import { loadOptimizerCache } from '../state/optimizer.js';
 import { buildLabel } from './build-info.js';
 import { escapeHtml } from './format.js';
 import { LineupPage, kickbaseLineup, type LineupPlayer } from './lineup-page.js';
+import { StatsPage } from './stats-page.js';
 import {
   renderFormationHelpBody,
   renderHelpModal,
@@ -582,6 +583,7 @@ export class PlanningPage {
                     id="laden-btn"${state.isLoading ? ' disabled aria-busy="true"' : ''}>
               <span class="btn-label">Laden</span>
             </button>
+            <button type="button" class="btn btn--secondary" id="stats-btn">Statistik</button>
             <button type="button" class="btn btn--secondary" id="lineup-btn">Aufstellung</button>
           </div>
         </header>
@@ -643,6 +645,7 @@ export class PlanningPage {
     props.host
       .querySelector('#lineup-btn')
       ?.addEventListener('click', () => this.openLineup(view));
+    props.host.querySelector('#stats-btn')?.addEventListener('click', () => this.openStats());
     props.host.querySelector('#laden-btn')?.addEventListener('click', () => void this.fetch());
     props.host.querySelector('#logout-btn')?.addEventListener('click', () => props.onLogout());
     // Reine CSS-Umschaltung (data-theme auf <html>), kein Re-Render der
@@ -721,6 +724,21 @@ export class PlanningPage {
         await this.props.client.setLineup(this.props.leagueId, formation, ids);
         await this.fetch();
       },
+      onClose: () => {},
+      onUnauthorized: () => this.props.onUnauthorized(),
+    }).open();
+  }
+
+  /**
+   * Statistik öffnen. Die Ebene holt Rangliste und Punkte je Manager selbst;
+   * von hier kommt nur der Spielplan, damit sie einen offenen Spieltag
+   * erkennt.
+   */
+  private openStats(): void {
+    new StatsPage({
+      client: this.props.client,
+      leagueId: this.props.leagueId,
+      kickoffs: this.state.scores?.kickoffs ?? null,
       onClose: () => {},
       onUnauthorized: () => this.props.onUnauthorized(),
     }).open();

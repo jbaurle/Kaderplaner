@@ -17,7 +17,12 @@ import type {
   CompetitionMatchdays,
   CompetitionTable,
   LeagueId,
+  LeagueRanking,
   LoginResult,
+  ManagerMatchday,
+  ManagerPerformance,
+  ManagerRank,
+  ManagerSeason,
   MarketOffer,
   MarketPlayer,
   MarketResult,
@@ -31,10 +36,13 @@ import type {
   SquadPlayer,
   SquadResult,
   TeamRow,
+  UserInfo,
   WireBudgetResponse,
   WireCompetitionMatchdays,
   WireCompetitionTable,
   WireLoginResponse,
+  WireManagerPerformanceResponse,
+  WireManagerSeason,
   WireMarketOffer,
   WireMarketPlayer,
   WireMarketResponse,
@@ -42,9 +50,12 @@ import type {
   WirePerformanceResponse,
   WirePerformanceSeason,
   WirePlayerDetails,
+  WireRankingResponse,
+  WireRankingUser,
   WireSquadPlayer,
   WireSquadResponse,
   WireTeamRow,
+  WireUserMeResponse,
 } from './types.js';
 
 const BASE_URL = 'https://api.kickbase.com/v4/';
@@ -244,6 +255,45 @@ export class KickbaseClient {
     return { seasons: (wire.it ?? []).map(toPerformanceSeason) };
   }
 
+  /**
+   * Der angemeldete Nutzer. Gebraucht für die Id: die Rangliste trägt keine
+   * "ich"-Markierung, und `user/login` nennt nur den Namen. Gegen die echte
+   * API geprüft (03.09.2026): die Id steht unter `u.id`.
+   */
+  async getMe(): Promise<UserInfo> {
+    const wire = await this.request<WireUserMeResponse>('user/me');
+    return { id: wire.u?.id ?? '', name: wire.u?.name ?? '' };
+  }
+
+  /**
+   * Die Manager der Liga mit Saisonpunkten und Platz. Gegen die echte API
+   * geprüft (03.09.2026). Ohne `dayNumber` ist es der Stand jetzt; die Punkte
+   * je Spieltag kommen aus {@link getManagerPerformance}.
+   */
+  async getLeagueRanking(leagueId: LeagueId): Promise<LeagueRanking> {
+    const wire = await this.request<WireRankingResponse>(`leagues/${leagueId}/ranking`);
+    return {
+      leagueName: wire.ti ?? '',
+      managers: (wire.us ?? []).filter((u) => !!u.i).map(toManagerRank),
+    };
+  }
+
+  /**
+   * Die Punkte je Spieltag eines Managers über alle Saisons der Liga. Gegen
+   * die echte API geprüft (03.09.2026): eine Anfrage liefert alle Saisons,
+   * die laufende zuletzt, jede mit allen 34 Spieltagen, auch den kommenden.
+   */
+  async getManagerPerformance(leagueId: LeagueId, managerId: string): Promise<ManagerPerformance> {
+    const wire = await this.request<WireManagerPerformanceResponse>(
+      `leagues/${leagueId}/managers/${managerId}/performance`,
+    );
+    return {
+      managerId: wire.u ?? managerId,
+      managerName: wire.unm ?? '',
+      seasons: (wire.it ?? []).map(toManagerSeason),
+    };
+  }
+
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, authenticated = true } = options;
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -432,5 +482,42 @@ function toMatchSummary(wire: WireMatchSummary): MatchSummary {
     team2Id: wire.t2,
     team1Goals: wire.t1g,
     team2Goals: wire.t2g,
+  };
+}
+
+function toManagerRank(wire: WireRankingUser): ManagerRank {
+  return {
+    id: wire.i,
+    name: wire.n ?? '',
+    imagePath: wire.uim ?? '',
+    seasonPoints: wire.sp ?? 0,
+    seasonPlace: wire.spl ?? 0,
+    dayPoints: wire.mdp ?? 0,
+    dayPlace: wire.mdpl ?? 0,
+    teamValue: wire.tv ?? 0,
+  };
+}
+
+/** Spieltage ohne Nummer fallen weg, ohne sie lässt sich nichts einordnen. */
+function toManagerSeason(wire: WireManagerSeason): ManagerSeason {
+  const matchdays: ManagerMatchday[] = [];
+  for (const entry of wire.it ?? []) {
+    const day = entry.day ?? 0;
+    if (day <= 0) continue;
+    matchdays.push({
+      day,
+      points: entry.mdp ?? 0,
+      kickoff: entry.md ?? '',
+      won: entry.tw === true,
+    });
+  }
+  return {
+    id: wire.sid ?? '',
+    title: wire.sn ?? '',
+    place: wire.pl ?? 0,
+    averagePoints: wire.ap ?? 0,
+    totalPoints: wire.tp ?? 0,
+    wins: wire.mdw ?? 0,
+    matchdays,
   };
 }

@@ -1,6 +1,7 @@
 import './styles/base.css';
 import './styles/planning.css';
 import './styles/lineup.css';
+import './styles/stats.css';
 import { App } from './ui/app.js';
 import { initInstallPrompt } from './ui/install.js';
 import { initTheme } from './ui/theme.js';

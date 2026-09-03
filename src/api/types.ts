@@ -454,3 +454,118 @@ export interface WireMatchSummary {
   t1g: number;
   t2g: number;
 }
+
+// ---------- Manager-Rangliste ----------
+
+/** Der angemeldete Nutzer, `user/me`. Nur die Id zählt: sie markiert "ich" in der Rangliste. */
+export interface UserInfo {
+  id: string;
+  name: string;
+}
+
+/** Ein Manager der Liga aus `leagues/{id}/ranking`. */
+export interface ManagerRank {
+  id: string;
+  name: string;
+  /** Profilbild relativ zum CDN, leer wenn Kickbase keins führt. */
+  imagePath: string;
+  /** Saisonpunkte und Platz laut Kickbase. */
+  seasonPoints: number;
+  seasonPlace: number;
+  /** Punkte und Platz am laufenden Spieltag. */
+  dayPoints: number;
+  dayPlace: number;
+  teamValue: number;
+}
+
+export interface LeagueRanking {
+  leagueName: string;
+  /** In der Reihenfolge von Kickbase, also nach Platz. */
+  managers: ManagerRank[];
+}
+
+/** Ein Spieltag eines Managers aus `leagues/{id}/managers/{uid}/performance`. */
+export interface ManagerMatchday {
+  /** Spieltagsnummer, 1-basiert. */
+  day: number;
+  /** Punkte, 0 solange nicht gespielt. */
+  points: number;
+  /** Erster Anstoß des Spieltags, ISO 8601. Leer, wenn Kickbase keinen führt. */
+  kickoff: string;
+  /** Spieltagssieger laut Kickbase. */
+  won: boolean;
+}
+
+export interface ManagerSeason {
+  /** Saison-Id laut Kickbase, etwa "42". */
+  id: string;
+  /** Beschriftung, etwa "2026/2027". */
+  title: string;
+  /** Platz laut Kickbase, 0 wenn nicht geführt (vergangene Saisons). */
+  place: number;
+  averagePoints: number;
+  totalPoints: number;
+  /** Spieltagssiege laut Kickbase. */
+  wins: number;
+  /** Alle Spieltage der Saison, aufsteigend, auch die noch nicht gespielten. */
+  matchdays: ManagerMatchday[];
+}
+
+export interface ManagerPerformance {
+  managerId: string;
+  managerName: string;
+  /** Aufsteigend nach Saison, die laufende steht zuletzt. */
+  seasons: ManagerSeason[];
+}
+
+export interface WireUserMeResponse {
+  u?: { id?: string; name?: string };
+}
+
+export interface WireRankingResponse {
+  /** Liganame. */
+  ti?: string;
+  us?: WireRankingUser[];
+}
+
+export interface WireRankingUser {
+  i: string;
+  n?: string;
+  uim?: string;
+  /** Saisonpunkte und Platz. */
+  sp?: number;
+  spl?: number;
+  /** Punkte und Platz am laufenden Spieltag. */
+  mdp?: number;
+  mdpl?: number;
+  /** Teamwert. */
+  tv?: number;
+}
+
+export interface WireManagerPerformanceResponse {
+  u?: string;
+  unm?: string;
+  it?: WireManagerSeason[];
+}
+
+export interface WireManagerSeason {
+  sid?: string;
+  sn?: string;
+  pl?: number;
+  ap?: number;
+  tp?: number;
+  /** Spieltagssiege. */
+  mdw?: number;
+  it?: WireManagerMatchday[];
+}
+
+export interface WireManagerMatchday {
+  day?: number;
+  /** Punkte des Spieltags. */
+  mdp?: number;
+  /** Erster Anstoß, ISO 8601. */
+  md?: string;
+  /** Spieltagssieger. */
+  tw?: boolean;
+  cur?: boolean;
+}
