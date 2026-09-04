@@ -190,6 +190,31 @@ html[data-theme='dark'] .stats-sheet {
     0 20px 44px rgba(0, 0, 0, 0.6);
 }
 
+/*
+ * Die beiden Segmentleisten im Dunkel-Modus: Szenario-Umschalter auf der
+ * Seite und Saison-Reiter im Dialog. Beide nehmen für das aktive Segment
+ * --card und für die Schiene --scen-switch-bg. Im Dunkeln ist --card der
+ * dunklere der beiden Werte: das Aktive sank ein, statt herauszustehen, und
+ * sein schwarzer Schatten war auf dunklem Grund unsichtbar.
+ *
+ * Die Schiene bekommt deshalb Schwarz mit Deckung statt eines festen Tons.
+ * So sinkt sie in beiden Umgebungen ein, auf der Seite wie im höher
+ * liegenden Dialog, ohne je einen eigenen Wert.
+ */
+html[data-theme='dark'] .scen-switch,
+html[data-theme='dark'] .pd-tabs {
+  background: rgba(0, 0, 0, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .scen-switch button[aria-pressed='true'],
+html[data-theme='dark'] .pd-tabs button[aria-pressed='true'] {
+  background: #303c45;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
 *,
 *::before,
 *::after {
