@@ -151,7 +151,7 @@ describe('StatsPage: Reiter und Umschalter', () => {
     const { layer } = open();
     await settle();
     expect(texts(layer, '.stats-tab')).toEqual(['Ich', 'Saison', 'Tabelle']);
-    expect(layer.querySelector('.stats-tab.is-active')?.textContent).toBe('Ich');
+    expect(layer.querySelector('.stats-tab[aria-pressed="true"]')?.textContent).toBe('Ich');
   });
 
   it('die Kreuztabelle: Manager, Gesamt, dann die Spieltage absteigend', async () => {

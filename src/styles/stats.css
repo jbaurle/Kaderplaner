@@ -50,35 +50,14 @@ body.is-stats-open {
   color: var(--text-strong);
 }
 
+/*
+ * Die Reiter sind der Saison-Umschalter des Spielerdialogs (`.pd-tabs` in
+ * planning.css): dieselbe Schiene, derselbe gedrückte Knopf. Hier nur der
+ * Platz im Kopf, der Abstand kommt aus dem Raster.
+ */
 .stats-tabs {
   grid-column: 1 / -1;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-/* Reiter als Links wie die Vorlagen der Aufstellung, der offene kräftiger. */
-.stats-tab {
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 7px 2px;
-  border: 0;
-  background: none;
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
-.stats-tab:hover {
-  color: var(--text);
-}
-
-.stats-tab.is-active {
-  color: var(--text-strong);
-  text-decoration-color: var(--text-strong);
-  text-decoration-thickness: 2px;
+  margin-bottom: 0;
 }
 
 /* ---------- Bausteine ---------- */
@@ -348,32 +327,51 @@ body.is-stats-open {
 
 /* ---------- Saison: Podium und Meilensteine ---------- */
 
+/*
+ * Drei Stufen auf einer Linie, zusammen nie breiter als 360 px und mittig:
+ * auf dem Handy füllen sie das Blatt, im breiten Fenster stehen sie nicht
+ * als drei verlorene Kacheln über die ganze Breite.
+ */
 .st-podium {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 10px;
-  margin: 2px 0 4px;
+  gap: 8px;
+  /* Volle Breite bis zum Deckel, sonst schrumpft die Zeile mit den
+     mittigen Rändern im Spaltenflex auf ihren Inhalt zusammen. */
+  width: 100%;
+  max-width: 360px;
+  margin: 4px auto 6px;
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .st-slot {
+  flex: 1 1 0;
+  max-width: 112px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  width: 30%;
-  min-width: 0;
+  gap: 4px;
 }
 
 .st-slot .st-avatar {
-  width: 36px;
-  height: 36px;
-  font-size: 12px;
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+/* Der Erste ist größer und trägt einen Ring in der Erfolgsfarbe. */
+.st-slot--first .st-avatar {
+  width: 52px;
+  height: 52px;
+  font-size: 16px;
+  box-shadow: 0 0 0 3px var(--success);
 }
 
 .st-slot-name {
   max-width: 100%;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--text-strong);
   overflow: hidden;
@@ -381,27 +379,37 @@ body.is-stats-open {
   white-space: nowrap;
 }
 
+/* Die Punkte tragen die Aussage, der Name steht nur dabei. */
 .st-slot-points {
-  font-size: 10px;
-  color: var(--text-muted);
+  margin-bottom: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-strong);
   font-variant-numeric: tabular-nums;
+}
+
+.st-slot--first .st-slot-points {
+  font-size: 16px;
 }
 
 .st-step {
   width: 100%;
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
   background: var(--row-hover);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 4px;
+  padding-top: 6px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .st-slot--first .st-step {
   background: var(--top11-bg);
   color: var(--text-strong);
+  box-shadow: inset 0 3px 0 var(--success);
 }
 
 .st-cards {

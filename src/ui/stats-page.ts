@@ -197,8 +197,8 @@ export class StatsPage {
     const matrixScroll = this.layer.querySelector<HTMLElement>('.st-matrix-scroll')?.scrollLeft ?? 0;
     const tabs = TABS.map(
       (t) =>
-        `<button type="button" class="stats-tab${t.key === this.tab ? ' is-active' : ''}"
-                 data-tab="${t.key}">${t.label}</button>`,
+        `<button type="button" class="stats-tab" data-tab="${t.key}"
+                 aria-pressed="${t.key === this.tab}">${t.label}</button>`,
     ).join('');
     const body =
       this.tab === 'ich' ? this.renderMe() : this.tab === 'saison' ? this.renderSeason() : this.renderTable();
@@ -208,7 +208,7 @@ export class StatsPage {
         <header class="stats-head">
           <h2>Statistik</h2>
           <button type="button" class="dialog-close" data-close aria-label="Schließen">×</button>
-          <div class="stats-tabs">${tabs}</div>
+          <div class="stats-tabs pd-tabs">${tabs}</div>
         </header>
         ${body}
       </div>
@@ -409,7 +409,7 @@ function openNote(season: LeagueSeason, text: string): string {
 
 function renderPodium(rows: ReturnType<typeof standings>): string {
   const order = [rows[1], rows[0], rows[2]].filter((r): r is NonNullable<typeof r> => r !== undefined);
-  const heights: Record<number, number> = { 0: 52, 1: 34, 2: 24 };
+  const heights: Record<number, number> = { 0: 64, 1: 44, 2: 30 };
   const slots = order.map((row) => {
     const place = rows.indexOf(row);
     return `
