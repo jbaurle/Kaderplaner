@@ -41,8 +41,7 @@ import { formationIssueChips } from './chips.js';
 import {
   escapeHtml,
   formatMio,
-  playerImageUrl,
-  playerPhotoUrl,
+  playerPhotoSrc,
   teamLogoUrl,
 } from './format.js';
 
@@ -287,20 +286,37 @@ export class LineupPage {
     this.layer.tabIndex = -1;
   }
 
+  /** Die Ereignisse hängen an der Ebene und bleiben beim Wiederöffnen dran. */
+  private wired = false;
+
+  /**
+   * Öffnen, auch zum zweiten Mal: die Ebene mit ihren Bildern bleibt beim
+   * Schließen erhalten, siehe `close`. Ein neu gebautes `<img>` müsste der
+   * Browser erst wieder dekodieren, und elf Freisteller dauern sichtbar.
+   */
   open(): void {
     document.body.appendChild(this.layer);
     document.body.classList.add('is-lineup-open');
-    this.wire();
+    if (!this.wired) {
+      this.wire();
+      this.wired = true;
+    }
     this.render();
     this.layer.focus();
   }
 
+  /**
+   * Nimmt die Ebene nur aus dem Dokument. Sie lebt mit ihren Elementen
+   * weiter, solange der Aufrufer die Seite behält; die Notiz vom letzten
+   * Senden gehört aber nicht ins nächste Öffnen.
+   */
   close(): void {
     if (this.closeTimer !== null) {
       window.clearTimeout(this.closeTimer);
       this.closeTimer = null;
     }
     this.cancelDrag();
+    this.note = null;
     document.body.classList.remove('is-lineup-open');
     this.layer.remove();
     this.props.onClose();
@@ -1131,6 +1147,15 @@ export class LineupPage {
     // Die Ebene wird als Ganzes neu gebaut, das Band fängt damit wieder bei
     // den Torhütern an. Wer gerade bei der Abwehr war, soll dort bleiben.
     const benchScrollLeft = this.layer.querySelector<HTMLElement>('.bench-strip')?.scrollLeft ?? 0;
+    // Die Bilder überleben den Neubau: das alte Element behält sein
+    // dekodiertes Bild, ein neues müsste es erst wieder holen und dekodieren,
+    // und eines, das schon aufs Wappen gewechselt hat, würde jedes Mal neu am
+    // CDN scheitern. Schlüssel ist der Freisteller-Pfad, der bleibt auch nach
+    // dem Wechsel aufs Wappen stehen.
+    const kept = new Map<string, HTMLImageElement>();
+    for (const img of this.layer.querySelectorAll<HTMLImageElement>('img[data-photo]')) {
+      kept.set(img.dataset['photo'] ?? '', img);
+    }
 
     this.layer.innerHTML = `
       <div class="lineup-sheet" role="dialog" aria-label="Aufstellung">
@@ -1176,6 +1201,14 @@ export class LineupPage {
       </div>
     `;
 
+    for (const img of this.layer.querySelectorAll<HTMLImageElement>('img[data-photo]')) {
+      const old = kept.get(img.dataset['photo'] ?? '');
+      if (!old) continue;
+      // Vom Band aufs Feld oder zurück wechselt die Klasse, das Wappen bleibt.
+      old.className = img.className + (old.classList.contains('is-logo') ? ' is-logo' : '');
+      img.replaceWith(old);
+    }
+
     const strip = this.layer.querySelector<HTMLElement>('.bench-strip');
     if (strip) strip.scrollLeft = benchScrollLeft;
   }
@@ -1218,9 +1251,9 @@ export class LineupPage {
     if (!player) return '<span class="tok-img"></span>';
     return `
       <span class="tok-img">
-        <img class="tok-photo" src="${escapeHtml(photoSrc(player))}"
+        <img class="tok-photo" src="${escapeHtml(photoSrc(player))}" data-photo="${escapeHtml(photoSrc(player))}"
              data-fallback="${escapeHtml(teamLogoUrl(player.teamId))}"
-             alt="" draggable="false" decoding="async">
+             alt="" draggable="false" decoding="sync">
         ${renderAlert(player)}
         ${renderS11(player, 'tok-s11')}
       </span>
@@ -1265,7 +1298,7 @@ export class LineupPage {
       <button type="button" class="bench-card" data-player-id="${escapeHtml(player.id)}"
               data-drag-id="${escapeHtml(player.id)}" data-drag-from="bench">
         <span class="card-img">
-          <img class="card-photo" src="${escapeHtml(photoSrc(player))}"
+          <img class="card-photo" src="${escapeHtml(photoSrc(player))}" data-photo="${escapeHtml(photoSrc(player))}"
                data-fallback="${escapeHtml(teamLogoUrl(player.teamId))}" alt="" draggable="false"
                loading="lazy" decoding="async">
           ${renderAlert(player)}
@@ -1450,7 +1483,7 @@ function errorText(error: unknown): string {
  * dort und bekamen bisher fälschlich das Wappen statt eines Gesichts.
  */
 function photoSrc(player: LineupPlayer): string {
-  return player.imagePath ? playerImageUrl(player.imagePath) : playerPhotoUrl(player.id);
+  return playerPhotoSrc(player);
 }
 
 /**

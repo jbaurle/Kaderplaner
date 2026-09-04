@@ -208,6 +208,58 @@ describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
   });
 });
 
+describe('Bilder überleben den Neubau', () => {
+  it('setzt das alte <img> wieder ein, auch wenn der Spieler die Seite wechselt', () => {
+    const { layer } = open();
+    const before = layer.querySelector<HTMLImageElement>('.bench-card[data-player-id="a"] img.card-photo');
+    if (!before) throw new Error('Bild fehlt');
+    before.classList.add('is-logo');
+
+    click(layer, '.bench-card[data-player-id="a"]');
+
+    const after = layer.querySelector<HTMLImageElement>('[data-row="ABW"] .tok img.tok-photo');
+    expect(after).toBe(before);
+    expect(after?.className).toBe('tok-photo is-logo');
+  });
+
+  it('erzeugt für neue Spieler weiterhin ein neues <img>', () => {
+    const { layer } = open();
+    const imgs = layer.querySelectorAll('img[data-photo]');
+    expect(imgs).toHaveLength(PLAYERS.length);
+  });
+
+  it('öffnet nach dem Schließen dieselbe Ebene mit denselben Bildern wieder', () => {
+    let closed = 0;
+    const page = new LineupPage({
+      players: PLAYERS,
+      budget: 0,
+      scores: SCORES,
+      bestEleven: null,
+      initialIds: ['a'],
+      onChange: () => {},
+      onSubmit: () => Promise.resolve(),
+      onClose: () => { closed++; },
+      onUnauthorized: () => {},
+    });
+    page.open();
+    const layer = document.querySelector<HTMLElement>('.lineup-layer')!;
+    const before = layer.querySelector<HTMLImageElement>('[data-row="ABW"] .tok img.tok-photo')!;
+
+    click(layer, '[data-close]');
+    expect(closed).toBe(1);
+    expect(document.querySelector('.lineup-layer')).toBeNull();
+    expect(document.body.classList.contains('is-lineup-open')).toBe(false);
+
+    page.open();
+    const again = document.querySelector<HTMLElement>('.lineup-layer')!;
+    expect(again).toBe(layer);
+    expect(again.querySelector('[data-row="ABW"] .tok img.tok-photo')).toBe(before);
+    // Die Ereignisse hängen nur einmal: ein Tipp schließt genau einmal.
+    click(again, '[data-close]');
+    expect(closed).toBe(2);
+  });
+});
+
 describe('kickbaseLineup', () => {
   it('ordnet die Elf nach lo und lässt die Bank weg', () => {
     const players: LineupPlayer[] = [

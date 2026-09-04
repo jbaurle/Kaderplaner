@@ -19,8 +19,9 @@ if (!host) throw new Error('#app container missing in index.html');
 new App({ host }).start();
 
 /*
- * Der Service Worker speichert nichts, siehe public/sw.js. Er steht nur da,
- * damit Chrome auf Android die App wirklich installiert. Erst nach `load`,
+ * Der Service Worker hält nur die Bilder vom CDN, siehe public/sw.js; die
+ * App-Daten gehen ohne Umweg ins Netz. Er steht vor allem da, damit Chrome
+ * auf Android die App wirklich installiert. Erst nach `load`,
  * damit die Registrierung nicht mit dem ersten Bildaufbau um die Leitung
  * streitet. `updateViaCache: 'none'` verhindert, dass der Browser die Datei
  * selbst bis zu einen Tag lang aus seinem HTTP-Cache bedient.

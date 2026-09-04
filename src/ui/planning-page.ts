@@ -43,7 +43,8 @@ import { defaultSeasonId } from '../compute/performance.js';
 import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
 import { loadOptimizerCache } from '../state/optimizer.js';
 import { buildLabel } from './build-info.js';
-import { escapeHtml } from './format.js';
+import { escapeHtml, playerPhotoSrc, teamLogoUrl } from './format.js';
+import { preloadImages } from './preload.js';
 import { LineupPage, kickbaseLineup, type LineupPlayer } from './lineup-page.js';
 import { StatsPage } from './stats-page.js';
 import {
@@ -146,6 +147,13 @@ export class PlanningPage {
   private scoreRun = 0;
   /** Das Modal des letzten Renderns, siehe die Scroll-Rettung in `render`. */
   private renderedModalKey = '';
+  /**
+   * Die Aufstellung bleibt nach dem Schließen erhalten: ihre Bilder sind
+   * dekodiert, ein Neubau müsste elf Freisteller erst wieder dekodieren.
+   * Sie gilt nur für den Kader und den Score-Lauf, mit denen sie gebaut
+   * wurde; nach "Laden" oder einem neuen Lauf kommt eine neue.
+   */
+  private lineup: { page: LineupPage; squad: PageState['squad']; scores: PageState['scores'] } | null = null;
 
   constructor(props: PlanningPageProps) {
     this.props = props;
@@ -217,6 +225,12 @@ export class PlanningPage {
       this.state.market = market.players;
       this.state.isLoading = false;
       this.render();
+      // Die Freisteller und Wappen des Kaders im Hintergrund holen: die
+      // Aufstellung zeigt sie später ohne den Moment des Nachladens.
+      preloadImages([
+        ...squad.players.map((p) => playerPhotoSrc(p)),
+        ...[...new Set(squad.players.map((p) => p.teamId).filter(Boolean))].map((id) => teamLogoUrl(id)),
+      ]);
 
       // Zweite Stufe: die Tabelle steht schon, der Score-Lauf blockiert sie
       // nicht. Am selben Spieltag kostet er einen einzigen Request, weil die
@@ -693,6 +707,12 @@ export class PlanningPage {
    * noch nichts.
    */
   private openLineup(view: PlanningView): void {
+    const kept = this.lineup;
+    if (kept && kept.squad === this.state.squad && kept.scores === this.state.scores) {
+      kept.page.open();
+      return;
+    }
+
     const players: LineupPlayer[] = view.rows.map((row) => ({
       id: row.id,
       name: row.name,
@@ -710,7 +730,7 @@ export class PlanningPage {
     const initialIds = stored ?? kickbaseLineup(players);
     const scores = this.state.scores;
 
-    new LineupPage({
+    const page = new LineupPage({
       players,
       budget: view.budget,
       scores: scores ? scores.byPlayer : null,
@@ -726,7 +746,9 @@ export class PlanningPage {
       },
       onClose: () => {},
       onUnauthorized: () => this.props.onUnauthorized(),
-    }).open();
+    });
+    this.lineup = { page, squad: this.state.squad, scores: this.state.scores };
+    page.open();
   }
 
   /**

@@ -97,6 +97,11 @@ export function playerImageUrl(imagePath: string): string {
   return `https://kickbase.b-cdn.net/${imagePath.replace(/^\/+/, '')}`;
 }
 
+/** Der Freisteller eines Spielers: der Pfad aus dem Kader, sonst der über die Id. */
+export function playerPhotoSrc(player: { id: string; imagePath: string }): string {
+  return player.imagePath ? playerImageUrl(player.imagePath) : playerPhotoUrl(player.id);
+}
+
 /**
  * Profilbild eines Managers aus `uim` eines Gebots, etwa `user/<hash>.png`.
  * Gleiches CDN und gleiche Regel wie beim Spielerbild: nicht jeder hat eins,
