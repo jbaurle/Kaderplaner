@@ -203,16 +203,28 @@ html[data-theme='dark'] .stats-sheet {
  */
 html[data-theme='dark'] .scen-switch,
 html[data-theme='dark'] .pd-tabs {
+  /*
+   * Kein Polster: das aktive Segment füllt die Schiene ganz. Mit den 3 px von
+   * oben blieb rings um das Aktive ein dunkler Streifen stehen, der wie ein
+   * Rand um einen Knopf aussah. Die 3 px wandern in die Knöpfe, damit die
+   * Leiste so hoch bleibt wie im Hell-Modus und beim Umschalten der Farben
+   * nichts springt.
+   */
+  padding: 0;
   background: rgba(0, 0, 0, 0.32);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .scen-switch button,
+html[data-theme='dark'] .pd-tabs button {
+  padding: 9px 0;
+  border-radius: var(--radius);
 }
 
 html[data-theme='dark'] .scen-switch button[aria-pressed='true'],
 html[data-theme='dark'] .pd-tabs button[aria-pressed='true'] {
   background: #303c45;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 
 *,
