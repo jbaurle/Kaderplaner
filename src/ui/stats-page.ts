@@ -54,6 +54,11 @@ export class StatsPage {
   private readonly props: StatsPageProps;
   private readonly layer: HTMLElement;
   private tab: StatsTab = 'ich';
+  /**
+   * Welche Halbserie die Balken zeigen. `null` heißt: die mit dem laufenden
+   * Spieltag. Sobald der Nutzer umschaltet, bleibt seine Wahl stehen.
+   */
+  private half: 0 | 1 | null = null;
   private userId = '';
   private ranking: LeagueRanking | null = null;
   private performances: Record<string, ManagerPerformance> = {};
@@ -169,6 +174,12 @@ export class StatsPage {
         this.render();
         return;
       }
+      const side = target.closest<HTMLElement>('[data-half]');
+      if (side) {
+        this.half = side.dataset['half'] === '1' ? 1 : 0;
+        this.render();
+        return;
+      }
       if (target.closest('[data-retry]')) void this.fetch();
     });
     this.layer.addEventListener('keydown', (event) => {
@@ -227,6 +238,15 @@ export class StatsPage {
     return '<p class="st-placeholder">Keine Punkte bekannt.</p>';
   }
 
+  /**
+   * Die Halbserie, die gezeigt wird: die Wahl des Nutzers, sonst die mit dem
+   * laufenden Spieltag. Vor dem ersten Spieltag ist das die Hinrunde.
+   */
+  private shownHalf(season: LeagueSeason): 0 | 1 {
+    if (this.half !== null) return this.half;
+    return Math.max(1, season.playedDays) > halfSize(season) ? 1 : 0;
+  }
+
   private renderMe(): string {
     const season = this.season;
     if (!season) {
@@ -237,10 +257,12 @@ export class StatsPage {
     if (!me) {
       return `<p class="st-placeholder">Du bist in dieser Rangliste nicht dabei.</p>`;
     }
+    const half = this.shownHalf(season);
     return `
       ${hero(me.place, me.total, me.gapToFirst, me.leadOverSecond, season.managers.length, season.playedDays, season.dayCount, me.manager)}
       ${sectionHead('Deine Spieltage', 'grau: bester der Liga')}
-      ${renderBars(season, me)}
+      ${renderHalfSwitch(half)}
+      ${renderBars(season, me, half)}
       <div class="st-figures">
         <span class="st-fig"><span>Ø PUNKTE</span><b>${num(me.average)}</b></span>
         <span class="st-fig"><span>SPIELTAGSSIEGE</span><b>${me.wins}</b></span>
@@ -379,12 +401,46 @@ function heroFromRanking(ranking: LeagueRanking, userId: string): string {
   ).replace(' · ST 0/0', '');
 }
 
-function renderBars(season: LeagueSeason, me: ReturnType<typeof myFigures> & object): string {
+/** Spieltage je Halbserie. Bei ungerader Zahl bekommt die Hinrunde den mehr. */
+function halfSize(season: LeagueSeason): number {
+  return Math.ceil(season.dayCount / 2);
+}
+
+function renderHalfSwitch(half: 0 | 1): string {
+  const button = (key: 0 | 1, label: string): string =>
+    `<button type="button" data-half="${key}" aria-pressed="${key === half}">${label}</button>`;
+  return `<div class="st-half">${button(0, 'Hinrunde')}${button(1, 'Rückrunde')}</div>`;
+}
+
+/**
+ * Die Balken einer Halbserie. Alle ihre Spieltage stehen da, auch die noch
+ * offenen: sonst steht am ersten Spieltag ein einzelner Balken in einer
+ * leeren Fläche und man sieht nicht, wie viel Saison noch kommt. Offene Tage
+ * bekommen einen flachen Stummel auf der Grundlinie.
+ *
+ * Der Maßstab kommt aus der gezeigten Halbserie, nicht aus der ganzen Saison.
+ * Sonst drückt ein Ausreißer der anderen Hälfte alles hier klein.
+ */
+function renderBars(season: LeagueSeason, me: ReturnType<typeof myFigures> & object, half: 0 | 1): string {
+  const size = halfSize(season);
+  const from = half * size;
+  const to = Math.min(season.dayCount, from + size);
   const best = (i: number): number => Math.max(0, ...season.managers.map((m) => m.points[i] ?? 0));
-  const scale = Math.max(1, ...Array.from({ length: season.playedDays }, (_, i) => best(i)));
+  const played = Array.from({ length: Math.max(0, Math.min(to, season.playedDays) - from) }, (_, i) => best(from + i));
+  const scale = Math.max(1, ...played);
   const items: string[] = [];
-  for (let i = 0; i < season.playedDays; i++) {
+  for (let i = from; i < to; i++) {
     const day = i + 1;
+    if (day > season.playedDays) {
+      items.push(`
+        <span class="st-day st-day--empty" title="Spieltag ${day}: noch offen">
+          <span class="st-rank"></span>
+          <span class="st-stack"><span class="st-empty"></span></span>
+          <span class="st-points"></span>
+          <span class="st-daynum">${day}</span>
+        </span>`);
+      continue;
+    }
     const mine = me.manager.points[i] ?? 0;
     const top = best(i);
     const place = me.dayPlaces[i] ?? 0;
@@ -396,6 +452,7 @@ function renderBars(season: LeagueSeason, me: ReturnType<typeof myFigures> & obj
           <span class="st-best" style="height:${Math.round((top / scale) * 100)}%"></span>
           <span class="st-mine ${cls}" style="height:${Math.round((mine / scale) * 100)}%"></span>
         </span>
+        <span class="st-points">${num(mine)}</span>
         <span class="st-daynum">${day}</span>
       </span>`);
   }

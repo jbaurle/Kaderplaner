@@ -191,8 +191,9 @@ html[data-theme='dark'] .stats-sheet {
 }
 
 /*
- * Die beiden Segmentleisten im Dunkel-Modus: Szenario-Umschalter auf der
- * Seite und Saison-Reiter im Dialog. Beide nehmen für das aktive Segment
+ * Die Segmentleisten im Dunkel-Modus: Szenario-Umschalter auf der Seite,
+ * Saison-Reiter im Spielerdialog, Halbserie in der Statistik. Alle nehmen
+ * für das aktive Segment
  * --card und für die Schiene --scen-switch-bg. Im Dunkeln ist --card der
  * dunklere der beiden Werte: das Aktive sank ein, statt herauszustehen, und
  * sein schwarzer Schatten war auf dunklem Grund unsichtbar.
@@ -202,7 +203,8 @@ html[data-theme='dark'] .stats-sheet {
  * liegenden Dialog, ohne je einen eigenen Wert.
  */
 html[data-theme='dark'] .scen-switch,
-html[data-theme='dark'] .pd-tabs {
+html[data-theme='dark'] .pd-tabs,
+html[data-theme='dark'] .st-half {
   /*
    * Kein Polster: das aktive Segment füllt die Schiene ganz. Mit den 3 px von
    * oben blieb rings um das Aktive ein dunkler Streifen stehen, der wie ein
@@ -216,12 +218,14 @@ html[data-theme='dark'] .pd-tabs {
 }
 
 html[data-theme='dark'] .scen-switch button,
+html[data-theme='dark'] .st-half button,
 html[data-theme='dark'] .pd-tabs button {
   padding: 9px 0;
   border-radius: var(--radius);
 }
 
 html[data-theme='dark'] .scen-switch button[aria-pressed='true'],
+html[data-theme='dark'] .st-half button[aria-pressed='true'],
 html[data-theme='dark'] .pd-tabs button[aria-pressed='true'] {
   background: #303c45;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);

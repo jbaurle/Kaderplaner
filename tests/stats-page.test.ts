@@ -17,7 +17,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * gespielte Spieltage und keiner offen.
  */
 const START = Date.now() - 25 * DAY_MS;
-const kickoffOf = (day: number): string => new Date(START + (day - 1) * 7 * DAY_MS).toISOString();
+const kickoffOf = (day: number, start = START): string =>
+  new Date(start + (day - 1) * 7 * DAY_MS).toISOString();
 
 const RANKING: LeagueRanking = {
   leagueName: 'Test',
@@ -27,14 +28,14 @@ const RANKING: LeagueRanking = {
   ],
 };
 
-function performance(id: string, points: number[]): ManagerPerformance {
+function performance(id: string, points: number[], start = START): ManagerPerformance {
   return {
     managerId: id,
     managerName: id,
     seasons: [{
       id: '2', title: '2026/2027', place: 0, averagePoints: 0, totalPoints: 0, wins: 0,
       matchdays: Array.from({ length: 34 }, (_, i) => ({
-        day: i + 1, points: points[i] ?? 0, kickoff: kickoffOf(i + 1), won: false,
+        day: i + 1, points: points[i] ?? 0, kickoff: kickoffOf(i + 1, start), won: false,
       })),
     }],
   };
@@ -99,7 +100,7 @@ describe('StatsPage: Daten', () => {
     expect(client.getLeagueRanking).toHaveBeenCalledWith('L1');
     expect(client.getManagerPerformance).toHaveBeenCalledTimes(2);
     expect(layer.querySelector('.st-place')?.textContent).toContain('2.');
-    expect(layer.querySelectorAll('.st-day')).toHaveLength(4);
+    expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
 
     const cached = loadStats('L1');
     expect(cached?.userId).toBe('a');
@@ -111,13 +112,13 @@ describe('StatsPage: Daten', () => {
     const { layer, client } = open();
     await settle();
     expect(client.getLeagueRanking).not.toHaveBeenCalled();
-    expect(layer.querySelectorAll('.st-day')).toHaveLength(4);
+    expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
   });
 
   it('holt einen alten Cache neu, zeigt ihn aber solange', async () => {
     saveStats('L1', { userId: 'a', ranking: RANKING, performances: PERFORMANCES }, Date.now() - 2 * 60 * 60 * 1000);
     const { layer, client } = open();
-    expect(layer.querySelectorAll('.st-day')).toHaveLength(4);
+    expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
     await settle();
     expect(client.getLeagueRanking).toHaveBeenCalledTimes(1);
     // Die Id ist bekannt, `user/me` wird nicht noch einmal gefragt.
@@ -142,7 +143,7 @@ describe('StatsPage: Daten', () => {
     expect(layer.querySelector('.st-placeholder')?.textContent).toContain('kaputt');
     click(layer, '[data-retry]');
     await settle();
-    expect(layer.querySelectorAll('.st-day')).toHaveLength(4);
+    expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
   });
 });
 
@@ -152,6 +153,62 @@ describe('StatsPage: Reiter und Umschalter', () => {
     await settle();
     expect(texts(layer, '.stats-tab')).toEqual(['Ich', 'Saison', 'Tabelle']);
     expect(layer.querySelector('.stats-tab[aria-pressed="true"]')?.textContent).toBe('Ich');
+  });
+
+  it('zeigt alle Spieltage der Halbserie, offene als Platzhalter', async () => {
+    const { layer } = open();
+    await settle();
+    // 34 Spieltage, also 17 je Halbserie: vier gespielte, dreizehn offene.
+    expect(layer.querySelectorAll('.st-day')).toHaveLength(17);
+    expect(layer.querySelectorAll('.st-day--empty')).toHaveLength(13);
+    expect(layer.querySelectorAll('.st-empty')).toHaveLength(13);
+    // Die Punkte stehen an jedem gespielten Spieltag.
+    expect(texts(layer, '.st-points').slice(0, 4)).toEqual(['100', '50', '120', '70']);
+  });
+
+  it('schaltet zwischen Hinrunde und Rückrunde um', async () => {
+    const { layer } = open();
+    await settle();
+    expect(texts(layer, '.st-half button')).toEqual(['Hinrunde', 'Rückrunde']);
+    expect(layer.querySelector('.st-half button[aria-pressed="true"]')?.textContent).toBe('Hinrunde');
+    expect(texts(layer, '.st-daynum').at(-1)).toBe('17');
+
+    click(layer, '[data-half="1"]');
+    expect(layer.querySelector('.st-half button[aria-pressed="true"]')?.textContent).toBe('Rückrunde');
+    expect(texts(layer, '.st-daynum')).toEqual(
+      Array.from({ length: 17 }, (_, i) => String(i + 18)),
+    );
+    // In der Rückrunde ist noch kein Spieltag gespielt.
+    expect(layer.querySelectorAll('.st-mine')).toHaveLength(0);
+  });
+
+  it('öffnet mit der Halbserie des laufenden Spieltags', async () => {
+    // Vor dem ersten Spieltag: Hinrunde. Anstoß liegt in der Zukunft, keine
+    // Punkte, also ist noch nichts angepfiffen.
+    const future = Date.now() + 7 * DAY_MS;
+    const before = fakeClient();
+    const nothing = { a: performance('a', [], future), b: performance('b', [], future) };
+    before.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(nothing[id as 'a' | 'b']),
+    );
+    const early = open(before);
+    await settle();
+    expect(early.layer.querySelector('.st-half button[aria-pressed="true"]')?.textContent).toBe('Hinrunde');
+
+    // Saison durch: Rückrunde. Alle 34 Anstöße liegen zurück.
+    localStorage.clear();
+    for (const old of document.querySelectorAll('.stats-layer')) old.remove();
+    const past = Date.now() - 40 * 7 * DAY_MS;
+    const all = Array.from({ length: 34 }, (_, i) => 60 + i);
+    const after = fakeClient();
+    const done = { a: performance('a', all, past), b: performance('b', all, past) };
+    after.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(done[id as 'a' | 'b']),
+    );
+    const late = open(after);
+    await settle();
+    expect(late.layer.querySelector('.st-half button[aria-pressed="true"]')?.textContent).toBe('Rückrunde');
+    expect(texts(late.layer, '.st-daynum').at(0)).toBe('18');
   });
 
   it('die Kreuztabelle: Manager, Gesamt, dann die Spieltage absteigend', async () => {

@@ -220,11 +220,52 @@ body.is-stats-open {
   color: var(--text-strong);
 }
 
+/*
+ * Umschalter der Halbserie, gleiche Machart wie `.scen-switch` in
+ * planning.css. Der Dunkel-Modus greift ihn in base.css zusammen mit den
+ * anderen Segmentleisten ab.
+ */
+.st-half {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--scen-switch-bg);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+.st-half button {
+  flex: 1;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.st-half button[aria-pressed='true'] {
+  background: var(--card);
+  color: var(--text-strong);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.st-half button:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
 .st-bars {
   display: flex;
   align-items: flex-end;
   gap: 4px;
-  height: 92px;
+  height: 104px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--border);
 }
 
 .st-day {
@@ -276,9 +317,55 @@ body.is-stats-open {
   background: repeating-linear-gradient(45deg, var(--grade-mid) 0 3px, transparent 3px 6px);
 }
 
+/* Der Platzhalter eines offenen Spieltags: ein flacher Stummel auf der
+   Grundlinie, damit das Raster von Anfang an vollständig dasteht. */
+.st-empty {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+/*
+ * Die Punkte des Spieltags, direkt unter dem Balken. Tabellenziffern, damit
+ * die Zahlen der Spalten gleich breit stehen.
+ *
+ * Auf dem Handy bleiben sie weg: bei 390 px ist eine Spalte 15 px breit, eine
+ * vierstellige Zahl braucht 22. Die Balken liefen sonst 37 px über den Rand.
+ * Ab 480 px Blattbreite ist Platz, dort stehen sie.
+ */
+.st-points {
+  display: none;
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--text-strong);
+}
+
+@container (min-width: 480px) {
+  .st-points {
+    display: block;
+  }
+}
+
 .st-daynum {
   font-size: 9px;
   color: var(--text-muted);
+}
+
+/* Leere Spalten treten zurück, tragen aber dieselben Zeilen, damit die
+   Spieltagszahlen aller Spalten auf einer Linie stehen. */
+.st-day--empty .st-daynum {
+  opacity: 0.45;
+}
+
+.st-day--empty .st-points::before {
+  content: '\00a0';
+}
+
+.st-rank:empty::before {
+  content: '\00a0';
 }
 
 .st-rank {
