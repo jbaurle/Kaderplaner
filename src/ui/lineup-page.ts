@@ -106,7 +106,7 @@ interface Note {
 /** Von oben nach unten, wie auf dem Platz. */
 const ROWS: readonly PositionLabel[] = ['ANG', 'MF', 'ABW', 'TW'];
 
-/** Reiter der Bank, von hinten nach vorne wie im Kader üblich. */
+/** Tabs der Bank, von hinten nach vorne wie im Kader üblich. */
 const TABS: readonly PositionLabel[] = ['TW', 'ABW', 'MF', 'ANG'];
 
 const POSITION_NAME: Record<PositionLabel, string> = {
@@ -260,7 +260,7 @@ export class LineupPage {
    */
   private order: PlayerId[];
   private note: Note | null = null;
-  /** Läuft, solange der POST unterwegs ist. Solange bleibt der Knopf gesperrt. */
+  /** Läuft, solange der POST unterwegs ist. Solange bleibt der Button gesperrt. */
   private sending = false;
   /**
    * Was zuletzt an Kickbase ging. Stimmt der Entwurf damit überein, gibt es
@@ -370,7 +370,7 @@ export class LineupPage {
 
   /**
    * Das Band an die Gruppe dieser Position schieben. Ersetzt den früheren
-   * Reiter: gezeigt wird weiterhin alles, nur der Ausschnitt wandert.
+   * Tab: gezeigt wird weiterhin alles, nur der Ausschnitt wandert.
    */
   private scrollToGroup(pos: PositionLabel): void {
     const group = this.layer.querySelector<HTMLElement>(`[data-group="${pos}"]`);
@@ -572,7 +572,7 @@ export class LineupPage {
   /**
    * Beschriftung des Balkens. Sie trägt den Zustand: was gesendet würde,
    * oder woran es noch fehlt. Die Chips am Feld nennen jede Lücke einzeln,
-   * hier steht nur die erste, sonst wird der Knopf zum Absatz.
+   * hier steht nur die erste, sonst wird der Button zum Absatz.
    */
   private submitLabel(
     formation: string | null,
@@ -1261,7 +1261,7 @@ export class LineupPage {
   }
 
   /**
-   * Bank als ein einziges Band, nach Position gruppiert. Kein Reiter: der
+   * Bank als ein einziges Band, nach Position gruppiert. Kein Tab: der
    * verstecke immer drei Viertel der Bank, und beim Aufstellen weiß man oft
    * erst beim Hinsehen, wen man sucht. Ein Tipp auf einen freien Platz schiebt
    * das Band an die passende Gruppe, siehe {@link scrollToGroup}.
@@ -1454,7 +1454,7 @@ function renderNote(note: Note | null, slot: 'hint' | 'send'): string {
 /**
  * Kennzeichen einer Elf samt Anordnung. Nicht sortiert: Kickbase merkt sich
  * die Reihenfolge der Liste (`lo` je Spieler), ein Umstellen derselben elf
- * Namen ist also eine neue Aufstellung und gibt den Knopf wieder frei.
+ * Namen ist also eine neue Aufstellung und gibt den Button wieder frei.
  * Verglichen wird immer die Reihenfolge von `submitOrder`.
  */
 function idKey(ids: readonly PlayerId[]): string {

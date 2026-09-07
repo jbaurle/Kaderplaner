@@ -19,7 +19,7 @@
 
 /*
  * Raster statt Flex: Überschrift und Konto teilen sich die erste Zeile,
- * Untertitel und Knopfzeile laufen darunter über die volle Breite. Mit Flex
+ * Untertitel und Button-Zeile laufen darunter über die volle Breite. Mit Flex
  * rutschte das Konto bei langen Untertiteln in eine dritte Zeile.
  */
 .planning-header {
@@ -139,7 +139,7 @@
   min-width: 0;
 }
 
-/* Lieber die Adresse kürzen als den Knopf aus der Zeile drängen. */
+/* Lieber die Adresse kürzen als den Button aus der Zeile drängen. */
 .user-label {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -171,7 +171,7 @@
     border-color: var(--border-strong);
   }
 
-  /* Der Umschalter loggt niemanden aus — kein Rot beim Draufzeigen. */
+  /* Der Toggle loggt niemanden aus — kein Rot beim Draufzeigen. */
   .icon-btn--theme:hover {
     color: var(--text-strong);
     border-color: var(--border-strong);
@@ -235,7 +235,7 @@
 
 /*
  * Laden läuft: das Label hält die Breite und wird unsichtbar, darüber dreht
- * sich ein Ring. Mit wechselndem Text ("Bitte warten…") sprang der Knopf in
+ * sich ein Ring. Mit wechselndem Text ("Bitte warten…") sprang der Button in
  * der Breite und mit ihm die ganze Kopfzeile.
  */
 .btn.is-busy {
@@ -288,7 +288,7 @@
 }
 
 /*
- * Flex, damit Text und Knöpfe im Banner echt vertikal mittig sitzen statt
+ * Flex, damit Text und Buttons im Banner echt vertikal mittig sitzen statt
  * über die Inline-Baseline ausgerichtet zu werden. Der Abstand nach unten
  * trennt das Banner von der Tabelle.
  */
@@ -366,7 +366,7 @@
 
 /*
  * Alle Szenariospalten hängen am Betrag und sind dadurch gleich breit. Die
- * Knöpfe im Kopf zählen nicht mit, siehe `.slot-actions`.
+ * Buttons im Kopf zählen nicht mit, siehe `.slot-actions`.
  */
 .planning-shell .planning-table .col-scen {
   width: 1%;
@@ -390,7 +390,7 @@
 /*
  * Die ganze Namenszelle öffnet den Spielerdialog, nicht nur der Text: auf dem
  * Handy ist die Zelle das grösste Ziel der Zeile, und daneben zu tippen ist
- * dort die Regel, nicht die Ausnahme. Der Name bleibt trotzdem ein Knopf,
+ * dort die Regel, nicht die Ausnahme. Der Name bleibt trotzdem ein Button,
  * damit er mit der Tastatur erreichbar ist.
  */
 .planning-shell .col-name[data-player] {
@@ -398,7 +398,7 @@
 }
 
 /*
- * Er soll aber wie Text aussehen, nicht wie ein Knopf: nur der gestrichelte
+ * Er soll aber wie Text aussehen, nicht wie ein Button: nur der gestrichelte
  * Unterstrich verrät, dass er etwas aufmacht. Grau, nicht grün: Grün heißt in
  * dieser Tabelle Gebot, und eine ganze Spalte davon wäre lauter als der eine
  * Betrag, der dort heraussticht. Das Trefferfeld wächst über ein
@@ -572,7 +572,7 @@
   .planning-shell .col-scen--bank {
     display: table-cell;
   }
-  /* BANK steht jetzt als eigene Spalte da, im Umschalter wäre es doppelt. */
+  /* BANK steht jetzt als eigene Spalte da, im Toggle wäre es doppelt. */
   .planning-shell .scen-switch-bank {
     display: none;
   }
@@ -647,10 +647,10 @@
   display: inline;
 }
 
-/* ---------- Umschalter der Szenariospalte ---------- */
+/* ---------- Toggle der Szenariospalte ---------- */
 
 /*
- * Schiene statt Karte. Der Umschalter sagt, welche Spalte zu sehen ist, er
+ * Schiene statt Karte. Der Toggle sagt, welche Spalte zu sehen ist, er
  * tut nichts: mit dem Vollton von `--primary` sah das aktive Segment aber
  * genauso aus wie "Laden" zwei Zeilen darüber. Jetzt liegt es weiß und leicht
  * erhaben auf einem grauen Band, die bekannte Form vom Telefon.
@@ -785,7 +785,7 @@
 }
 
 /*
- * Der BANK-Kopf trägt keine Knöpfe, an denen er sich rechts ausrichten müsste.
+ * Der BANK-Kopf trägt keine Buttons, an denen er sich rechts ausrichten müsste.
  * Zentriert steht er aber erst, sobald BANK als eigene Spalte neben der
  * gewählten liegt, siehe Breitenleiter ab 720. Darunter ist BANK die einzige
  * sichtbare Szenariospalte und der Kopf richtet sich wie jeder andere nach den
@@ -1013,7 +1013,7 @@
 /* ---------- Scenario cells ---------- */
 
 /*
- * Kopf der Szenariospalten: die beiden Knöpfe liegen über der Zelle statt
+ * Kopf der Szenariospalten: die beiden Buttons liegen über der Zelle statt
  * in ihr. Im Fluss bräuchten sie mehr Platz als der Betrag darunter und
  * machten S1 bis S3 breiter als BANK, dessen Kopf nur das Wort trägt.
  */
@@ -1402,7 +1402,7 @@ body.is-dialog-open {
 }
 
 /*
- * Der Platz der Bildlaufleiste bleibt reserviert, und das rechte Polster
+ * Der Platz der Scrollbar bleibt reserviert, und das rechte Polster
  * zieht ihn wieder ab: sichtbar bleibt links wie rechts derselbe Rand, ob die
  * Leiste nun da ist oder nicht, und der Inhalt springt beim Umschalten der
  * Saison nicht mehr um ihre Breite.
@@ -1756,7 +1756,7 @@ body.is-dialog-open {
  * öffnet den Gebotsdialog. Kein Stern und kein Symbol daneben: die Spalte ist
  * schmal, und ein zweites Zeichen kostet dort mehr, als es erklärt.
  *
- * Ein Knopf, kein `span`: die Tastatur soll ihn erreichen. Er sieht aus wie
+ * Ein Button, kein `span`: die Tastatur soll ihn erreichen. Er sieht aus wie
  * Text und erbt Schrift und Größe der Zelle.
  */
 .amount-offer {
@@ -1963,7 +1963,7 @@ body.is-dialog-open {
  *
  * Aufbau von oben nach unten: grauer Kopf mit Bild, Wappen und den drei
  * Beträgen, danach auf Weiss Score, Spieltage, Verkaufsfolgen, Einschätzung.
- * Der Kopf trägt den Schliessen-Knopf selbst, deshalb kommt der Dialog ohne
+ * Der Kopf trägt den Schliessen-Button selbst, deshalb kommt der Dialog ohne
  * `.dialog-head` aus.
  */
 
@@ -2100,7 +2100,7 @@ body.is-dialog-open {
   }
 }
 
-/* Der Knopf sitzt im Kopf, nicht in einer eigenen Kopfzeile. */
+/* Der Button sitzt im Kopf, nicht in einer eigenen Kopfzeile. */
 .pd-close {
   position: absolute;
   top: 12px;
@@ -2206,7 +2206,7 @@ body.is-dialog-open {
 
 .pd-market-text {
   /* Der Text behält seine Zeile, der Gebotsknopf rutscht darunter, wenn es
-     eng wird. Ohne die Basis quetscht der Knopf den Text und die Angaben
+     eng wird. Ohne die Basis quetscht der Button den Text und die Angaben
      brechen mitten im Wort um. */
   flex: 1 1 13rem;
 }
@@ -2219,7 +2219,7 @@ body.is-dialog-open {
   font-weight: 600;
 }
 
-/* Gleicher Zuschnitt wie die Chips im Kopf, damit er als Knopf zu erkennen
+/* Gleicher Zuschnitt wie die Chips im Kopf, damit er als Button zu erkennen
    ist, ohne den Streifen zu überstrahlen. */
 .pd-market-offers {
   flex: none;
@@ -2248,7 +2248,7 @@ body.is-dialog-open {
   /* Oben knapper: der graue Kopf trennt schon, ein zweiter Abstand
      darunter schiebt den Score unnötig weit nach unten. */
   padding: 8px 14px 14px;
-  /* Rechts abzüglich der Bildlaufleiste, siehe `.dialog-body`. */
+  /* Rechts abzüglich der Scrollbar, siehe `.dialog-body`. */
   padding-right: max(0px, calc(14px - var(--sb, 0px)));
 }
 
@@ -2652,8 +2652,8 @@ body.is-dialog-open {
 /* ---------- Punkte je Spieltag ---------- */
 
 /*
- * Umschalter zwischen laufender und voriger Saison. Sieht aus wie der
- * Szenario-Umschalter der Tabelle, ist aber eine eigene Klasse: `.scen-switch`
+ * Toggle zwischen laufender und voriger Saison. Sieht aus wie der
+ * Szenario-Toggle der Tabelle, ist aber eine eigene Klasse: `.scen-switch`
  * blendet CSS ab 796 px aus, und im Dialog soll er in jeder Breite stehen.
  */
 .pd-tabs {
@@ -3012,7 +3012,7 @@ body.is-dialog-open {
   .pd-head { padding: 18px 18px 14px; }
   .pd-body {
     padding: 10px 18px 18px;
-    /* Rechts abzüglich der Bildlaufleiste, siehe `.dialog-body`. */
+    /* Rechts abzüglich der Scrollbar, siehe `.dialog-body`. */
     padding-right: max(0px, calc(18px - var(--sb, 0px)));
   }
   .pd-portrait, .pd-photo { width: 64px; height: 64px; }

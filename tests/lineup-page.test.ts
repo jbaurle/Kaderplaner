@@ -168,7 +168,7 @@ describe('Fehler beim Senden', () => {
 
 /**
  * Kickbase merkt sich die Reihenfolge der gesendeten Liste (`lo` je Spieler).
- * Der Knopf sperrt deshalb nur, wenn Namen UND Anordnung dem Stand bei
+ * Der Button sperrt deshalb nur, wenn Namen UND Anordnung dem Stand bei
  * Kickbase entsprechen: eine umgestellte Elf ist eine neue Aufstellung.
  */
 describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
@@ -198,11 +198,11 @@ describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
     return layer.querySelector('[data-action="submit"]')?.textContent?.trim() ?? '';
   }
 
-  it('sperrt den Knopf, wenn der Entwurf dem Kickbase-Stand entspricht', () => {
+  it('sperrt den Button, wenn der Entwurf dem Kickbase-Stand entspricht', () => {
     expect(submitLabel(AT_KICKBASE.map((p) => p.id))).toBe('Bereits aufgestellt');
   });
 
-  it('gibt den Knopf frei, wenn dieselbe Elf umgestellt ist', () => {
+  it('gibt den Button frei, wenn dieselbe Elf umgestellt ist', () => {
     const swapped = ['tw', 'b', 'a', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     expect(submitLabel(swapped)).toBe('Aufstellen · 4-4-2');
   });

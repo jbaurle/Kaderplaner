@@ -51,8 +51,8 @@ body.is-stats-open {
 }
 
 /*
- * Die Reiter sind der Saison-Umschalter des Spielerdialogs (`.pd-tabs` in
- * planning.css): dieselbe Schiene, derselbe gedrückte Knopf. Hier nur der
+ * Die Tabs sind der Saison-Toggle des Spielerdialogs (`.pd-tabs` in
+ * planning.css): dieselbe Schiene, derselbe gedrückte Button. Hier nur der
  * Platz im Kopf, der Abstand kommt aus dem Raster.
  */
 .stats-tabs {
@@ -221,7 +221,7 @@ body.is-stats-open {
 }
 
 /*
- * Umschalter der Halbserie, gleiche Machart wie `.scen-switch` in
+ * Toggle der Halbserie, gleiche Machart wie `.scen-switch` in
  * planning.css. Der Dunkel-Modus greift ihn in base.css zusammen mit den
  * anderen Segmentleisten ab.
  */
@@ -398,7 +398,7 @@ body.is-stats-open {
 /* ---------- Der angetippte Spieltag ---------- */
 
 /*
- * Ein gespielter Spieltag ist ein Knopf, ein offener nur ein span. Der Knopf
+ * Ein gespielter Spieltag ist ein Button, ein offener nur ein span. Der Button
  * sieht aus wie die Spalte: kein Rand, kein Grund, die Schrift der Ebene.
  * `position: relative` ist der Anker der Sprechblase.
  */
@@ -830,7 +830,7 @@ body.is-stats-open {
 /*
  * Die Kreuztabelle blättert seitwärts bis zum Rand des Blatts, nicht nur bis
  * zu seinem Polster: sonst stünde rechts ein 12 px breiter Streifen leer,
- * während die Spalte dahinter abgeschnitten ist. Die Bildlaufleiste nimmt die
+ * während die Spalte dahinter abgeschnitten ist. Die Scrollbar nimmt die
  * Farben der anderen Dialoge, im Dunkelmodus also einen dunklen Daumen.
  */
 .st-matrix-scroll {

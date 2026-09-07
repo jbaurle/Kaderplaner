@@ -266,7 +266,7 @@ function trendAmount(change: number): string {
  * steht nur da, wenn er wirklich drin steht: der aufgerufene Preis, sein
  * Abstand zum Marktwert und, falls Kickbase eine nennt, die Restlaufzeit.
  *
- * Liegen Gebote, führt der Knopf rechts in den Gebotsdialog. Er trägt
+ * Liegen Gebote, führt der Button rechts in den Gebotsdialog. Er trägt
  * dasselbe `data-offers` wie der Betrag in der Tabelle, `wireModal` in
  * `planning-page.ts` hängt sich daran.
  */
@@ -579,8 +579,8 @@ function renderPerformance(view: PerformanceView): string {
 }
 
 /**
- * Der Umschalter. Er steht nur da, wenn es etwas umzuschalten gibt: führt
- * Kickbase nur eine Saison, wäre ein Reiter ohne Gegenstück eine Attrappe.
+ * Der Toggle. Er steht nur da, wenn es etwas umzuschalten gibt: führt
+ * Kickbase nur eine Saison, wäre ein Tab ohne Gegenstück eine Attrappe.
  */
 function renderSeasonTabs(view: PerformanceView): string {
   const { current, previous } = pickSeasons(view.performance);
@@ -711,7 +711,7 @@ function renderPerfColumn(
   `;
 
   // Ein Spieltag, den es in den Daten nicht gibt, ist nichts zum Antippen:
-  // als Knopf trüge er einen Zeiger, hinter dem nichts passiert.
+  // als Button trüge er einen Zeiger, hinter dem nichts passiert.
   if (day === null) {
     return `<span class="${classes}" title="${perfTitle(day)}">${body}</span>`;
   }

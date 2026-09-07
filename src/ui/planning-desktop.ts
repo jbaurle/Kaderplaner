@@ -14,7 +14,7 @@
  *     360   + Marktwert, G/V als zweite Zeile darunter
  *     412   G/V als eigene Spalte, größere Schrift
  *     744   + BANK als Vergleichsspalte
- *     820   alle vier Szenarien, kein Umschalter
+ *     820   alle vier Szenarien, kein Toggle
  *     924   volle Beträge statt Millionen
  */
 
@@ -124,11 +124,11 @@ export interface PlanningDesktopCallbacks {
   onShowPlayer: (playerId: PlayerId) => void;
   onClearSlot: (slot: ScenarioSlot) => void;
   onCopyFromS4: (slot: ScenarioSlot) => void;
-  /** Umschalter unter 820 px: welche Szenariospalte gezeigt wird. */
+  /** Toggle unter 820 px: welche Szenariospalte gezeigt wird. */
   onSelectSlot: (slot: ResolvedScenarioSlot) => void;
-  /** ×-Knopf im Transferkopf: räumt diese Spalte nur im Transferblock ab. */
+  /** ×-Button im Transferkopf: räumt diese Spalte nur im Transferblock ab. */
   onClearTransferSlot: (slot: ScenarioSlot) => void;
-  /** ✓-Knopf im Transferkopf: hakt alle Transfers dieser Spalte an. */
+  /** ✓-Button im Transferkopf: hakt alle Transfers dieser Spalte an. */
   onSelectAllTransfers: (slot: ScenarioSlot) => void;
 }
 
@@ -178,7 +178,7 @@ const SLOT_LABEL: Record<ResolvedScenarioSlot, string> = {
 };
 
 /**
- * Umschalter und Tabelle als Markup, ohne sie irgendwo einzuhängen.
+ * Toggle und Tabelle als Markup, ohne sie irgendwo einzuhängen.
  *
  * Getrennt vom Verdrahten, damit die Seite in einer einzigen Zuweisung
  * entstehen kann: würde die Tabelle nachgereicht, wäre das Dokument für einen
@@ -416,11 +416,11 @@ function scenClass(slot: ResolvedScenarioSlot, activeSlot: ResolvedScenarioSlot,
     .join(' ');
 }
 
-/** Umschalter für die eine sichtbare Szenariospalte. Ab 820 px blendet CSS ihn aus. */
+/** Toggle für die eine sichtbare Szenariospalte. Ab 820 px blendet CSS ihn aus. */
 function renderSlotSwitch(activeSlot: ResolvedScenarioSlot): string {
   const buttons = ALL_SLOTS.map((slot) => {
     const pressed = slot === activeSlot ? 'true' : 'false';
-    // BANK fällt ab 720 aus dem Umschalter: dort steht die Spalte ohnehin
+    // BANK fällt ab 720 aus dem Toggle: dort steht die Spalte ohnehin
     // dauerhaft neben der gewählten.
     const cls = slot === 'S4' ? ' class="scen-switch-bank"' : '';
     return `
@@ -438,9 +438,9 @@ function renderSlotHeader(slot: ResolvedScenarioSlot, activeSlot: ResolvedScenar
     return `<th class="${scenClass(slot, activeSlot)}">${label}</th>`;
   }
   // S1-S3: no visible label at desktop width; the column position identifies
-  // which is which. Schmal steht der Name im Umschalter darüber.
+  // which is which. Schmal steht der Name im Toggle darüber.
   //
-  // Die Knöpfe liegen über der Zelle statt in ihr. Im Fluss wären sie
+  // Die Buttons liegen über der Zelle statt in ihr. Im Fluss wären sie
   // breiter als der Betrag darunter und machten S1 bis S3 breiter als BANK,
   // dessen Kopf nur das Wort trägt.
   return `
@@ -678,9 +678,9 @@ function renderTransferLabelRow(activeSlot: ResolvedScenarioSlot): string {
  *
  * Gleiche Spaltenzahl wie oben, damit die Breiten stehen bleiben, aber andere
  * Belegung: an dritter Stelle steht das Gebot. S1 bis S3 sagen, in welchem
- * Szenario der Zugang eingeplant ist, und brauchen keine Knöpfe. Wo oben BANK
+ * Szenario der Zugang eingeplant ist, und brauchen keine Buttons. Wo oben BANK
  * steht, steht hier der Marktwert: einen festen Bestand gibt es für Zugänge
- * nicht. Die Spalte darauf bleibt frei, dort kommt der Knopf zum Entfernen hin.
+ * nicht. Die Spalte darauf bleibt frei, dort kommt der Button zum Entfernen hin.
  */
 function renderTransferHeadRow(
   activeSlot: ResolvedScenarioSlot,
@@ -698,7 +698,7 @@ function renderTransferHeadRow(
       `;
     }
     // Kein Spaltenname: welche Spalte welche ist, steht schon in der Kopfzeile
-    // des Kaders darüber. Hier zählt der Knopf, der die Häkchen dieser
+    // des Kaders darüber. Hier zählt der Button, der die Häkchen dieser
     // Spalte im Transferblock wieder abräumt.
     const label = escapeHtml(SLOT_LABEL[slot]);
     return `

@@ -10,7 +10,7 @@
   --primary-hover: #111827;
   --primary-active: #0b1221;
   /*
-   * Der Knopf, der etwas auslöst: Anmelden, Laden, Aufstellen. Eigenes Token
+   * Der Button, der etwas auslöst: Anmelden, Laden, Aufstellen. Eigenes Token
    * und nicht `--success` mitbenutzt, das ist die Textfarbe positiver
    * Beträge und soll unabhängig bleiben.
    */
@@ -47,7 +47,7 @@
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.06);
   /*
-   * Bildlaufleisten. Ohne Angabe nimmt der Browser sein Systemgrau, im
+   * Scrollbars. Ohne Angabe nimmt der Browser sein Systemgrau, im
    * Dunkel-Modus steht dann ein weißer Balken neben dem dunklen Dialog.
    */
   --scrollbar-thumb: #cbd5e1;
@@ -60,7 +60,7 @@
   --font-mono-nums: 'Inter', 'Segoe UI', system-ui, sans-serif;
 
   /*
-   * Kadertabelle: Zebra-Streifen, Kopf-/Summenzeilen, Szenario-Umschalter.
+   * Kadertabelle: Zebra-Streifen, Kopf-/Summenzeilen, Szenario-Toggle.
    * Waren bisher feste Werte in planning.css, jetzt Token, damit der
    * Dunkel-Modus unten sie umschreiben kann.
    */
@@ -97,12 +97,12 @@
 
 /*
  * ==================================================================
- * Dunkel-Modus: eigener Umschalter (siehe theme-toggle.ts), kein
+ * Dunkel-Modus: eigener Toggle (siehe theme-toggle.ts), kein
  * prefers-color-scheme. Deckt dieselben Tokens ab wie oben, nur die
  * Werte ändern sich — Komponenten greifen weiter auf dieselben
  * Variablennamen zu und merken nichts vom Umschalten.
  *
- * --action bleibt bewusst gleich: der Knopf-Hintergrund mit weißer
+ * --action bleibt bewusst gleich: der Button-Hintergrund mit weißer
  * Schrift braucht in beiden Modi denselben dunklen, satten Ton, sonst
  * reisst der Kontrast (siehe Startseiten-Karussell, derselbe Fehler
  * schon einmal gemacht und korrigiert). Helle Akzente fuers Dunkle
@@ -200,8 +200,8 @@ html[data-theme='dark'] .stats-sheet {
 }
 
 /*
- * Die Segmentleisten im Dunkel-Modus: Szenario-Umschalter auf der Seite,
- * Saison-Reiter im Spielerdialog, Halbserie in der Statistik. Alle nehmen
+ * Die Segmentleisten im Dunkel-Modus: Szenario-Toggle auf der Seite,
+ * Saison-Tab im Spielerdialog, Halbserie in der Statistik. Alle nehmen
  * für das aktive Segment
  * --card und für die Schiene --scen-switch-bg. Im Dunkeln ist --card der
  * dunklere der beiden Werte: das Aktive sank ein, statt herauszustehen, und
@@ -217,7 +217,7 @@ html[data-theme='dark'] .st-half {
   /*
    * Kein Polster: das aktive Segment füllt die Schiene ganz. Mit den 3 px von
    * oben blieb rings um das Aktive ein dunkler Streifen stehen, der wie ein
-   * Rand um einen Knopf aussah. Die 3 px wandern in die Knöpfe, damit die
+   * Rand um einen Button aussah. Die 3 px wandern in die Buttons, damit die
    * Leiste so hoch bleibt wie im Hell-Modus und beim Umschalten der Farben
    * nichts springt.
    */
@@ -250,7 +250,7 @@ html[data-theme='dark'] .pd-tabs button[aria-pressed='true'] {
 html {
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   /*
-   * Der Platz der Bildlaufleiste bleibt reserviert. Ohne das verschwindet
+   * Der Platz der Scrollbar bleibt reserviert. Ohne das verschwindet
    * sie, sobald ein Dialog die Seite anhält (body overflow: hidden), und
    * der zentrierte Inhalt verschiebt sich um ihre Breite.
    */
@@ -268,7 +268,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /*
    * Riegel gegen das eingebaute Ziehen zum Neuladen: ein Wisch nach unten am
-   * oberen Rand soll die Seite nicht neu laden. Zum Laden gibt es den Knopf.
+   * oberen Rand soll die Seite nicht neu laden. Zum Laden gibt es den Button.
    */
   overscroll-behavior-y: contain;
 }
@@ -535,10 +535,10 @@ button {
   height: 1.15em;
 }
 
-/* ---------- Reiter (nur am Handy) ---------- */
+/* ---------- Tabs (nur am Handy) ---------- */
 
 /* Ab 720px zeigt die Bühne Formular, Bild und Text nebeneinander, dort
-   bleiben die Reiter aus. Siehe die @container-Regel unten. */
+   bleiben die Tabs aus. Siehe die @container-Regel unten. */
 .lp-tabs {
   display: none;
   gap: 2px;
@@ -701,7 +701,7 @@ html[data-theme='dark'] .lp-panel {
  * Ersetzt am Handy die drei Absätze unten durch dieselben drei Bilder wie
  * oben auf der breiten Seite, mit Kärtchen zum Durchwischen statt Fliess-
  * text. `.lp-carousel-wrap` ist per Default unsichtbar: sichtbar wird sie
- * nur unter 720px und nur im Reiter "Was die App kann", siehe die
+ * nur unter 720px und nur im Tab "Was die App kann", siehe die
  * @container-Regel unten. Auf der breiten Seite bleibt sie ganz aus dem
  * Layout, ohne dass hier irgendetwas mit den echten Bild-Ausschnitten
  * oben kollidiert.
@@ -870,7 +870,7 @@ html[data-theme='dark'] .lp-panel {
   margin: 12px 0 0;
 }
 
-/* Der Punkt selbst bleibt klein, der Knopf drumherum ist die eigentliche
+/* Der Punkt selbst bleibt klein, der Button drumherum ist die eigentliche
    Trefffläche — 6px wären als Fingerziel zu knapp. */
 .lp-dot {
   width: 18px;
@@ -1021,7 +1021,7 @@ html[data-theme='dark'] .lp-panel {
   line-height: 1.55;
 }
 
-/* Führt in die Hilfe, die auch die angemeldete App zeigt. Ein Knopf, kein
+/* Führt in die Hilfe, die auch die angemeldete App zeigt. Ein Button, kein
    Link: er öffnet ein Overlay, er führt nicht auf eine Adresse. */
 .lp-more {
   display: inline-flex;
@@ -1048,7 +1048,7 @@ html[data-theme='dark'] .lp-panel {
   font-weight: 400;
 }
 
-/* Die Seitenlinks untereinander, darunter der Installations-Knopf und
+/* Die Seitenlinks untereinander, darunter der Installations-Button und
    zuletzt der Hinweis, alles an derselben linken Kante. */
 .lp-actions {
   display: flex;
@@ -1066,7 +1066,7 @@ html[data-theme='dark'] .lp-panel {
 }
 
 /* Der Hinweis auf den Startbildschirm, der Ersatz für den fehlenden
-   Installations-Knopf. Deutlich kleiner als der Fließtext, aber in dessen
+   Installations-Button. Deutlich kleiner als der Fließtext, aber in dessen
    Farbe: gedämpft stünde er zu nah am Kleingedruckten darunter. */
 .lp-app-hint {
   margin: 0;
@@ -1083,12 +1083,12 @@ html[data-theme='dark'] .lp-panel {
   width: fit-content;
 }
 
-/* Bietet der Browser die Installation an, ersetzt der Knopf den Hinweis. */
+/* Bietet der Browser die Installation an, ersetzt der Button den Hinweis. */
 .lp-install:not([hidden]) + .lp-app-hint {
   display: none;
 }
 
-/* Der Knopf zur Installation, siehe ui/install.ts. Umrissen statt gefüllt:
+/* Der Button zur Installation, siehe ui/install.ts. Umrissen statt gefüllt:
    das Grün gehört dem Anmelden, und wer hier landet, will sich anmelden und
    nicht zuerst etwas installieren. */
 .lp-install {
@@ -1119,7 +1119,7 @@ html[data-theme='dark'] .lp-panel {
   outline-offset: 2px;
 }
 
-/* `hidden` muss über dem `display` oben stehen, sonst zeigt der Knopf sich
+/* `hidden` muss über dem `display` oben stehen, sonst zeigt der Button sich
    auch ohne Angebot des Browsers. */
 .lp-install[hidden] {
   display: none;
@@ -1155,11 +1155,11 @@ html[data-theme='dark'] .lp-panel {
 }
 
 /*
- * Unter 720px schaltet der Reiter zwischen Formular und „Was die App
+ * Unter 720px schaltet der Tab zwischen Formular und „Was die App
  * kann" um: die Karte hinter dem einen, das Karussell hinter dem anderen.
  * Die drei Absätze (`.lp-body`/`.lp-more`) sind hier ganz aus, das
  * Karussell übernimmt ihre Rolle mit denselben Bildern. `.lp-legal` bleibt
- * in beiden Zuständen stehen, das Kleingedruckte soll nicht am Reiter
+ * in beiden Zuständen stehen, das Kleingedruckte soll nicht am Tab
  * hängen.
  */
 @container (max-width: 719.98px) {
@@ -1176,15 +1176,15 @@ html[data-theme='dark'] .lp-panel {
     display: block;
   }
 
-  /* Am Handy stehen Knopf und Hinweis untereinander, die Zeile löst sich
-     auf. Ohne das trüge die leere Zeile im Anmelde-Reiter ihren Abstand. */
+  /* Am Handy stehen Button und Hinweis untereinander, die Zeile löst sich
+     auf. Ohne das trüge die leere Zeile im Anmelde-Tab ihren Abstand. */
   .lp-actions,
   .lp-links {
     display: contents;
   }
 
-  /* Nur im Reiter „Features“: neben dem Formular zählt das Anmelden,
-     dort wären Hinweis und Knopf nur eine zweite Aufforderung. */
+  /* Nur im Tab „Features“: neben dem Formular zählt das Anmelden,
+     dort wären Hinweis und Button nur eine zweite Aufforderung. */
   .lp-app-hint,
   .lp-install {
     display: none;
@@ -1200,7 +1200,7 @@ html[data-theme='dark'] .lp-panel {
     margin-top: 10px;
   }
 
-  /* Auch hier ersetzt der angebotene Knopf den Hinweis. */
+  /* Auch hier ersetzt der angebotene Button den Hinweis. */
   .lp-hero[data-tab="info"] .lp-install:not([hidden]) + .lp-app-hint {
     display: none;
   }
@@ -1211,13 +1211,13 @@ html[data-theme='dark'] .lp-panel {
 
   /* Ohne das bleibt `.lp-showcase` als leerer Flex-Punkt stehen (alle Kinder
      display:none) und zieht trotzdem den vollen `gap` der Bühne — macht aus
-     20px zwischen Reiter und Karussell-Text versehentlich 40px. */
+     20px zwischen Tab und Karussell-Text versehentlich 40px. */
   .lp-hero[data-tab="info"] .lp-showcase {
     display: none;
   }
 
   /* Etwas knapper als auf der breiten Seite: dort steht das Kleingedruckte
-     nach drei Absätzen, hier direkt nach dem Karussell-Knopf. */
+     nach drei Absätzen, hier direkt nach dem Karussell-Button. */
   .lp-legal {
     margin-top: 18px;
   }
@@ -1236,9 +1236,9 @@ html[data-theme='dark'] .lp-panel {
     margin-top: 16px;
   }
 
-  /* Randlos und auf Textgröße geschrumpft, sonst schiebt der Knopf die eine
+  /* Randlos und auf Textgröße geschrumpft, sonst schiebt der Button die eine
      Zeile mit den vier Links bei 360px über den Rand (mit klassischer
-     Bildlaufleiste bleiben dort nur 321px). */
+     Scrollbar bleiben dort nur 321px). */
   .lp-foot .icon-btn {
     width: 16px;
     height: 16px;
@@ -1257,7 +1257,7 @@ html[data-theme='dark'] .lp-panel {
   color: var(--text-muted);
 }
 
-/* Der Umschalter für den Dunkel-Modus reiht sich klein hinter die
+/* Der Toggle für den Dunkel-Modus reiht sich klein hinter die
    Textlinks ein, statt oben im Kopf zu stehen. Mit etwas Abstand zu
    „Quellcode", damit er nicht als fünfter Link liest — am Handy fällt der
    Abstand weg, dort passt die Zeile bei 360px sonst nicht. */
@@ -1490,7 +1490,7 @@ html[data-theme='dark'] .lp-panel {
 
 /*
  * Der Startbildschirm-Hinweis gilt dem Gerät in der Hand: an einem Rechner
- * mit Maus bleibt er weg, dort führt der Weg über den Installations-Knopf
+ * mit Maus bleibt er weg, dort führt der Weg über den Installations-Button
  * oder das Browsermenü. Steht am Dateiende, damit er die Anzeige-Regeln
  * der Anmeldeseite bei gleicher Spezifität überstimmt.
  */

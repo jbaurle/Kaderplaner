@@ -1,5 +1,5 @@
 /**
- * Dunkel-Modus: ein Knopf, kein `prefers-color-scheme`. Der Zustand steht als
+ * Dunkel-Modus: ein Button, kein `prefers-color-scheme`. Der Zustand steht als
  * `data-theme="dark"` auf `<html>` — dieselbe Stelle, gegen die alle
  * Farb-Tokens in base.css/planning.css/lineup.css schon geschrieben sind,
  * kein Umbau dort nötig.
@@ -75,7 +75,7 @@ export const THEME_ICON: Record<Theme, string> = {
   `,
 };
 
-/** Beschriftung des Umschalters: benennt das Design, zu dem der Klick führt. */
+/** Beschriftung des Toggles: benennt das Design, zu dem der Klick führt. */
 export function themeToggleLabel(theme: Theme): string {
   return theme === 'dark' ? 'Helles Design' : 'Dunkles Design';
 }

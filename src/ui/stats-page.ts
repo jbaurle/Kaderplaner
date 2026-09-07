@@ -1,5 +1,5 @@
 /**
- * Statistik: die Manager-Rangliste der Liga, in drei Reitern.
+ * Statistik: die Manager-Rangliste der Liga, in drei Tabs.
  *
  *   - Ich: Platz und Punkte, je Spieltag der eigene Balken vor dem des
  *     Ligabesten, drei Kennzahlen.
@@ -65,7 +65,7 @@ export class StatsPage {
    * Spieltag. Sobald der Nutzer umschaltet, bleibt seine Wahl stehen.
    */
   private half: 0 | 1 | null = null;
-  /** Angetippter Spieltag im Reiter Ich, null wenn keiner. */
+  /** Angetippter Spieltag im Tab Ich, null wenn keiner. */
   private selectedDay: number | null = null;
   /**
    * Bereich der Tabelle: Gesamt, Hinrunde oder Rückrunde. `null` heißt: die

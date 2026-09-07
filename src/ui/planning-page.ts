@@ -114,7 +114,7 @@ interface PageState {
   modal: ModalKind | null;
   /**
    * Szenariospalte, die unter 820 px sichtbar ist. Darüber zeigt CSS alle
-   * vier und der Umschalter verschwindet.
+   * vier und der Toggle verschwindet.
    */
   activeSlot: ResolvedScenarioSlot;
   /**
@@ -509,7 +509,7 @@ export class PlanningPage {
       ? props.host.querySelector<HTMLElement>('.dialog-body')?.scrollTop ?? 0
       : 0;
     /*
-     * Und dasselbe für den Fokus: Saison-Reiter und Spieltag-Kacheln bauen
+     * Und dasselbe für den Fokus: Saison-Tab und Spieltag-Kacheln bauen
      * die Seite neu auf, der Fokus soll danach auf dem gleichwertigen neuen
      * Element weiterleben statt auf den Backdrop zu fallen. Nur diese beiden
      * Controls rendern aus dem offenen Dialog heraus neu.
@@ -668,7 +668,7 @@ export class PlanningPage {
     props.host.querySelector('#laden-btn')?.addEventListener('click', () => void this.fetch());
     props.host.querySelector('#logout-btn')?.addEventListener('click', () => props.onLogout());
     // Reine CSS-Umschaltung (data-theme auf <html>), kein Re-Render der
-    // Seite nötig — nur der Knopf selbst zeigt danach das andere Icon.
+    // Seite nötig — nur der Button selbst zeigt danach das andere Icon.
     const themeButton = props.host.querySelector<HTMLButtonElement>('#theme-toggle-btn');
     themeButton?.addEventListener('click', () => {
       const next = toggleTheme();
@@ -704,7 +704,7 @@ export class PlanningPage {
   }
 
   /**
-   * Breite der Bildlaufleiste im Dialog messen und als `--sb` ablegen. Das
+   * Breite der Scrollbar im Dialog messen und als `--sb` ablegen. Das
    * rechte Polster zieht sie ab, damit der sichtbare Rand links und rechts
    * gleich bleibt (siehe `.dialog-body` in planning.css).
    *
@@ -1016,7 +1016,7 @@ export class PlanningPage {
       el.addEventListener('click', () => this.closeModal());
     }
 
-    // Der Knopf im Marktstreifen des Spielerdialogs. Er löst den Spieler-
+    // Der Button im Marktstreifen des Spielerdialogs. Er löst den Spieler-
     // dialog durch den Gebotsdialog ab, wie der grüne Betrag in der Tabelle.
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-offers]')) {
       el.addEventListener('click', () => {
@@ -1025,7 +1025,7 @@ export class PlanningPage {
       });
     }
 
-    // Umschalter und Spieltage im Abschnitt "Punkte je Spieltag".
+    // Toggle und Spieltage im Abschnitt "Punkte je Spieltag".
     for (const el of backdrop.querySelectorAll<HTMLElement>('[data-season-tab]')) {
       el.addEventListener('click', () => {
         const seasonId = el.dataset['seasonTab'];

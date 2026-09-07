@@ -27,7 +27,7 @@
   -webkit-tap-highlight-color: transparent;
   /*
    * Höhenbudget des Rasens: alles ausser dem Feld braucht rund 320 px, Kopf,
-   * Knöpfe, Bank und Fuß zusammen. Was übrig bleibt, bekommt das Feld, und
+   * Buttons, Bank und Fuß zusammen. Was übrig bleibt, bekommt das Feld, und
    * die Breite folgt aus dem Verhältnis 4:5.
    *
    * Die Zahl steht hier und nicht am Rasen, weil das Blatt sie mitbenutzt:
@@ -45,7 +45,7 @@ body.is-lineup-open {
 /*
  * Das Blatt ist so breit wie der Rasen plus das eigene Polster. Früher stand
  * hier ein fester Deckel von 720 px: auf dem Schirm blieben dann links und
- * rechts vom Feld je rund 130 px leer, und die Knopfzeile schwebte über
+ * rechts vom Feld je rund 130 px leer, und die Button-Zeile schwebte über
  * dieser Leere statt über dem Platz. Auf dem Handy ändert die Bindung
  * nichts, dort ist das Fenster ohnehin schmaler.
  */
@@ -87,7 +87,7 @@ body.is-lineup-open {
 
 /*
  * Die drei Vorlagen sind Zwischenschritte und tragen deshalb keine Fläche.
- * Als Knöpfe standen sie gleichrangig neben "Aufstellen", obwohl nur das
+ * Als Buttons standen sie gleichrangig neben "Aufstellen", obwohl nur das
  * etwas verschickt. Das Polster hält das Tippziel trotzdem bei 32 px.
  */
 .lineup-link {
@@ -146,7 +146,7 @@ body.is-lineup-open {
 
 /*
  * Gesperrt bleibt er grau statt blassgrün: ein halbdurchsichtiges Grün sieht
- * aus wie ein Knopf, der gleich losgeht, und der Text daneben ("Noch zwei
+ * aus wie ein Button, der gleich losgeht, und der Text daneben ("Noch zwei
  * Spieler") sagt das Gegenteil.
  */
 .btn--go:disabled {
@@ -672,7 +672,7 @@ body.is-lineup-open {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* ---------- Bank: Reiter und Kartenband ---------- */
+/* ---------- Bank: Tabs und Kartenband ---------- */
 
 .bench {
   border: 1px dashed transparent;
@@ -686,7 +686,7 @@ body.is-lineup-open {
 }
 
 /*
- * Ein Band statt Reitern: alle Ersatzleute in einer Reihe, nach Position
+ * Ein Band statt Tabs: alle Ersatzleute in einer Reihe, nach Position
  * gruppiert. Nichts ist versteckt, es gibt keinen Modus, und aus jeder Gruppe
  * lässt sich direkt aufs Feld ziehen.
  */

@@ -1,5 +1,5 @@
 /**
- * Die Statistik-Ebene: Reiter, Umschalter und der Weg der Daten. Die
+ * Die Statistik-Ebene: Tabs, Toggle und der Weg der Daten. Die
  * Rechnung dahinter steht in `stats.test.ts`, hier geht es um das Markup und
  * darum, was die Ebene wann holt und ablegt.
  */
@@ -147,8 +147,8 @@ describe('StatsPage: Daten', () => {
   });
 });
 
-describe('StatsPage: Reiter und Umschalter', () => {
-  it('hat die Reiter Ich, Saison und Tabelle', async () => {
+describe('StatsPage: Tabs und Toggle', () => {
+  it('hat die Tabs Ich, Saison und Tabelle', async () => {
     const { layer } = open();
     await settle();
     expect(texts(layer, '.stats-tab')).toEqual(['Ich', 'Saison', 'Tabelle']);
@@ -421,7 +421,7 @@ describe('StatsPage: angetippter Spieltag', () => {
 });
 
 describe('StatsPage: Platzierungen', () => {
-  it('zeigt im Reiter Saison, wie oft wer auf dem Podest stand', async () => {
+  it('zeigt im Tab Saison, wie oft wer auf dem Podest stand', async () => {
     const { layer } = open();
     await settle();
     click(layer, '[data-tab="saison"]');

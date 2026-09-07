@@ -58,7 +58,7 @@ const { prompt } = fireBeforeInstallPrompt('accepted');
     expect(prompt).toHaveBeenCalledTimes(1);
   });
 
-  it('meldet jede Änderung, damit der Knopf mitgeht', async () => {
+  it('meldet jede Änderung, damit der Button mitgeht', async () => {
 const seen: boolean[] = [];
     const unwatch = watchInstall(() => seen.push(canInstall()));
 

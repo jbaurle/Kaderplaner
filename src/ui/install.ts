@@ -1,12 +1,12 @@
 /**
- * "App installieren" als eigener Knopf.
+ * "App installieren" als eigener Button.
  *
  * Chromium-Browser melden mit `beforeinstallprompt`, dass sie die Seite als
  * App anbieten würden. Wer das Ereignis abfängt und aufhebt, darf den Dialog
  * später selbst öffnen, an einer Stelle, die man auch findet: das Menü des
  * Browsers versteckt ihn je nach Fassung tief oder gar nicht.
  *
- * Andere Browser feuern das Ereignis nie. Dort bleibt der Knopf aus und es
+ * Andere Browser feuern das Ereignis nie. Dort bleibt der Button aus und es
  * bleibt beim Weg über das Menü, siehe die Anleitung auf der Funktionsseite.
  *
  * Das Ereignis kommt einmal je Seitenaufruf, oft bevor die Oberfläche steht.
@@ -49,7 +49,7 @@ export function canInstall(): boolean {
 /**
  * Meldet jede Änderung an `canInstall()`. Der Rückgabewert hängt sich wieder
  * aus; wer ihn nicht ruft, wird beim nächsten Signal von selbst abgemeldet,
- * sobald sein Knopf nicht mehr im Dokument hängt.
+ * sobald sein Button nicht mehr im Dokument hängt.
  */
 export function watchInstall(watcher: () => void): () => void {
   watchers.add(watcher);
