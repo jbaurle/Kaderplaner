@@ -306,7 +306,7 @@ export class StatsPage {
       <div class="st-figures">
         <span class="st-fig"><span>Ø PUNKTE</span><b>${num(me.average)}</b></span>
         <span class="st-fig"><span>SPIELTAGSSIEGE</span><b>${me.wins}</b></span>
-        ${lostOrAhead(me.lostToBest, me.aheadOfSecond)}
+        ${lostOrAhead(me.place, me.gapToFirst, me.leadOverSecond)}
       </div>
       ${openNote(season, 'Dein Balken dort ist schraffiert; Kennzahlen und Meilensteine zählen ihn erst, wenn er durch ist.')}
     `;
@@ -394,16 +394,16 @@ function sectionHead(title: string, sub: string, gap = false): string {
 }
 
 /**
- * Was zum Tagesbesten fehlte. Fehlte nie etwas, dreht sich die Kachel um und
- * zeigt den Vorsprung auf den jeweils Zweiten: eine 0 sagte nur, dass man
- * vorn war, nicht wie deutlich.
+ * Der Rückstand auf Platz 1. Wer selbst vorn liegt, sieht stattdessen den
+ * Vorsprung auf den Zweiten: ein Rückstand von null sagte nur, dass man
+ * vorn ist, nicht wie deutlich.
  */
-function lostOrAhead(lostToBest: number, aheadOfSecond: number): string {
-  if (lostToBest > 0) {
-    return `<span class="st-fig"><span>AUF DEN BESTEN</span><b class="st-neg">-${num(lostToBest)}</b></span>`;
+function lostOrAhead(place: number, gapToFirst: number, leadOverSecond: number): string {
+  if (place > 1) {
+    return `<span class="st-fig"><span>AUF DEN BESTEN</span><b class="st-neg">-${num(gapToFirst)}</b></span>`;
   }
-  if (aheadOfSecond > 0) {
-    return `<span class="st-fig"><span>VOR DEM ZWEITEN</span><b class="st-pos">+${num(aheadOfSecond)}</b></span>`;
+  if (leadOverSecond > 0) {
+    return `<span class="st-fig"><span>VOR DEM ZWEITEN</span><b class="st-pos">+${num(leadOverSecond)}</b></span>`;
   }
   return '<span class="st-fig"><span>AUF DEN BESTEN</span><b>0</b></span>';
 }
@@ -681,9 +681,10 @@ function matrix(season: LeagueSeason, range: DayRange): string {
         : row.manager.won[i] ? 'st-cell-win' : '';
       return `<td class="${cls}">${num(points)}</td>`;
     }).join('');
+    // Der Führende hat keinen Rückstand, seine Zelle bleibt leer.
     const gap = lead - row.total;
     const diff = withDiff
-      ? `<td class="st-col-diff st-col-fixed-end">${gap === 0 ? '—' : '-' + num(gap)}</td>`
+      ? `<td class="st-col-diff st-col-fixed-end">${gap === 0 ? '' : '-' + num(gap)}</td>`
       : '';
     return `
       <tr class="${row.manager.isMe ? 'is-me' : ''}">

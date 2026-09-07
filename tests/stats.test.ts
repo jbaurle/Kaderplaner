@@ -170,8 +170,6 @@ describe('myFigures', () => {
     expect(me.leadOverSecond).toBe(0);
     expect(me.wins).toBe(2);
     expect(me.lostToBest).toBe(70);
-    // Spieltag 1 mit 20 und Spieltag 3 mit 10 vor dem Zweiten.
-    expect(me.aheadOfSecond).toBe(30);
     expect(me.dayPlaces).toEqual([1, 3, 1, 3]);
   });
 

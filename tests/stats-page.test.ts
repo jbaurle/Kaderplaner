@@ -244,8 +244,8 @@ describe('StatsPage: Reiter und Umschalter', () => {
     expect(layer.querySelector('.st-title')?.textContent).toBe('Spieltage 1 bis 4');
     expect(texts(layer, '.st-matrix thead th')).toEqual(['Manager', 'Gesamt', 'Δ', '4', '3', '2', '1', '']);
     expect(texts(layer, '.st-matrix tbody .st-name')).toEqual(['Ben', 'Anna']);
-    // Ben: 355 gesamt, vorn, dann ST 4 bis 1; Anna 15 dahinter.
-    expect(texts(layer, '.st-matrix tbody tr:first-child td')).toEqual(['Ben', '355', '—', '75', '110', '90', '80', '']);
+    // Ben: 355 gesamt, vorn ohne Rückstand, dann ST 4 bis 1; Anna 15 dahinter.
+    expect(texts(layer, '.st-matrix tbody tr:first-child td')).toEqual(['Ben', '355', '', '75', '110', '90', '80', '']);
     expect(texts(layer, '.st-matrix tbody tr:last-child .st-col-diff')).toEqual(['-15']);
   });
 
@@ -300,12 +300,12 @@ describe('StatsPage: Reiter und Umschalter', () => {
     expect(layer.querySelector('.st-col-diff')).toBeNull();
   });
 
-  it('zeigt statt "auf den Besten" den Vorsprung, wenn nie etwas fehlte', async () => {
+  it('zeigt den Rückstand auf Platz 1, als Erster stattdessen den Vorsprung', async () => {
     const { layer } = open();
     await settle();
     expect(texts(layer, '.st-fig span')).toContain('AUF DEN BESTEN');
-    // Spieltag 2 fehlten 40, Spieltag 4 fehlten 5.
-    expect(texts(layer, '.st-fig b.st-neg')).toEqual(['-45']);
+    // Anna 340, Ben 355: 15 hinter Platz 1.
+    expect(texts(layer, '.st-fig b.st-neg')).toEqual(['-15']);
 
     const client = fakeClient();
     const ahead = { a: performance('a', [100, 95, 120, 80]), b: performance('b', [80, 90, 110, 75]) };

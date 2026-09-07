@@ -263,12 +263,6 @@ export interface MyFigures {
   wins: number;
   /** Summe dessen, was je Spieltag zum Tagesbesten fehlte. */
   lostToBest: number;
-  /**
-   * Summe des Vorsprungs auf den Zweitbesten an den Spieltagen, an denen man
-   * selbst der Beste war. Die Kehrseite von `lostToBest`: wer nie etwas
-   * liegen ließ, sieht hier, wie deutlich das war.
-   */
-  aheadOfSecond: number;
   /** Platz am jeweiligen Spieltag, Index 0 = Spieltag 1. */
   dayPlaces: number[];
 }
@@ -281,10 +275,8 @@ export function myFigures(season: LeagueSeason): MyFigures | null {
   const first = rows[0]!;
   const second = rows[1];
   let lostToBest = 0;
-  let aheadOfSecond = 0;
   const dayPlaces: number[] = [];
   for (let i = 0; i < season.playedDays; i++) {
-    const mine = row.manager.points[i] ?? 0;
     const ordered = dayStandings(season, i + 1);
     // Der Platz kommt für jeden Spieltag in die Liste, auch für den offenen:
     // die Balken lesen sie über den Index.
@@ -292,10 +284,7 @@ export function myFigures(season: LeagueSeason): MyFigures | null {
     // Die Kennzahlen daneben zählen den offenen Spieltag nicht mit, solange
     // sein Ergebnis nur ein Zwischenstand ist.
     if (i + 1 === season.openDay) continue;
-    lostToBest += bestOfDay(season, i) - mine;
-    const place = dayPlaces[i]!;
-    const runnerUp = ordered[1];
-    if (place === 1 && runnerUp) aheadOfSecond += mine - runnerUp.points;
+    lostToBest += bestOfDay(season, i) - (row.manager.points[i] ?? 0);
   }
   return {
     manager: row.manager,
@@ -306,7 +295,6 @@ export function myFigures(season: LeagueSeason): MyFigures | null {
     average: row.average,
     wins: row.wins,
     lostToBest,
-    aheadOfSecond,
     dayPlaces,
   };
 }
