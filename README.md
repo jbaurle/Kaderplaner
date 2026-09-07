@@ -40,7 +40,7 @@ Tabelle, Spielerdialog und Aufstellung.
   `5-4-1`, öffnet sie. Von dort geht die Elf auch zurück an Kickbase.
 - **Statistik** deiner Liga in drei Reitern: dein Platz und je Spieltag dein
   Balken vor dem Ligabesten (ein Tipp zeigt die ersten drei des Spieltags),
-  Podium und Meilensteine der Saison, und die Kreuztabelle Manager mal
+  Podium, Platzierungen und Meilensteine der Saison, und die Kreuztabelle Manager mal
   Spieltage mit Gesamt und Rückstand, umschaltbar auf Hin- oder Rückrunde.
 - **Eine Tabelle für jede Breite.** Von 320 px bis Desktop entscheidet CSS über
   Container-Queries, welche Spalten passen.

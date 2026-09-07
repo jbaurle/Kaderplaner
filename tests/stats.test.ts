@@ -6,6 +6,7 @@ import {
   gradeOfDay,
   milestones,
   myFigures,
+  placements,
   rangesOf,
   standings,
   standingsBetween,
@@ -257,5 +258,25 @@ describe('standingsBetween und rangesOf', () => {
       ['rueck', 18, 34],
     ]);
     expect(ranges.map((r) => r.played.length)).toEqual([4, 4, 0]);
+  });
+});
+
+describe('placements', () => {
+  it('zählt je Manager die ersten, zweiten und dritten Plätze', () => {
+    const { countedDays, rows } = placements(buildLeagueSeason(input())!);
+    expect(countedDays).toBe(4);
+    // A gewinnt ST 1 und 3, B ST 2, C ST 4; siehe die Tabelle oben.
+    expect(rows.map((r) => [r.manager.id, ...r.counts])).toEqual([
+      ['a', 2, 0, 2, 0],
+      ['b', 1, 3, 0, 0],
+      ['c', 1, 1, 2, 0],
+    ]);
+  });
+
+  it('lässt den offenen Spieltag aus', () => {
+    const kickoff4 = START + 3 * 7 * DAY_MS;
+    const { countedDays, rows } = placements(buildLeagueSeason(input({ now: kickoff4 + DAY_MS }))!);
+    expect(countedDays).toBe(3);
+    expect(rows.find((r) => r.manager.id === 'c')!.counts).toEqual([0, 1, 2, 0]);
   });
 });

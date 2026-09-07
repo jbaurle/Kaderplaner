@@ -419,3 +419,17 @@ describe('StatsPage: angetippter Spieltag', () => {
     expect(layer.querySelector('.st-co-place--first')).toBeNull();
   });
 });
+
+describe('StatsPage: Platzierungen', () => {
+  it('zeigt im Reiter Saison, wie oft wer auf dem Podest stand', async () => {
+    const { layer } = open();
+    await settle();
+    click(layer, '[data-tab="saison"]');
+    expect(texts(layer, '.st-places thead th')).toEqual(['Manager', '1', '2', '3', '4.+']);
+    // Anna gewinnt ST 1 und 3, Ben ST 2 und 4; mit zwei Managern gibt es keinen Dritten.
+    expect(layer.querySelector('.st-places tbody tr:first-child .st-name')?.textContent).toBe('Anna');
+    expect(texts(layer, '.st-places tbody tr:first-child td:not(:first-child)')).toEqual(['2', '2', '–', '–']);
+    expect(layer.querySelectorAll('.st-places .st-count--top-1')).toHaveLength(2);
+    expect(layer.querySelector('.st-places tr.is-me .st-name')?.textContent).toBe('Anna');
+  });
+});

@@ -23,6 +23,7 @@ import {
   milestones,
   MILESTONES_FROM,
   myFigures,
+  placements,
   rangesOf,
   standings,
   standingsBetween,
@@ -324,7 +325,8 @@ export class StatsPage {
     return `
       ${head}
       ${renderPodium(rows)}
-      ${sectionHead('Meilensteine', stones ? `${stones.countedDays} gewertete Spieltage` : '')}
+      ${renderPlacements(season)}
+      ${sectionHead('Meilensteine', stones ? `${stones.countedDays} gewertete Spieltage` : '', true)}
       ${cards}
       ${openNote(season, 'Er zählt in Podium und Meilensteine erst, wenn er durch ist.')}
     `;
@@ -634,6 +636,38 @@ function card(label: string, value: string, manager: SeasonManager | null): stri
       <span class="st-card-value">${value}</span>
       ${manager ? `<span class="st-card-holder">${avatar(manager)}${escapeHtml(manager.name)}</span>` : ''}
     </span>`;
+}
+
+/**
+ * Wie oft wer Erster, Zweiter, Dritter war: je Manager eine Zeile, je Platz
+ * eine Spalte, alles dahinter als "4.+". Der häufigste Podestplatz einer
+ * Zeile ist in seiner Medaillenfarbe hinterlegt, eine Null steht als Strich:
+ * so treten die belegten Plätze hervor.
+ */
+function renderPlacements(season: LeagueSeason): string {
+  const { countedDays, rows } = placements(season);
+  const head = sectionHead('Platzierungen', countedDays ? `${countedDays} gewertete Spieltage` : '', true);
+  if (countedDays === 0) return `${head}<p class="st-placeholder">Noch kein Spieltag gewertet.</p>`;
+  const medal = (k: 1 | 2 | 3): string => `<span class="st-medal st-medal--${k}">${k}</span>`;
+  const body = rows.map(({ manager, counts }) => {
+    const best = Math.max(counts[0], counts[1], counts[2]);
+    const cell = (n: number, k: 1 | 2 | 3): string =>
+      n === 0
+        ? '<td class="st-count st-count--zero">–</td>'
+        : `<td class="st-count${n === best ? ` st-count--top-${k}` : ''}"><b>${n}</b></td>`;
+    return `
+      <tr class="${manager.isMe ? 'is-me' : ''}">
+        <td>${managerCell(manager)}</td>
+        ${cell(counts[0], 1)}${cell(counts[1], 2)}${cell(counts[2], 3)}
+        <td class="st-count st-count--rest">${counts[3] === 0 ? '–' : counts[3]}</td>
+      </tr>`;
+  }).join('');
+  return `
+    ${head}
+    <table class="st-places">
+      <thead><tr><th>Manager</th><th>${medal(1)}</th><th>${medal(2)}</th><th>${medal(3)}</th><th>4.+</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
 }
 
 function renderMilestones(stones: NonNullable<ReturnType<typeof milestones>>): string {

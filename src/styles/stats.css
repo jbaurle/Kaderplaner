@@ -695,6 +695,97 @@ body.is-stats-open {
   }
 }
 
+/* ---------- Saison: Platzierungen ---------- */
+
+/* Kleine Medaille: Kreis mit Ziffer, in den Spaltenköpfen. */
+.st-medal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  vertical-align: -3px;
+}
+
+.st-medal--1 {
+  background: var(--gold);
+}
+
+.st-medal--2 {
+  background: var(--medal-2);
+}
+
+.st-medal--3 {
+  background: var(--medal-3);
+}
+
+.st-places {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-places th {
+  padding: 4px 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.st-places th:first-child,
+.st-places td:first-child {
+  text-align: left;
+}
+
+.st-places td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.st-places tbody tr.is-me td {
+  background: var(--top11-bg);
+}
+
+.st-places .st-count b {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* Die Null steht als Strich: eine 0 in jeder zweiten Zelle macht die
+   Tabelle unruhig, der Strich lässt die belegten Plätze hervortreten. */
+.st-places .st-count--zero,
+.st-places .st-count--rest {
+  color: var(--text-muted);
+}
+
+.st-places .st-count--zero {
+  opacity: 0.5;
+}
+
+/* Die Medaillenfarbe gewinnt auch in der grünen Ich-Zeile, wie im Entwurf. */
+.st-places tbody tr td.st-count--top-1 {
+  background: var(--gold-bg);
+}
+
+.st-places tbody tr td.st-count--top-2 {
+  background: var(--medal-2-bg);
+}
+
+.st-places tbody tr td.st-count--top-3 {
+  background: var(--medal-3-bg);
+}
+
 /* ---------- Tabelle: Manager mal Spieltage ---------- */
 
 /*

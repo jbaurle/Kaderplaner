@@ -388,3 +388,31 @@ export function milestones(season: LeagueSeason): Milestones | null {
     biggestJump,
   };
 }
+
+// ---------- Platzierungen ----------
+
+export interface PlacementRow {
+  manager: SeasonManager;
+  /** Wie oft Erster, Zweiter, Dritter und dahinter, über die gewerteten Spieltage. */
+  counts: [number, number, number, number];
+}
+
+/**
+ * Wie oft jeder Manager an einem Spieltag Erster, Zweiter oder Dritter war.
+ * Der offene Spieltag zählt nicht mit. Sortiert nach ersten, dann zweiten,
+ * dann dritten Plätzen; bei Gleichstand bleibt die Reihenfolge der Rangliste.
+ */
+export function placements(season: LeagueSeason): { countedDays: number; rows: PlacementRow[] } {
+  const rows: PlacementRow[] = season.managers.map((manager) => ({ manager, counts: [0, 0, 0, 0] }));
+  let countedDays = 0;
+  for (let day = 1; day <= season.playedDays; day++) {
+    if (day === season.openDay) continue;
+    countedDays++;
+    dayStandings(season, day).forEach((entry, index) => {
+      const row = rows.find((r) => r.manager === entry.manager);
+      if (row) row.counts[Math.min(index, 3) as 0 | 1 | 2 | 3]++;
+    });
+  }
+  rows.sort((a, b) => b.counts[0] - a.counts[0] || b.counts[1] - a.counts[1] || b.counts[2] - a.counts[2]);
+  return { countedDays, rows };
+}
