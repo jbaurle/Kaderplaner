@@ -314,7 +314,25 @@ body.is-stats-open {
 
 /* Der offene Spieltag ist schraffiert: sein Wert ist noch ein Zwischenstand. */
 .st-mine--open {
-  background: repeating-linear-gradient(45deg, var(--grade-mid) 0 3px, transparent 3px 6px);
+  background: repeating-linear-gradient(45deg, var(--warning-text) 0 3px, transparent 3px 6px);
+}
+
+/*
+ * Die Säule des laufenden Spieltags. Sie steht in voller Höhe da, auch wenn
+ * noch kein Punkt gefallen ist: sonst ist die Spalte nicht von einem offenen
+ * Spieltag zu unterscheiden.
+ */
+.st-live-frame {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--warning-text);
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.st-day--live .st-daynum {
+  color: var(--warning-text);
+  font-weight: 700;
 }
 
 /* Der Platzhalter eines offenen Spieltags: ein flacher Stummel auf der
@@ -360,10 +378,9 @@ body.is-stats-open {
   opacity: 0.45;
 }
 
-.st-day--empty .st-points::before {
-  content: '\00a0';
-}
-
+/* Leere Punkt- und Platzzeilen halten ihre Höhe, sonst rutschen die
+   Spieltagszahlen der offenen Spalten nach oben. */
+.st-points:empty::before,
 .st-rank:empty::before {
   content: '\00a0';
 }
@@ -376,6 +393,133 @@ body.is-stats-open {
 
 .st-rank--first {
   color: var(--success);
+}
+
+/* ---------- Der angetippte Spieltag ---------- */
+
+/*
+ * Ein gespielter Spieltag ist ein Knopf, ein offener nur ein span. Der Knopf
+ * sieht aus wie die Spalte: kein Rand, kein Grund, die Schrift der Ebene.
+ * `position: relative` ist der Anker der Sprechblase.
+ */
+.st-day {
+  position: relative;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.st-day--empty {
+  cursor: default;
+}
+
+/* Rahmen um die angetippte Spalte, in derselben Farbe wie die Blase. */
+.st-day[aria-pressed='true'] {
+  outline: 2px solid var(--text-strong);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+.st-day:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
+/*
+ * Die Sprechblase, wie `.pd-perf-callout` im Spielerdialog: Rahmen in der
+ * Textfarbe, Pfeil nach unten auf die Spalte, liegt über dem Inhalt. Darin
+ * eine kleine Liste: Platz, Bild, Name, Punkte.
+ */
+.st-callout {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--callout-shift, 0px)));
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  column-gap: 7px;
+  row-gap: 3px;
+  align-items: center;
+  min-width: 190px;
+  padding: 6px 9px;
+  border: 1.5px solid var(--text-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.5);
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 400;
+  color: var(--text);
+  text-align: left;
+}
+
+.st-callout::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(50% - var(--callout-shift, 0px));
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--text-strong);
+}
+
+.st-callout .st-avatar {
+  width: 16px;
+  height: 16px;
+  font-size: 7px;
+}
+
+.st-co-head {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.st-co-dot {
+  color: var(--border-strong);
+}
+
+.st-co-place {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-co-place--first {
+  color: var(--success);
+}
+
+.st-co-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-co-name--me {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.st-co-points {
+  text-align: right;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Die eigene Zeile unter den dreien, abgesetzt durch eine feine Linie. */
+.st-co-sep {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 1px 0;
+  background: var(--border);
 }
 
 .st-figures {
@@ -554,18 +698,79 @@ body.is-stats-open {
 /* ---------- Tabelle: Manager mal Spieltage ---------- */
 
 /*
+ * Der Bereich (Gesamt, Hinrunde, Rückrunde) als Textreiter mit Strich unter
+ * dem gewählten. Zweite Ebene unter den Hauptreitern, deshalb eine andere
+ * Form als deren Segmentleiste.
+ */
+.st-range {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.st-range button {
+  padding: 6px 2px 7px;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.st-range button[aria-pressed='true'] {
+  color: var(--text-strong);
+  border-bottom-color: var(--text-strong);
+}
+
+.st-range button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.st-range button:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 1px;
+}
+
+/*
  * Die Kreuztabelle blättert seitwärts bis zum Rand des Blatts, nicht nur bis
  * zu seinem Polster: sonst stünde rechts ein 12 px breiter Streifen leer,
- * während die Spalte dahinter abgeschnitten ist.
+ * während die Spalte dahinter abgeschnitten ist. Die Bildlaufleiste nimmt die
+ * Farben der anderen Dialoge, im Dunkelmodus also einen dunklen Daumen.
  */
 .st-matrix-scroll {
   overflow-x: auto;
   margin: 0 -12px;
   padding: 0 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
+.st-matrix-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.st-matrix-scroll::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.st-matrix-scroll::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+/*
+ * `separate` statt `collapse`: mit zusammengelegten Rändern verlieren die
+ * festen Spalten beim Blättern ihre Linien.
+ */
 .st-matrix {
-  border-collapse: collapse;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -591,17 +796,57 @@ body.is-stats-open {
 }
 
 /*
- * Der Name bleibt beim Blättern stehen. Er braucht einen deckenden Grund,
- * sonst schieben sich die Spalten sichtbar darunter durch; die Ich-Zeile
- * legt ihr durchscheinendes Grün deshalb über die Kartenfarbe.
+ * Jede Spalte ist so breit wie ihr Inhalt, der Rest geht an die leere
+ * Füllspalte ganz rechts. So stehen Gesamt und Δ immer direkt neben dem
+ * Namen, egal wie viele Spieltage gespielt sind.
  */
-.st-matrix .st-col-name {
+.st-matrix th:not(.st-col-fill),
+.st-matrix td:not(.st-col-fill) {
+  width: 1%;
+}
+
+.st-matrix .st-col-fill {
+  width: auto;
+  padding: 0;
+}
+
+/*
+ * Manager, Gesamt und Δ bleiben beim Blättern stehen, die Spieltage schieben
+ * sich darunter durch. Dafür brauchen die drei einen deckenden Grund; die
+ * Ich-Zeile legt ihr durchscheinendes Grün darüber. Die Abstände der zweiten
+ * und dritten Spalte misst `pinColumns` nach dem Zeichnen.
+ */
+.st-matrix .st-col-name,
+.st-matrix .st-col-total,
+.st-matrix .st-col-diff {
   position: sticky;
-  left: 0;
   z-index: 1;
-  text-align: left;
   background: var(--card);
+}
+
+.st-matrix .st-col-name {
+  left: 0;
+  text-align: left;
   padding-right: 10px;
+  /* Das Polster links vom Scrollbereich: ohne den Schatten schieben sich
+     die Spieltage dort sichtbar unter dem Namen durch. */
+  box-shadow: -12px 0 0 var(--card);
+}
+
+.st-matrix .st-col-total {
+  left: var(--name-w, 0px);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.st-matrix .st-col-diff {
+  left: calc(var(--name-w, 0px) + var(--total-w, 0px));
+  color: var(--text-muted);
+}
+
+/* Die letzte feste Spalte trägt die Trennlinie zu den Spieltagen. */
+.st-matrix .st-col-fixed-end {
+  border-right: 1px solid var(--border);
 }
 
 .st-matrix tbody tr.is-me td {
@@ -609,14 +854,22 @@ body.is-stats-open {
   color: var(--text-strong);
 }
 
-.st-matrix tbody tr.is-me .st-col-name {
+.st-matrix tbody tr.is-me .st-col-name,
+.st-matrix tbody tr.is-me .st-col-total,
+.st-matrix tbody tr.is-me .st-col-diff {
   background: linear-gradient(var(--top11-bg), var(--top11-bg)), var(--card);
 }
 
-.st-matrix .st-col-total {
-  font-weight: 700;
-  color: var(--text-strong);
-  border-right: 1px solid var(--border);
+.st-matrix tbody tr.is-me .st-col-diff {
+  color: var(--text-muted);
+}
+
+/* Schmal: der Name wird beschnitten, sonst bleibt neben den drei festen
+   Spalten kein Platz für die Spieltage. */
+@container (max-width: 479px) {
+  .st-matrix .st-name {
+    max-width: 84px;
+  }
 }
 
 .st-matrix thead th.st-col-open,

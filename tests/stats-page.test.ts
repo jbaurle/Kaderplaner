@@ -166,6 +166,32 @@ describe('StatsPage: Reiter und Umschalter', () => {
     expect(texts(layer, '.st-points').slice(0, 4)).toEqual(['100', '50', '120', '70']);
   });
 
+  it('zeichnet den laufenden Spieltag als Säule, ohne Platz und Punkte', async () => {
+    // Spieltag 4 stieg gestern an, das Fenster von dreieinhalb Tagen läuft.
+    const running = Date.now() - 22 * DAY_MS;
+    const client = fakeClient();
+    const live = {
+      a: performance('a', [100, 50, 120, 70], running),
+      b: performance('b', [80, 90, 110, 75], running),
+    };
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(live[id as 'a' | 'b']),
+    );
+    const { layer } = open(client);
+    await settle();
+
+    const day = layer.querySelector('.st-day--live');
+    expect(day).not.toBeNull();
+    expect(day?.querySelector('.st-live-frame')).not.toBeNull();
+    expect(day?.querySelector('.st-rank')?.textContent).toBe('');
+    expect(day?.querySelector('.st-points')?.textContent).toBe('');
+    expect(day?.querySelector('.st-daynum')?.textContent).toBe('4');
+    // Der Balken ist da, aber schraffiert.
+    expect(day?.querySelector('.st-mine--open')).not.toBeNull();
+    // Ø Punkte ohne den offenen Tag: (100 + 50 + 120) / 3 = 90.
+    expect(texts(layer, '.st-fig b')[0]).toBe('90');
+  });
+
   it('schaltet zwischen Hinrunde und Rückrunde um', async () => {
     const { layer } = open();
     await settle();
@@ -211,15 +237,67 @@ describe('StatsPage: Reiter und Umschalter', () => {
     expect(texts(late.layer, '.st-daynum').at(0)).toBe('18');
   });
 
-  it('die Kreuztabelle: Manager, Gesamt, dann die Spieltage absteigend', async () => {
+  it('die Kreuztabelle: Manager, Gesamt, Δ, dann die Spieltage absteigend', async () => {
     const { layer } = open();
     await settle();
     click(layer, '[data-tab="tabelle"]');
     expect(layer.querySelector('.st-title')?.textContent).toBe('Spieltage 1 bis 4');
-    expect(texts(layer, '.st-matrix thead th')).toEqual(['Manager', 'Gesamt', '4', '3', '2', '1']);
+    expect(texts(layer, '.st-matrix thead th')).toEqual(['Manager', 'Gesamt', 'Δ', '4', '3', '2', '1', '']);
     expect(texts(layer, '.st-matrix tbody .st-name')).toEqual(['Ben', 'Anna']);
-    // Ben: 355 gesamt, dann ST 4 bis 1.
-    expect(texts(layer, '.st-matrix tbody tr:first-child td')).toEqual(['Ben', '355', '75', '110', '90', '80']);
+    // Ben: 355 gesamt, vorn, dann ST 4 bis 1; Anna 15 dahinter.
+    expect(texts(layer, '.st-matrix tbody tr:first-child td')).toEqual(['Ben', '355', '—', '75', '110', '90', '80', '']);
+    expect(texts(layer, '.st-matrix tbody tr:last-child .st-col-diff')).toEqual(['-15']);
+  });
+
+  it('die Bereiche: Gesamt, Hinrunde, Rückrunde; ohne Spieltag ausgegraut', async () => {
+    const { layer } = open();
+    await settle();
+    click(layer, '[data-tab="tabelle"]');
+    expect(texts(layer, '.st-range button')).toEqual(['Gesamt', 'Hinrunde', 'Rückrunde']);
+    expect(layer.querySelector<HTMLButtonElement>('[data-range="rueck"]')?.disabled).toBe(true);
+    // Beim Öffnen steht die laufende Runde, hier die Hinrunde.
+    expect(layer.querySelector('[data-range="hin"]')?.getAttribute('aria-pressed')).toBe('true');
+
+    click(layer, '[data-range="gesamt"]');
+    expect(layer.querySelector('[data-range="gesamt"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(layer.querySelector('.st-title')?.textContent).toBe('Spieltage 1 bis 4');
+
+    // Ausgegraut heißt: ein Tipp darauf ändert nichts.
+    click(layer, '[data-range="rueck"]');
+    expect(layer.querySelector('[data-range="gesamt"]')?.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('in der Rückrunde steht beim Öffnen die Rückrunde', async () => {
+    // Spieltag 20 vor vier Tagen, also 20 gespielte Spieltage.
+    const start = Date.now() - (19 * 7 + 4) * DAY_MS;
+    const twenty = Array.from({ length: 20 }, (_, i) => 100 + i);
+    const client = fakeClient();
+    const late = { a: performance('a', twenty, start), b: performance('b', twenty.map((p) => p - 10), start) };
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(late[id as 'a' | 'b']),
+    );
+    const { layer } = open(client);
+    await settle();
+    click(layer, '[data-tab="tabelle"]');
+    expect(layer.querySelector('[data-range="rueck"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(layer.querySelector('.st-title')?.textContent).toBe('Spieltage 18 bis 20');
+    expect(texts(layer, '.st-matrix thead th')).toEqual(['Manager', 'Gesamt', 'Δ', '20', '19', '18', '']);
+  });
+
+  it('Δ gibt es erst ab dem zweiten Spieltag', async () => {
+    // Spieltag 1 vor vier Tagen, Spieltag 2 erst in drei Tagen.
+    const start = Date.now() - 4 * DAY_MS;
+    const client = fakeClient();
+    const one = { a: performance('a', [100], start), b: performance('b', [80], start) };
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(one[id as 'a' | 'b']),
+    );
+    const { layer } = open(client);
+    await settle();
+    click(layer, '[data-tab="tabelle"]');
+    expect(layer.querySelector('.st-title')?.textContent).toBe('Spieltag 1');
+    expect(texts(layer, '.st-matrix thead th')).toEqual(['Manager', 'Gesamt', '1', '']);
+    expect(layer.querySelector('.st-col-diff')).toBeNull();
   });
 
   it('zeigt statt "auf den Besten" den Vorsprung, wenn nie etwas fehlte', async () => {
@@ -270,5 +348,74 @@ describe('StatsPage: Reiter und Umschalter', () => {
     layer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(document.querySelector('.stats-layer')).toBeNull();
     expect(document.body.classList.contains('is-stats-open')).toBe(false);
+  });
+});
+
+describe('StatsPage: angetippter Spieltag', () => {
+  it('ein Tipp auf einen Balken zeigt die ersten drei des Spieltags, ein zweiter schließt', async () => {
+    const { layer } = open();
+    await settle();
+    expect(layer.querySelector('.st-day--empty')?.tagName).toBe('SPAN');
+    click(layer, '[data-day="3"]');
+
+    const bar = layer.querySelector('[data-day="3"]');
+    expect(bar?.getAttribute('aria-pressed')).toBe('true');
+    const callout = bar?.querySelector('.st-callout');
+    expect(callout?.querySelector('.st-co-head')?.textContent).toBe('Spieltag 3');
+    // Anna hat an Spieltag 3 mit 120 gewonnen, sie ist "du".
+    expect(texts(layer, '.st-callout .st-co-name')).toEqual(['Du', 'Ben']);
+    expect(texts(layer, '.st-callout .st-co-points')).toEqual(['120', '110']);
+    expect(layer.querySelector('.st-co-name--me')?.textContent).toBe('Du');
+
+    click(layer, '[data-day="3"]');
+    expect(layer.querySelector('.st-callout')).toBeNull();
+    expect(layer.querySelector('[data-day="3"]')?.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('die eigene Zeile steht als vierte darunter, wenn man nicht unter den dreien ist', async () => {
+    const ranking: LeagueRanking = {
+      leagueName: 'Test',
+      managers: [
+        ...RANKING.managers,
+        { id: 'c', name: 'Cem', imagePath: '', seasonPoints: 300, seasonPlace: 3, dayPoints: 0, dayPlace: 0, teamValue: 0 },
+        { id: 'd', name: 'Dana', imagePath: '', seasonPoints: 290, seasonPlace: 4, dayPoints: 0, dayPlace: 0, teamValue: 0 },
+      ],
+    };
+    const four: Record<string, ManagerPerformance> = {
+      ...PERFORMANCES,
+      c: performance('c', [130, 95, 60, 60]),
+      d: performance('d', [125, 92, 50, 50]),
+    };
+    const client = fakeClient();
+    client.getLeagueRanking.mockResolvedValue(ranking);
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) => Promise.resolve(four[id]));
+    const { layer } = open(client);
+    await settle();
+    // Spieltag 1: Cem 130, Dana 125, Anna 100. Anna ist Dritte, also dabei.
+    click(layer, '[data-day="1"]');
+    expect(texts(layer, '.st-callout .st-co-name')).toEqual(['Cem', 'Dana', 'Du']);
+    expect(layer.querySelector('.st-co-sep')).toBeNull();
+    // Spieltag 2: Cem 95, Dana 92, Ben 90, Anna 50. Anna ist Vierte.
+    click(layer, '[data-day="2"]');
+    expect(texts(layer, '.st-callout .st-co-name')).toEqual(['Cem', 'Dana', 'Ben', 'Du']);
+    expect(texts(layer, '.st-callout .st-co-place')).toEqual(['1.', '2.', '3.', '4.']);
+    expect(layer.querySelector('.st-co-sep')).not.toBeNull();
+  });
+
+  it('der laufende Spieltag zeigt den Zwischenstand mit dem Hinweis', async () => {
+    const running = Date.now() - 22 * DAY_MS;
+    const client = fakeClient();
+    const live = {
+      a: performance('a', [100, 50, 120, 70], running),
+      b: performance('b', [80, 90, 110, 75], running),
+    };
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) =>
+      Promise.resolve(live[id as 'a' | 'b']),
+    );
+    const { layer } = open(client);
+    await settle();
+    click(layer, '.st-day--live');
+    expect(layer.querySelector('.st-co-head')?.textContent?.replace(/\s+/g, ' ')).toContain('läuft noch');
+    expect(layer.querySelector('.st-co-place--first')).toBeNull();
   });
 });

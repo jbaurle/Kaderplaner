@@ -165,17 +165,70 @@ export interface StandingRow {
 
 /** Gesamtstand nach `upTo` Spieltagen, Führender zuerst. */
 export function standings(season: LeagueSeason, upTo = season.playedDays): StandingRow[] {
-  const days = Math.max(0, Math.min(upTo, season.playedDays));
+  return standingsBetween(season, 1, upTo);
+}
+
+/**
+ * Stand über die Spieltage `from` bis `to` (1-basiert, beide dabei), soweit
+ * sie gespielt sind. Führender zuerst. Damit rechnet die Tabelle Gesamt,
+ * Hinrunde und Rückrunde mit einer Funktion.
+ */
+export function standingsBetween(season: LeagueSeason, from: number, to: number): StandingRow[] {
+  const first = Math.max(1, from);
+  const last = Math.min(to, season.playedDays);
   const rows = season.managers.map((manager) => {
     let total = 0;
     let wins = 0;
-    for (let i = 0; i < days; i++) {
-      total += manager.points[i] ?? 0;
-      if (i + 1 !== season.openDay && manager.won[i]) wins++;
+    /*
+     * Der Schnitt lässt den offenen Spieltag aus. Sonst teilt ein
+     * Zwischenstand von null Punkten die Summe durch einen Tag mehr: nach
+     * Spieltag 1 stand da die Hälfte des einzigen Ergebnisses.
+     */
+    let settledTotal = 0;
+    let settledDays = 0;
+    for (let day = first; day <= last; day++) {
+      const points = manager.points[day - 1] ?? 0;
+      total += points;
+      if (day === season.openDay) continue;
+      settledTotal += points;
+      settledDays++;
+      if (manager.won[day - 1]) wins++;
     }
-    return { manager, total, wins, average: days > 0 ? Math.round(total / days) : 0 };
+    return {
+      manager,
+      total,
+      wins,
+      average: settledDays > 0 ? Math.round(settledTotal / settledDays) : 0,
+    };
   });
   return rows.sort((a, b) => b.total - a.total);
+}
+
+/** Die drei Bereiche der Tabelle. Bei ungerader Spieltagszahl bekommt die Hinrunde den mehr. */
+export type RangeKey = 'gesamt' | 'hin' | 'rueck';
+
+export interface DayRange {
+  key: RangeKey;
+  label: string;
+  /** Erster und letzter Spieltag des Bereichs, 1-basiert. */
+  from: number;
+  to: number;
+  /** Gespielte Spieltage darin, aufsteigend. */
+  played: number[];
+}
+
+export function rangesOf(season: LeagueSeason): DayRange[] {
+  const half = Math.ceil(season.dayCount / 2);
+  const make = (key: RangeKey, label: string, from: number, to: number): DayRange => {
+    const played: number[] = [];
+    for (let day = from; day <= Math.min(to, season.playedDays); day++) played.push(day);
+    return { key, label, from, to, played };
+  };
+  return [
+    make('gesamt', 'Gesamt', 1, season.dayCount),
+    make('hin', 'Hinrunde', 1, half),
+    make('rueck', 'Rückrunde', half + 1, season.dayCount),
+  ];
 }
 
 export interface DayRow {
@@ -232,10 +285,15 @@ export function myFigures(season: LeagueSeason): MyFigures | null {
   const dayPlaces: number[] = [];
   for (let i = 0; i < season.playedDays; i++) {
     const mine = row.manager.points[i] ?? 0;
-    lostToBest += bestOfDay(season, i) - mine;
     const ordered = dayStandings(season, i + 1);
-    const place = ordered.findIndex((d) => d.manager.isMe) + 1;
-    dayPlaces.push(place);
+    // Der Platz kommt für jeden Spieltag in die Liste, auch für den offenen:
+    // die Balken lesen sie über den Index.
+    dayPlaces.push(ordered.findIndex((d) => d.manager.isMe) + 1);
+    // Die Kennzahlen daneben zählen den offenen Spieltag nicht mit, solange
+    // sein Ergebnis nur ein Zwischenstand ist.
+    if (i + 1 === season.openDay) continue;
+    lostToBest += bestOfDay(season, i) - mine;
+    const place = dayPlaces[i]!;
     const runnerUp = ordered[1];
     if (place === 1 && runnerUp) aheadOfSecond += mine - runnerUp.points;
   }

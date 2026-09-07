@@ -6,7 +6,9 @@ import {
   gradeOfDay,
   milestones,
   myFigures,
+  rangesOf,
   standings,
+  standingsBetween,
   type BuildInput,
 } from '../src/compute/stats.js';
 
@@ -128,6 +130,17 @@ describe('standings und dayStandings', () => {
     expect(rows.map((r) => r.average)).toEqual([89, 85, 65]);
   });
 
+  it('lässt den offenen Spieltag aus dem Schnitt heraus', () => {
+    // Spieltag 4 läuft noch: die Summe zählt ihn, der Schnitt nicht.
+    const kickoff4 = START + 3 * 7 * DAY_MS;
+    const season = buildLeagueSeason(input({ now: kickoff4 + 2 * DAY_MS }))!;
+    expect(season.openDay).toBe(4);
+    const rows = standings(season);
+    expect(rows.map((r) => r.total)).toEqual([355, 340, 260]);
+    // A: (100 + 50 + 120) / 3 = 90, B: 280 / 3 = 93, C: 160 / 3 = 53.
+    expect(rows.map((r) => r.average)).toEqual([93, 90, 53]);
+  });
+
   it('kann einen früheren Stand zeigen', () => {
     const rows = standings(buildLeagueSeason(input())!, 1);
     expect(rows.map((r) => r.manager.id)).toEqual(['a', 'b', 'c']);
@@ -224,5 +237,27 @@ describe('gradeOfDay', () => {
     expect(gradeOfDay(80, 100)).toBe('mid');
     expect(gradeOfDay(50, 100)).toBe('weak');
     expect(gradeOfDay(0, 0)).toBe('mid');
+  });
+});
+
+describe('standingsBetween und rangesOf', () => {
+  it('rechnet einen Ausschnitt der Saison', () => {
+    const season = buildLeagueSeason(input())!;
+    // Spieltag 3 und 4: A 190, B 185, C 130.
+    const rows = standingsBetween(season, 3, 4);
+    expect(rows.map((r) => [r.manager.id, r.total])).toEqual([['a', 190], ['b', 185], ['c', 130]]);
+    // Ungespielte Spieltage zählen nicht mit.
+    expect(standingsBetween(season, 3, 10).map((r) => r.total)).toEqual([190, 185, 130]);
+    expect(standingsBetween(season, 5, 10).every((r) => r.total === 0)).toBe(true);
+  });
+
+  it('teilt die Saison in Gesamt, Hinrunde und Rückrunde', () => {
+    const ranges = rangesOf(buildLeagueSeason(input())!);
+    expect(ranges.map((r) => [r.key, r.from, r.to])).toEqual([
+      ['gesamt', 1, 34],
+      ['hin', 1, 17],
+      ['rueck', 18, 34],
+    ]);
+    expect(ranges.map((r) => r.played.length)).toEqual([4, 4, 0]);
   });
 });

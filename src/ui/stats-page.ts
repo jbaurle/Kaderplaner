@@ -18,12 +18,17 @@ import { KickbaseClient, KickbaseError } from '../api/kickbase.js';
 import type { LeagueId, LeagueRanking, ManagerPerformance } from '../api/types.js';
 import {
   buildLeagueSeason,
+  dayStandings,
   gradeOfDay,
   milestones,
   MILESTONES_FROM,
   myFigures,
+  rangesOf,
   standings,
+  standingsBetween,
+  type DayRange,
   type LeagueSeason,
+  type RangeKey,
   type SeasonManager,
 } from '../compute/stats.js';
 import { isFresh, loadStats, saveStats } from '../state/stats.js';
@@ -59,6 +64,14 @@ export class StatsPage {
    * Spieltag. Sobald der Nutzer umschaltet, bleibt seine Wahl stehen.
    */
   private half: 0 | 1 | null = null;
+  /** Angetippter Spieltag im Reiter Ich, null wenn keiner. */
+  private selectedDay: number | null = null;
+  /**
+   * Bereich der Tabelle: Gesamt, Hinrunde oder Rückrunde. `null` heißt: die
+   * Runde mit dem laufenden Spieltag. Sobald der Nutzer umschaltet, bleibt
+   * seine Wahl stehen.
+   */
+  private range: RangeKey | null = null;
   private userId = '';
   private ranking: LeagueRanking | null = null;
   private performances: Record<string, ManagerPerformance> = {};
@@ -180,6 +193,21 @@ export class StatsPage {
         this.render();
         return;
       }
+      const pick = target.closest<HTMLButtonElement>('[data-range]');
+      if (pick && !pick.disabled) {
+        const key = pick.dataset['range'];
+        if (key === 'gesamt' || key === 'hin' || key === 'rueck') this.range = key;
+        this.render();
+        return;
+      }
+      // Ein zweiter Tipp auf denselben Spieltag schließt die Blase wieder.
+      const bar = target.closest<HTMLElement>('[data-day]');
+      if (bar) {
+        const day = Number(bar.dataset['day']);
+        this.selectedDay = this.selectedDay === day ? null : day;
+        this.render();
+        return;
+      }
       if (target.closest('[data-retry]')) void this.fetch();
     });
     this.layer.addEventListener('keydown', (event) => {
@@ -226,6 +254,8 @@ export class StatsPage {
     `;
     const scroller = this.layer.querySelector<HTMLElement>('.st-matrix-scroll');
     if (scroller) scroller.scrollLeft = matrixScroll;
+    placeCallout(this.layer);
+    pinColumns(this.layer);
   }
 
   /** Platzhalter, solange die Historie fehlt: lädt, Fehler, oder gar nichts. */
@@ -247,6 +277,16 @@ export class StatsPage {
     return Math.max(1, season.playedDays) > halfSize(season) ? 1 : 0;
   }
 
+  /**
+   * Der Bereich der Tabelle: die Wahl des Nutzers, sonst die laufende Runde,
+   * wie bei den Balken. Ein Bereich ohne gespielten Spieltag fällt auf
+   * Gesamt zurück.
+   */
+  private shownRange(season: LeagueSeason, ranges: readonly DayRange[]): DayRange {
+    const wanted = this.range ?? (this.shownHalf(season) === 1 ? 'rueck' : 'hin');
+    return ranges.find((r) => r.key === wanted && r.played.length > 0) ?? ranges[0]!;
+  }
+
   private renderMe(): string {
     const season = this.season;
     if (!season) {
@@ -262,7 +302,7 @@ export class StatsPage {
       ${hero(me.place, me.total, me.gapToFirst, me.leadOverSecond, season.managers.length, season.playedDays, season.dayCount, me.manager)}
       ${sectionHead('Deine Spieltage', 'grau: bester der Liga')}
       ${renderHalfSwitch(half)}
-      ${renderBars(season, me, half)}
+      ${renderBars(season, me, half, this.selectedDay)}
       <div class="st-figures">
         <span class="st-fig"><span>Ø PUNKTE</span><b>${num(me.average)}</b></span>
         <span class="st-fig"><span>SPIELTAGSSIEGE</span><b>${me.wins}</b></span>
@@ -301,17 +341,49 @@ export class StatsPage {
           ${this.error ? '<button type="button" class="st-retry" data-retry>Erneut versuchen</button>' : ''}</p>
       `;
     }
-    const title = season.playedDays === 1 ? 'Spieltag 1' : `Spieltage 1 bis ${season.playedDays}`;
-    const hint = season.playedDays > 1 ? ' Grün ist der Spieltagssieg, seitwärts blättern zeigt die übrigen Spieltage.' : ' Grün ist der Spieltagssieg.';
-    const note = season.openDay
+    const ranges = rangesOf(season);
+    const current = this.shownRange(season, ranges);
+    const played = current.played;
+    const first = played[0] ?? 0;
+    const last = played[played.length - 1] ?? 0;
+    const title = played.length === 0
+      ? 'Noch kein Spieltag'
+      : played.length === 1 ? `Spieltag ${first}` : `Spieltage ${first} bis ${last}`;
+    const hint = played.length > 1
+      ? ' Grün ist der Spieltagssieg, Δ der Rückstand auf Platz 1, seitwärts blättern zeigt die übrigen Spieltage.'
+      : ' Grün ist der Spieltagssieg.';
+    const note = season.openDay && played.includes(season.openDay)
       ? openNote(season, 'Spalte und Gesamtsumme sind so lange vorläufig.' + hint)
       : `<p class="st-note">${hint.trim()}</p>`;
     return `
+      ${renderRangeTabs(ranges, current.key)}
       ${sectionHead(title, `Saison ${escapeHtml(season.title)}`)}
-      ${matrix(season)}
+      ${matrix(season, current)}
       ${note}
     `;
   }
+}
+
+/** Gesamt, Hinrunde, Rückrunde als Textreiter; ohne gespielten Spieltag ausgegraut. */
+function renderRangeTabs(ranges: readonly DayRange[], active: RangeKey): string {
+  const buttons = ranges.map((r) =>
+    `<button type="button" data-range="${r.key}" aria-pressed="${r.key === active}"${r.played.length ? '' : ' disabled'}>${r.label}</button>`,
+  ).join('');
+  return `<div class="st-range">${buttons}</div>`;
+}
+
+/**
+ * Manager, Gesamt und Δ bleiben beim Blättern stehen. Die Abstände der
+ * zweiten und dritten Spalte hängen an der Breite der Namensspalte und werden
+ * deshalb nach dem Zeichnen gemessen, siehe `.st-col-total` in stats.css.
+ */
+function pinColumns(layer: HTMLElement): void {
+  const table = layer.querySelector<HTMLElement>('.st-matrix');
+  const name = table?.querySelector<HTMLElement>('th.st-col-name');
+  const total = table?.querySelector<HTMLElement>('th.st-col-total');
+  if (!table || !name || !total) return;
+  table.style.setProperty('--name-w', `${name.offsetWidth}px`);
+  table.style.setProperty('--total-w', `${total.offsetWidth}px`);
 }
 
 // ---------- Bausteine ----------
@@ -421,7 +493,12 @@ function renderHalfSwitch(half: 0 | 1): string {
  * Der Maßstab kommt aus der gezeigten Halbserie, nicht aus der ganzen Saison.
  * Sonst drückt ein Ausreißer der anderen Hälfte alles hier klein.
  */
-function renderBars(season: LeagueSeason, me: ReturnType<typeof myFigures> & object, half: 0 | 1): string {
+function renderBars(
+  season: LeagueSeason,
+  me: ReturnType<typeof myFigures> & object,
+  half: 0 | 1,
+  selectedDay: number | null,
+): string {
   const size = halfSize(season);
   const from = half * size;
   const to = Math.min(season.dayCount, from + size);
@@ -444,19 +521,89 @@ function renderBars(season: LeagueSeason, me: ReturnType<typeof myFigures> & obj
     const mine = me.manager.points[i] ?? 0;
     const top = best(i);
     const place = me.dayPlaces[i] ?? 0;
-    const cls = day === season.openDay ? 'st-mine--open' : `st-mine--${gradeOfDay(mine, top)}`;
+    // Der angetippte Spieltag trägt seine Sprechblase, wie im Spielerdialog.
+    const pressed = day === selectedDay;
+    const callout = pressed ? renderCallout(season, day) : '';
+    /*
+     * Der laufende Spieltag: eine gestrichelte Säule in voller Höhe, darin
+     * wächst der Balken. Ohne sie stand über einer leeren Spalte nur ein
+     * Platz, und der sagt nichts, solange alle bei null stehen. Deshalb
+     * bleiben Platz und Punkte hier weg, bis der Tag durch ist.
+     */
+    if (day === season.openDay) {
+      items.push(`
+        <button type="button" class="st-day st-day--live" data-day="${day}" aria-pressed="${pressed}"
+                title="Spieltag ${day} läuft: ${num(mine)}, bester ${num(top)}">
+          <span class="st-rank"></span>
+          <span class="st-stack">
+            <span class="st-live-frame"></span>
+            <span class="st-mine st-mine--open" style="height:${Math.round((mine / scale) * 100)}%"></span>
+          </span>
+          <span class="st-points"></span>
+          <span class="st-daynum">${day}</span>
+          ${callout}
+        </button>`);
+      continue;
+    }
     items.push(`
-      <span class="st-day" title="Spieltag ${day}: ${num(mine)}, bester ${num(top)}">
+      <button type="button" class="st-day" data-day="${day}" aria-pressed="${pressed}"
+              title="Spieltag ${day}: ${num(mine)}, bester ${num(top)}">
         <span class="st-rank${place === 1 ? ' st-rank--first' : ''}">${place}.</span>
         <span class="st-stack">
           <span class="st-best" style="height:${Math.round((top / scale) * 100)}%"></span>
-          <span class="st-mine ${cls}" style="height:${Math.round((mine / scale) * 100)}%"></span>
+          <span class="st-mine st-mine--${gradeOfDay(mine, top)}" style="height:${Math.round((mine / scale) * 100)}%"></span>
         </span>
         <span class="st-points">${num(mine)}</span>
         <span class="st-daynum">${day}</span>
-      </span>`);
+        ${callout}
+      </button>`);
   }
   return `<div class="st-bars">${items.join('')}</div>`;
+}
+
+/**
+ * Die Sprechblase zum angetippten Spieltag: die ersten drei mit Platz, Bild,
+ * Name und Punkten, die eigene Zeile fett, wenn sie dabei ist, sonst als
+ * vierte darunter. Sie hängt an ihrer Spalte und liegt über dem Inhalt; läuft
+ * sie seitlich aus dem Blatt, schiebt `placeCallout` sie zurück.
+ */
+function renderCallout(season: LeagueSeason, day: number): string {
+  const rows = dayStandings(season, day);
+  const myIndex = rows.findIndex((r) => r.manager.isMe);
+  const live = day === season.openDay;
+  const row = (r: (typeof rows)[number], place: number, own: boolean): string => `
+    <span class="st-co-place${place === 1 && !live ? ' st-co-place--first' : ''}">${place}.</span>
+    ${avatar(r.manager)}
+    <span class="st-co-name${own ? ' st-co-name--me' : ''}">${own ? 'Du' : escapeHtml(r.manager.name)}</span>
+    <b class="st-co-points">${num(r.points)}</b>`;
+  const top = rows.slice(0, 3).map((r, i) => row(r, i + 1, r.manager.isMe)).join('');
+  const mine = myIndex >= 3 && rows[myIndex]
+    ? `<span class="st-co-sep"></span>${row(rows[myIndex], myIndex + 1, true)}`
+    : '';
+  return `
+    <span class="st-callout">
+      <span class="st-co-head">Spieltag ${day}${live ? ' <span class="st-co-dot">·</span> läuft noch' : ''}</span>
+      ${top}${mine}
+    </span>`;
+}
+
+/**
+ * Die Blase steht mittig über ihrer Spalte. An den Randspalten liefe sie aus
+ * dem Blatt, deshalb wird gemessen und der Überstand über --callout-shift
+ * zurückgeschoben; der Pfeil wandert gegenläufig und bleibt über der Spalte.
+ * Wie `wireModal` in planning-page.ts für den Spielerdialog.
+ */
+function placeCallout(layer: HTMLElement): void {
+  const callout = layer.querySelector<HTMLElement>('.st-callout');
+  const sheet = layer.querySelector<HTMLElement>('.stats-sheet');
+  if (!callout || !sheet) return;
+  const edge = 8;
+  const bubble = callout.getBoundingClientRect();
+  const box = sheet.getBoundingClientRect();
+  const shift = bubble.left < box.left + edge
+    ? box.left + edge - bubble.left
+    : Math.min(0, box.right - edge - bubble.right);
+  if (shift !== 0) callout.style.setProperty('--callout-shift', `${shift}px`);
 }
 
 function openNote(season: LeagueSeason, text: string): string {
@@ -503,20 +650,26 @@ function renderMilestones(stones: NonNullable<ReturnType<typeof milestones>>): s
 }
 
 /**
- * Zeile je Manager, Spalte je Spieltag. Gesamt steht vorn, danach die
- * Spieltage absteigend: der jüngste ist der, den man sucht, und der steht so
- * ohne Blättern neben dem Namen.
+ * Zeile je Manager, Spalte je Spieltag des Bereichs. Gesamt und Δ stehen
+ * vorn und fest, danach die Spieltage absteigend: der jüngste ist der, den
+ * man sucht, und der steht so ohne Blättern neben dem Namen. Δ ist der
+ * Rückstand auf Platz 1 und steht erst ab dem zweiten Spieltag; an Spieltag 1
+ * sagt er nichts, was die Spieltagsspalte nicht schon zeigt. Die leere
+ * Füllspalte am Ende nimmt den Rest der Breite, siehe stats.css.
  */
-function matrix(season: LeagueSeason): string {
-  const rows = standings(season);
-  const days: number[] = [];
-  for (let day = season.playedDays; day >= 1; day--) days.push(day);
+function matrix(season: LeagueSeason, range: DayRange): string {
+  const rows = standingsBetween(season, range.from, range.to);
+  const days = [...range.played].reverse();
+  const withDiff = days.length >= 2;
+  const lead = rows[0]?.total ?? 0;
 
   const head = [
     '<th class="st-col-name">Manager</th>',
-    '<th class="st-col-total">Gesamt</th>',
+    `<th class="st-col-total${withDiff ? '' : ' st-col-fixed-end'}">Gesamt</th>`,
+    withDiff ? '<th class="st-col-diff st-col-fixed-end" title="Rückstand auf Platz 1">Δ</th>' : '',
     ...days.map((day) =>
       `<th class="${day === season.openDay ? 'st-col-open' : ''}">${day === season.openDay ? '<span class="st-dot">•</span>' : ''}${day}</th>`),
+    '<th class="st-col-fill"></th>',
   ].join('');
 
   const body = rows.map((row) => {
@@ -528,11 +681,17 @@ function matrix(season: LeagueSeason): string {
         : row.manager.won[i] ? 'st-cell-win' : '';
       return `<td class="${cls}">${num(points)}</td>`;
     }).join('');
+    const gap = lead - row.total;
+    const diff = withDiff
+      ? `<td class="st-col-diff st-col-fixed-end">${gap === 0 ? '—' : '-' + num(gap)}</td>`
+      : '';
     return `
       <tr class="${row.manager.isMe ? 'is-me' : ''}">
         <td class="st-col-name">${managerCell(row.manager)}</td>
-        <td class="st-col-total">${num(row.total)}</td>
+        <td class="st-col-total${withDiff ? '' : ' st-col-fixed-end'}">${num(row.total)}</td>
+        ${diff}
         ${cells}
+        <td class="st-col-fill"></td>
       </tr>`;
   }).join('');
 
@@ -551,13 +710,14 @@ function matrixFromRanking(ranking: LeagueRanking, userId: string): string {
   const body = rows.map((m) => `
     <tr class="${m.id === userId ? 'is-me' : ''}">
       <td class="st-col-name">${managerCell(m)}</td>
-      <td class="st-col-total">${num(m.seasonPoints)}</td>
+      <td class="st-col-total st-col-fixed-end">${num(m.seasonPoints)}</td>
       <td class="st-col-gap">…</td>
+      <td class="st-col-fill"></td>
     </tr>`).join('');
   return `
     <div class="st-matrix-scroll">
       <table class="st-matrix">
-        <thead><tr><th class="st-col-name">Manager</th><th class="st-col-total">Gesamt</th><th></th></tr></thead>
+        <thead><tr><th class="st-col-name">Manager</th><th class="st-col-total st-col-fixed-end">Gesamt</th><th></th><th class="st-col-fill"></th></tr></thead>
         <tbody>${body}</tbody>
       </table>
     </div>`;
