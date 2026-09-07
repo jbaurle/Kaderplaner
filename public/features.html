@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Features im Überblick – Kickbase Kaderplaner</title>
-  <meta name="description" content="Kader mit Score, vier Szenarien, Spielerdialog und Aufstellung: was der Kaderplaner zeigt und wie er rechnet.">
+  <meta name="description" content="Kader mit Score, vier Szenarien, Spielerdialog, Aufstellung und Manager-Statistik: was der Kaderplaner zeigt und wie er rechnet.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/legal.css">
   <!-- Wie in index.html: die Farbe der Statusleiste, wenn die App auf dem
@@ -185,6 +185,45 @@
              alt="Der Aufstellungsdialog: die Elf auf dem Spielfeld, je Spieler sein Score.">
         <figcaption>
           Über dem Feld die Formation und was nach dem Umbau auf dem Konto steht.
+        </figcaption>
+      </figure>
+
+      <h2>Statistik: Du gegen deine Liga</h2>
+      <p>
+        Hinter dem Knopf <strong>Statistik</strong> steht die Manager-Rangliste
+        deiner Liga in drei Reitern.
+      </p>
+      <ul>
+        <li><strong>Ich:</strong> Dein Platz, deine Punkte und der Abstand zum
+          Ersten. Je Spieltag dein Balken vor dem grauen Balken des Ligabesten,
+          grün, wenn du den Spieltag gewonnen hast. Ein Tipp auf einen Balken
+          zeigt die ersten drei des Spieltags. Darunter Schnitt, Spieltagssiege
+          und was dir insgesamt zum Tagesbesten fehlte.</li>
+        <li><strong>Saison:</strong> Das Podium und die Meilensteine der
+          Saison: bester und schwächster Spieltag, knappster Spieltag,
+          deutlichster Sieg, längste Zeit vorn, größter Sprung.</li>
+        <li><strong>Tabelle:</strong> Manager mal Spieltage als Kreuztabelle,
+          umschaltbar auf Hin- oder Rückrunde. Gesamt und Δ, der Rückstand auf
+          Platz 1, bleiben beim seitlichen Blättern stehen.</li>
+      </ul>
+      <p>
+        Ein Spieltag, der noch läuft, ist überall als vorläufig markiert und
+        zählt in Siege und Meilensteine erst, wenn er durch ist.
+      </p>
+      <figure class="shot shot--narrow">
+        <img src="/images/stats.webp" data-dark="/images/stats-dark.webp" width="683" height="718" loading="lazy" decoding="async"
+             alt="Der Reiter Ich der Statistik: Platz und Punkte, je Spieltag der eigene Balken, darüber die ersten drei des angetippten Spieltags.">
+        <figcaption>
+          Der angetippte Spieltag zeigt, wer vorn lag. Die Namen der Mitspieler
+          sind hier ausgetauscht.
+        </figcaption>
+      </figure>
+      <figure class="shot shot--narrow">
+        <img src="/images/stats-table.webp" data-dark="/images/stats-table-dark.webp" width="683" height="725" loading="lazy" decoding="async"
+             alt="Der Reiter Tabelle der Statistik: je Manager eine Zeile mit Gesamt, Rückstand und den Punkten je Spieltag.">
+        <figcaption>
+          Gesamt und Δ stehen direkt neben dem Namen, die Spieltage folgen
+          absteigend, der jüngste zuerst.
         </figcaption>
       </figure>
 

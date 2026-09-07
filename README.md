@@ -38,6 +38,10 @@ Tabelle, Spielerdialog und Aufstellung.
   Kickbase-App.
 - **Aufstellung** auf einem Spielfeld. Der Formations-Chip im Kopf, etwa
   `5-4-1`, öffnet sie. Von dort geht die Elf auch zurück an Kickbase.
+- **Statistik** deiner Liga in drei Reitern: dein Platz und je Spieltag dein
+  Balken vor dem Ligabesten (ein Tipp zeigt die ersten drei des Spieltags),
+  Podium und Meilensteine der Saison, und die Kreuztabelle Manager mal
+  Spieltage mit Gesamt und Rückstand, umschaltbar auf Hin- oder Rückrunde.
 - **Eine Tabelle für jede Breite.** Von 320 px bis Desktop entscheidet CSS über
   Container-Queries, welche Spalten passen.
 - **Hell und dunkel.** Der Mond im Kopf schaltet um, die Wahl bleibt im
@@ -45,8 +49,8 @@ Tabelle, Spielerdialog und Aufstellung.
   nicht sein Betriebssystem.
 - **Auf den Startbildschirm.** Manifest und Icons liegen bei: am Handy
   abgelegt startet der Kaderplaner mit eigenem Symbol und ohne Adressleiste.
-  Der Service Worker reicht nur durch und speichert nichts, offline läuft
-  also nichts.
+  Der Service Worker hält nur die Bilder vom CDN eine Woche vor, die
+  App-Daten reicht er durch; offline läuft also nichts.
 
 Alles außer der Aufstellung ist nur lesend.
 
@@ -56,11 +60,13 @@ Alles außer der Aufstellung ist nur lesend.
     <td><img src="docs/shot-lineup.png" alt="Aufstellung auf dem Spielfeld" width="200"></td>
     <td><img src="docs/shot-player.png" alt="Der Spielerdialog" width="200"></td>
     <td><img src="docs/shot-offers.png" alt="Der Gebotsdialog" width="200"></td>
+    <td><img src="docs/shot-stats.png" alt="Die Statistik" width="200"></td>
   </tr>
 </table>
 
 Die Tabelle auf einem 412 px breiten Handy, die Aufstellung hinter dem
-Formations-Chip, der Spielerdialog und der Gebotsdialog.
+Formations-Chip, der Spielerdialog, der Gebotsdialog und die Statistik (mit
+ausgetauschten Namen der Mitspieler).
 
 ## Lokal starten
 
@@ -79,8 +85,8 @@ npm run test:watch
 ```
 
 Getestet ist die Rechenlogik: Optimizer, Score-Lauf, Planungstabelle,
-Gegner-Spalte, Aufstellung und der API-Client. Die Oberfläche wird von Hand
-geprüft.
+Gegner-Spalte, Aufstellung, Statistik und der API-Client, dazu das Markup der
+Statistik-Ebene. Die übrige Oberfläche wird von Hand geprüft.
 
 ## Aufbau
 
@@ -94,9 +100,10 @@ geprüft.
 │  │  ├─ optimizer.ts        Score je Spieler, beste Elf je Formation
 │  │  ├─ score.ts            Score-Lauf, Cache, Gegner-Spalte
 │  │  ├─ planning.ts         Szenariospalten, Summen, Formationspruefung
-│  │  └─ lineup.ts           Aufstellung auf dem Feld
+│  │  ├─ lineup.ts           Aufstellung auf dem Feld
+│  │  └─ stats.ts            Manager-Rangliste, Meilensteine, Bereiche
 │  ├─ state/                 Sitzung, Szenarien, Optimizer-Cache,
-│  │                         Aufstellungsentwurf, Gegneransicht
+│  │                         Aufstellungsentwurf, Gegneransicht, Statistik
 │  ├─ storage/local.ts       getippter localStorage-Wrapper
 │  ├─ ui/                    Seiten und reine Renderer
 │  └─ styles/
@@ -119,6 +126,8 @@ Im `localStorage` liegen:
 | `kb.optimizer.<leagueId>` | Spielerdetails und Tabelle, damit nicht jeder Klick neu abruft |
 | `kb.oppview.<leagueId>` | Spaltenzahl und Spieltag der Gegner-Spalte, damit sie beim Laden nicht springt |
 | `kb.lineup.<leagueId>` | dein Aufstellungsentwurf, bis du ihn abschickst |
+| `kb.stats.<leagueId>` | Rangliste und Punkte je Spieltag aller Manager, eine Stunde gültig |
+| `kb.performance.<leagueId>.<playerId>` | Punkte je Spieltag eines Spielers, sechs Stunden gültig |
 | `kb.theme` | die Wahl zwischen hellem und dunklem Design |
 
 Abmelden löscht Sitzung und Ligaauswahl. Szenarien, Aufstellungsentwurf und

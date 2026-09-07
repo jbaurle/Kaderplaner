@@ -169,7 +169,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             -->
             <div class="lp-carousel-frame">
             <div class="lp-carousel" role="region" aria-roledescription="Karussell" aria-label="Screenshots der App">
-              <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 4">
+              <div class="lp-slide lp-slide--wide" role="group" aria-roledescription="Folie" aria-label="1 von 5">
                 <span class="lp-badge">Score 0–100 %</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="${shot('table-desktop', dark)}" data-shot="table-desktop"
@@ -179,7 +179,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <h3 class="lp-slide-title">Kadertabelle</h3>
                 <p class="lp-slide-text">Score je Spieler, vier Spalten zum Durchspielen.</p>
               </div>
-              <div class="lp-slide lp-slide--offers" role="group" aria-roledescription="Folie" aria-label="2 von 4">
+              <div class="lp-slide lp-slide--offers" role="group" aria-roledescription="Folie" aria-label="2 von 5">
                 <span class="lp-badge">Gebote</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="${shot('offers-dialog', dark)}" data-shot="offers-dialog"
@@ -189,7 +189,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <h3 class="lp-slide-title">Gebote</h3>
                 <p class="lp-slide-text">Alle Gebote auf einen Blick, das höchste zuerst.</p>
               </div>
-              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 4">
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 5">
                 <span class="lp-badge lp-badge--gold">Spielraum</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="${shot('player-dialog', dark)}" data-shot="player-dialog"
@@ -199,7 +199,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 <h3 class="lp-slide-title">Spielerdialog</h3>
                 <p class="lp-slide-text">Score, Spieltage, was ein Verkauf am Spielraum ändert.</p>
               </div>
-              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="4 von 4">
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="4 von 5">
                 <span class="lp-badge">Aufstellung</span>
                 <div class="lp-slide-media">
                   <img class="lp-slide-img" src="${shot('lineup', dark)}" data-shot="lineup"
@@ -208,6 +208,16 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                 </div>
                 <h3 class="lp-slide-title">Aufstellung</h3>
                 <p class="lp-slide-text">Auf dem Feld zusammengestellt, an Kickbase zurück.</p>
+              </div>
+              <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="5 von 5">
+                <span class="lp-badge">Statistik</span>
+                <div class="lp-slide-media">
+                  <img class="lp-slide-img" src="${shot('stats', dark)}" data-shot="stats"
+                       width="683" height="718" loading="lazy" decoding="async"
+                       alt="Die Statistik: dein Platz in der Liga, je Spieltag dein Balken vor dem Ligabesten.">
+                </div>
+                <h3 class="lp-slide-title">Statistik</h3>
+                <p class="lp-slide-text">Du gegen die Liga, Spieltag für Spieltag.</p>
               </div>
             </div>
             <button type="button" class="lp-carousel-nav lp-carousel-nav--prev" id="lp-carousel-prev" aria-label="Vorheriges Bild" disabled>
@@ -219,10 +229,11 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             </div>
             <p class="lp-swipe-hint" id="lp-swipe-hint"><span class="lp-swipe-arrow" aria-hidden="true">→</span> wischen für mehr</p>
             <div class="lp-dots" id="lp-dots">
-              <button type="button" class="lp-dot is-active" aria-label="Bild 1 von 4 zeigen"></button>
-              <button type="button" class="lp-dot" aria-label="Bild 2 von 4 zeigen"></button>
-              <button type="button" class="lp-dot" aria-label="Bild 3 von 4 zeigen"></button>
-              <button type="button" class="lp-dot" aria-label="Bild 4 von 4 zeigen"></button>
+              <button type="button" class="lp-dot is-active" aria-label="Bild 1 von 5 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 2 von 5 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 3 von 5 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 4 von 5 zeigen"></button>
+              <button type="button" class="lp-dot" aria-label="Bild 5 von 5 zeigen"></button>
             </div>
             <button type="button" class="lp-carousel-cta" id="lp-carousel-cta">Jetzt anmelden</button>
           </div>
@@ -240,7 +251,8 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           <p class="lp-body">
             Analysiere einzelne Spieler bis ins Detail, kalkuliere den echten
             Transfer-Spielraum und schicke deine optimierte Aufstellung direkt
-            an Kickbase.
+            an Kickbase. Die Statistik zeigt, wo du in deiner Liga stehst,
+            Spieltag für Spieltag.
           </p>
           <!--
             Die beiden Seitenlinks untereinander, darunter linksbündig der
