@@ -64,7 +64,7 @@ export function renderFormationHelpBody(input: FormationHelpInput): string {
 
   return `
     <p>
-      Der Optimizer probiert zehn Formationen durch und braucht für jede genug
+      Der Kaderplaner probiert zehn Formationen durch und braucht für jede genug
       einsatzfähige Spieler je Position. Einsatzfähig heißt Score über 0, also
       weder verletzt noch gesperrt. Für keine der zehn reicht dein Kader gerade.
     </p>

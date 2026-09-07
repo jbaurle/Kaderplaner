@@ -12,7 +12,7 @@
  *
  * Nach außen zustandslos: der Aufrufer gibt `onSubmit` mit, das E-Mail und
  * Passwort bekommt und einen `KickbaseError` werfen darf. Solange die Anfrage
- * läuft, ist der Knopf gesperrt, bei einem Fehler geht er wieder auf.
+ * läuft, ist der Button gesperrt, bei einem Fehler geht er wieder auf.
  */
 
 import { KickbaseError } from '../api/kickbase.js';
@@ -28,7 +28,7 @@ export interface LoginViewProps {
   /**
    * Grund für die Rückkehr hierher, etwa eine abgelaufene Sitzung. Steht im
    * Anmeldefeld anstelle der üblichen Zeile darunter und schaltet am Handy
-   * gleich auf den Reiter mit dem Formular: wer eben noch drin war, braucht
+   * gleich auf den Tab mit dem Formular: wer eben noch drin war, braucht
    * keine Vorstellung der App mehr.
    */
   notice?: string | null;
@@ -41,7 +41,7 @@ export interface LoginViewProps {
  * `width`/`height`-Angaben für beide gelten.
  *
  * Die Wahl fällt beim Rendern, nicht in CSS: `content: url(...)` würde das
- * helle Bild trotzdem laden. Der Umschalter im Kopf stellt die `src`s über
+ * helle Bild trotzdem laden. Der Toggle im Kopf stellt die `src`s über
  * das `data-shot`-Attribut nach, ohne die Seite neu aufzubauen — ein
  * Re-Render würfe die Eingaben im Formular weg.
  */
@@ -75,7 +75,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
         <!--
           Nur am Handy sichtbar: dort ist neben dem Formular kein Platz für
           Bilder und Text, ab 720px zeigt die Bühne beides zugleich und die
-          Reiter bleiben aus. "Features" steht zuerst und aktiv: wer
+          Tabs bleiben aus. "Features" steht zuerst und aktiv: wer
           neu hier ist, sieht erst den Beleg, bevor er sein Passwort eintippt.
           Kommt jemand mit einem Hinweis zurück, etwa nach abgelaufener
           Sitzung, steht stattdessen das Formular vorne.
@@ -187,7 +187,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
                        alt="Der Gebotsdialog: das höchste Gebot groß, darunter alle Gebote mit Manager und Betrag.">
                 </div>
                 <h3 class="lp-slide-title">Gebote</h3>
-                <p class="lp-slide-text">Alle Gebote auf einen Blick, das höchste zuerst.</p>
+                <p class="lp-slide-text">Alle Gebote auf einen Spieler, das höchste zuerst.</p>
               </div>
               <div class="lp-slide lp-slide--tall" role="group" aria-roledescription="Folie" aria-label="3 von 5">
                 <span class="lp-badge lp-badge--gold">Spielraum</span>
@@ -239,28 +239,29 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
           </div>
 
           <p class="lp-body">
-            Score statt Bauchgefühl. Jeder Spieler wird anhand von Form,
-            Startelf-Prognose und Status von 0 bis 100 % bewertet, inklusive
-            Gegner-Check.
+            Jeder Spieler bekommt einen Score von 0 bis 100 %, aus Form,
+            Startelf-Prognose und Verfügbarkeit. Sein nächster Gegner steht
+            daneben.
           </p>
           <p class="lp-body">
-            Plane deine Spieltage im Voraus. Simuliere Verkäufe in vier Spalten
-            und behalte Kontostand, Kreditlinie und eine gültige Startelf live
-            im Blick, ganz ohne Risiko für deinen echten Kader.
+            In vier Spalten probierst du aus, wen du verkaufst. Kontostand,
+            Kreditlinie und die Frage, ob eine gültige Elf übrig bleibt,
+            rechnen sofort mit. An deinem echten Kader ändert sich dabei
+            nichts.
           </p>
           <p class="lp-body">
-            Analysiere einzelne Spieler bis ins Detail, kalkuliere den echten
-            Transfer-Spielraum und schicke deine optimierte Aufstellung direkt
-            an Kickbase. Die Statistik zeigt, wo du in deiner Liga stehst,
-            Spieltag für Spieltag.
+            Zu jedem Spieler siehst du, wie viel Geld ein Verkauf dir wirklich
+            bringt. Deine Elf stellst du auf dem Spielfeld zusammen und
+            schickst sie an Kickbase. Die Statistik zeigt, wo du in deiner Liga
+            stehst, Spieltag für Spieltag.
           </p>
           <!--
             Die beiden Seitenlinks untereinander, darunter linksbündig der
-            Installations-Knopf. Der Knopf steht nur da, wenn der Browser
+            Installations-Button. Der Button steht nur da, wenn der Browser
             die Installation von sich aus anbietet (siehe ui/install.ts),
             und blendet den Hinweis per CSS aus; der Hinweis selbst
             erscheint nur auf Touch-Geräten. Am Handy löst sich der Block
-            auf, dort stehen Knopf und Hinweis unter dem Karussell.
+            auf, dort stehen Button und Hinweis unter dem Karussell.
           -->
           <div class="lp-actions">
             <div class="lp-links">
@@ -327,7 +328,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     });
   });
 
-  // Pfeiltasten zwischen den Reitern, wie es role="tab" verspricht — sonst
+  // Pfeiltasten zwischen den Tabs, wie es role="tab" verspricht — sonst
   // kündigt der Screenreader "Tab" an, ohne die erwartete Bedienung zu
   // liefern. Home/End springen an den Anfang bzw. das Ende.
   const tabList = [...tabButtons];
@@ -363,8 +364,8 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     }
   });
 
-  // "Jetzt anmelden" sitzt im Info-Reiter, der beim Wechsel display:none
-  // bekommt — waehrend der Knopf selbst noch den Fokus haelt. Ohne diesen
+  // "Jetzt anmelden" sitzt im Info-Tab, der beim Wechsel display:none
+  // bekommt — waehrend der Button selbst noch den Fokus haelt. Ohne diesen
   // Sprung faellt der Tastatur-Fokus zurueck auf <body>.
   host.querySelector<HTMLButtonElement>('#lp-carousel-cta')?.addEventListener('click', () => {
     activateTab('login');
@@ -424,10 +425,10 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
   });
 
   /*
-   * Der Knopf hängt am Browser, nicht am Gerät: er erscheint, sobald
+   * Der Button hängt am Browser, nicht am Gerät: er erscheint, sobald
    * `beforeinstallprompt` kam, und geht nach der Installation wieder. Die
    * Anmeldeseite baut sich bei jedem Rendern neu auf, deshalb meldet sich ein
-   * alter Beobachter selbst ab, sobald sein Knopf nicht mehr im Dokument hängt.
+   * alter Beobachter selbst ab, sobald sein Button nicht mehr im Dokument hängt.
    */
   const installButton = host.querySelector<HTMLButtonElement>('#lp-install');
   if (installButton) {
@@ -445,7 +446,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
     });
   }
 
-  // Ist die App hier schon installiert, sind Knopf wie Hinweis überflüssig;
+  // Ist die App hier schon installiert, sind Button wie Hinweis überflüssig;
   // die Links bleiben. Die Antwort kommt asynchron und nur aus Chrome, wo
   // sie fehlt, bleibt es beim bisherigen Stand.
   const appHint = host.querySelector<HTMLElement>('.lp-app-hint');

@@ -21,8 +21,8 @@ Tabelle, Spielerdialog und Aufstellung.
 
 - **Score je Spieler**, 0 bis 100 %. Aus Form, Startelf-Prognose und
   Verfügbarkeit. Der Gegner zählt nicht mit, er steht in seiner eigenen Spalte;
-  bei der Auswahl der besten Elf entscheidet er nur fast gleiche Fälle. Die
-  beste Elf sucht ein Optimizer über alle zehn Formationen.
+  bei der Auswahl der besten Elf gibt er nur bei fast gleichem Score den
+  Ausschlag. Die beste Elf sucht der Kaderplaner über alle zehn Formationen.
 - **Vier Szenariospalten.** S1 bis S3 hakst du selbst an, BANK hakt von allein
   jeden an, der gerade nicht in deiner Elf steht. Kontostand, Verkäufe und
   Gebote rechnen live mit.
@@ -34,14 +34,14 @@ Tabelle, Spielerdialog und Aufstellung.
   Spielplan des Wettbewerbs.
 - **Punkte je Spieltag** ganz unten im Spielerdialog, ein Balken je Spieltag
   mit Gegner und Punktzahl, umschaltbar zwischen dieser und der letzten Saison.
-- **Transferblock** mit deinen offenen Geboten, auch denen aus der
-  Kickbase-App.
+- **Offene Gebote** unter dem Kader, auch die aus der Kickbase-App.
 - **Aufstellung** auf einem Spielfeld. Der Formations-Chip im Kopf, etwa
   `5-4-1`, öffnet sie. Von dort geht die Elf auch zurück an Kickbase.
-- **Statistik** deiner Liga in drei Reitern: dein Platz und je Spieltag dein
+- **Statistik** deiner Liga in drei Tabs: dein Platz und je Spieltag dein
   Balken vor dem Ligabesten (ein Tipp zeigt die ersten drei des Spieltags),
-  Podium, Platzierungen und Meilensteine der Saison, und die Kreuztabelle Manager mal
-  Spieltage mit Gesamt und Rückstand, umschaltbar auf Hin- oder Rückrunde.
+  Podium, Platzierungen und Meilensteine der Saison, dazu eine Tabelle mit
+  allen Managern und allen Spieltagen, mit Gesamt und Rückstand, umschaltbar
+  auf Hin- oder Rückrunde.
 - **Eine Tabelle für jede Breite.** Von 320 px bis Desktop entscheidet CSS über
   Container-Queries, welche Spalten passen.
 - **Hell und dunkel.** Der Mond im Kopf schaltet um, die Wahl bleibt im
@@ -84,25 +84,25 @@ npm test             # Vitest, einmalig
 npm run test:watch
 ```
 
-Getestet ist die Rechenlogik: Optimizer, Score-Lauf, Planungstabelle,
-Gegner-Spalte, Aufstellung, Statistik und der API-Client, dazu das Markup der
-Statistik-Ebene. Die übrige Oberfläche wird von Hand geprüft.
+Getestet ist die Rechenlogik: Suche nach der besten Elf, Score-Lauf,
+Planungstabelle, Gegner-Spalte, Aufstellung, Statistik und der API-Client, dazu
+das Markup der Statistik-Ebene. Die übrige Oberfläche wird von Hand geprüft.
 
 ## Aufbau
 
 ```
 ├─ index.html
-├─ public/                   favicon, Rechtstexte, "Was die App kann"
+├─ public/                   favicon, Rechtstexte, Features- und Score-Seite
 ├─ src/
-│  ├─ main.ts                Einstieg, haengt die App an #app
+│  ├─ main.ts                Einstieg, hängt die App an #app
 │  ├─ api/                   Kickbase-Client und Typen
 │  ├─ compute/
 │  │  ├─ optimizer.ts        Score je Spieler, beste Elf je Formation
 │  │  ├─ score.ts            Score-Lauf, Cache, Gegner-Spalte
-│  │  ├─ planning.ts         Szenariospalten, Summen, Formationspruefung
+│  │  ├─ planning.ts         Szenariospalten, Summen, Formationsprüfung
 │  │  ├─ lineup.ts           Aufstellung auf dem Feld
 │  │  └─ stats.ts            Manager-Rangliste, Meilensteine, Bereiche
-│  ├─ state/                 Sitzung, Szenarien, Optimizer-Cache,
+│  ├─ state/                 Sitzung, Szenarien, Cache der besten Elf,
 │  │                         Aufstellungsentwurf, Gegneransicht, Statistik
 │  ├─ storage/local.ts       getippter localStorage-Wrapper
 │  ├─ ui/                    Seiten und reine Renderer
@@ -145,8 +145,8 @@ gehört nicht zur Kickbase GmbH und wird von dort weder betreut noch empfohlen.
 Der Name "Kickbase" gehört seinen Inhabern, hier steht er nur, damit klar ist,
 worum es geht.
 
-Angemeldet wird sich mit deinen eigenen Zugangsdaten, gelesen wird nur, was du
-in der App ohnehin siehst. Geschrieben wird genau eine Sache, deine Aufstellung,
+Du meldest dich mit deinen eigenen Zugangsdaten an, gelesen wird nur, was du in
+der App ohnehin siehst. Geschrieben wird genau eine Sache, deine Aufstellung,
 und auch die nur, wenn du sie abschickst. Gebote gibt der Kaderplaner keine ab.
 
 Wie bei jedem Hobbyprojekt: ohne Gewähr. Wenn dir etwas auffällt, mach gern ein

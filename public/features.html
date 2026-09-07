@@ -38,22 +38,25 @@
         <span aria-hidden="true">→</span>
       </a>
       <p class="lead">
-        Der Kaderplaner ist deine strategische Entscheidungshilfe für Kickbase.
-        Er bewertet jeden Spieler mit einem Leistungs-Score und simuliert in
-        Echtzeit, welche Verkäufe dein Konto und deine Aufstellung optimieren.
+        Der Kaderplaner hilft dir bei deinen Entscheidungen in Kickbase. Er
+        bewertet jeden Spieler mit einem Leistungs-Score und zeigt dir, wie
+        sich mögliche Verkäufe auf dein Budget und deine Aufstellung auswirken.
       </p>
 
-      <h2>Kader und Aufstellungs-Optimizer</h2>
+      <h2>Kader und beste Aufstellung</h2>
       <p>
-        Die Kadertabelle bündelt alle relevanten Daten je Spieler: Erlös,
-        Gewinn/Verlust, Score und die nächsten Gegner.
+        In der Kadertabelle siehst du alle wichtigen Daten zu jedem Spieler:
+        Erlös, Gewinn oder Verlust, Score und die nächsten Gegner.
       </p>
       <ul>
         <li><strong>Fettgedruckt:</strong> Deine aktuelle Kickbase-Startelf.</li>
-        <li><strong>Grün markiert:</strong> Die vom Optimizer ermittelte
-          Idealbesetzung über alle zehn Formationen hinweg. Weichen beide ab,
-          siehst du sofort dein sportliches Optimierungspotenzial.</li>
+        <li><strong>Grün markiert:</strong> Die beste Aufstellung, die der
+          Kaderplaner über alle zehn Formationen berechnet hat.</li>
       </ul>
+      <p>
+        Unterscheiden sich beide Aufstellungen, siehst du sofort, wo du deine
+        Startelf verbessern kannst.
+      </p>
       <figure class="shot">
         <img src="/images/functions-table.webp" data-dark="/images/functions-table-dark.webp" width="1024" height="832" loading="lazy" decoding="async"
              alt="Die Kadertabelle mit Spalten für Erlös, drei Szenarien, Bank, Gewinn und Verlust, Score und Gegner.">
@@ -65,23 +68,23 @@
 
       <h2>Erlös statt Marktwert</h2>
       <p>
-        Die Erlös-Spalte rechnet immer mit dem Betrag, den du maximal
-        herausholst.
+        Bei <strong>Erlös</strong> steht immer der höchste Betrag, den du
+        aktuell für einen Spieler bekommen kannst.
       </p>
       <ul>
-        <li><strong>Automatischer Höchstwert:</strong> Liegt ein Gebot eines
-          Managers über dem Marktwert, rechnet die App mit diesem Gebot. Liegt
-          es darunter, greift der Marktwert, denn an Kickbase verkaufen geht
-          immer.</li>
-        <li><strong>Grüner Betrag:</strong> Ein aktives Manager-Gebot liegt
-          vor.</li>
-        <li><strong>Blauer Name:</strong> Du hast den Spieler aktiv auf den
+        <li><strong>Automatischer Höchstwert:</strong> Liegt ein Angebot eines
+          Managers über dem Marktwert, rechnet der Kaderplaner mit diesem
+          Angebot. Liegt es darunter, gilt der Marktwert, denn an Kickbase
+          kannst du jederzeit verkaufen.</li>
+        <li><strong>Grüner Betrag:</strong> Für den Spieler liegt ein aktives
+          Angebot eines Managers vor.</li>
+        <li><strong>Blauer Name:</strong> Du hast den Spieler selbst auf den
           Transfermarkt gestellt.</li>
       </ul>
       <p>
-        Ein Klick auf den grünen Betrag öffnet den Gebotsdialog: alle Gebote
-        mit Bieter, das höchste zuerst, dazu Marktwert, Kaufpreis und was beim
-        Verkauf als Gewinn bleibt.
+        Ein Klick auf den grünen Betrag öffnet die Gebote. Dort stehen alle
+        Angebote mit Bieter und Betrag, das höchste zuerst. Dazu der Marktwert,
+        dein damaliger Kaufpreis und dein Gewinn oder Verlust bei einem Verkauf.
       </p>
       <figure class="shot shot--narrow">
         <img src="/images/offers-dialog.webp" data-dark="/images/offers-dialog-dark.webp" width="560" height="453" loading="lazy" decoding="async"
@@ -93,53 +96,74 @@
         </figcaption>
       </figure>
 
-      <h2>Vier Szenarien live durchspielen</h2>
+      <h2>Verkäufe ausprobieren</h2>
       <p>
-        In den Spalten S1 bis S3 hakst du an, wen du verkaufen würdest. Die
-        Spalte BANK markiert automatisch alle Spieler außerhalb deiner
-        Startelf. Bei jedem Klick rechnen die Kopfzeilen live mit.
+        In den Spalten <strong>S1 bis S3</strong> wählst du aus, welche Spieler
+        du verkaufen würdest. Die Spalte <strong>BANK</strong> markiert
+        automatisch alle Spieler, die nicht zu deiner aktuellen Startelf
+        gehören.
       </p>
+      <p>Bei jeder Änderung siehst du sofort:</p>
       <ul>
-        <li><strong>Kontostand (neu):</strong> Bist du bis zum Spieltag im
-          Plus?</li>
-        <li><strong>Summe Verkäufe:</strong> Was spülen die Transfers in die
-          Kasse?</li>
-        <li><strong>Formations-Check:</strong> Bleibt die Resttruppe eine
-          gültige Elf?</li>
+        <li><strong>Neuer Kontostand:</strong> Bist du bis zum Spieltag wieder
+          im Plus?</li>
+        <li><strong>Verkäufe:</strong> Wie viel Geld bringen die ausgewählten
+          Verkäufe?</li>
+        <li><strong>Formation:</strong> Kannst du danach noch eine gültige Elf
+          aufstellen?</li>
       </ul>
+      <p>
+        Mit dem <strong>←-Button</strong> übernimmst du die Spieler aus BANK in
+        ein Szenario. Mit <strong>×</strong> leerst du das Szenario wieder.
+      </p>
       <figure class="shot">
         <img src="/images/functions-scenarios.webp" data-dark="/images/functions-scenarios-dark.webp" width="1024" height="332" loading="lazy" decoding="async"
              alt="Die drei Szenariospalten und die Spalte Bank, darüber Kontostand, Verkäufe und Kontostand neu.">
         <figcaption>
-          Jedes Häkchen ändert sofort die drei Zeilen oben. Der ←-Knopf übernimmt
-          die Werte aus BANK, das × räumt die Spalte ab.
+          Jedes Häkchen ändert sofort die drei Zeilen oben.
         </figcaption>
       </figure>
 
-      <h2>Spielerdialog: Echter Spielraum statt Milchmädchenrechnung</h2>
+      <h2>Was passiert, wenn du einen Spieler verkaufst?</h2>
       <p>
-        Ein Klick auf einen Spieler liefert Analysen, die Kickbase verschweigt.
+        Ein Klick auf einen Spieler zeigt dir weitere Informationen und die
+        Folgen eines möglichen Verkaufs.
       </p>
-      <ul>
-        <li><strong>Reale Auswirkung auf dein Budget:</strong> Dein maximal
-          erlaubtes Minus beträgt bei Kickbase immer ein Drittel des aktuellen
-          Teamwerts. Verkaufst du einen Spieler für 30 Mio., steigt zwar dein
-          Barbestand um 30 Mio., aber dein Kader schrumpft im selben Moment.
-          Dadurch sinkt dein erlaubtes Minus sofort um 10 Mio. (33 % von
-          30 Mio.). Du kannst anschließend also nicht für 30 Mio. neu
-          einkaufen, ohne ins unzulässige Minus zu rutschen, sondern netto nur
-          für 20 Mio. Der Planer zeigt dir genau diesen verbleibenden
-          Spielraum an.</li>
-        <li><strong>Sportlicher Verlust:</strong> Der Optimizer kalkuliert
-          sofort, wie viele Score-Punkte deine Startelf ohne den Spieler
-          einbüßt.</li>
-        <li><strong>Leistungshistorie und Vorschau:</strong> Detaillierte
-          Punkteverläufe der letzten Spieltage und Vorschau auf die kommenden
-          drei Gegner samt automatischer Schwierigkeitsbewertung.</li>
-        <li><strong>News-Direktsuche:</strong> Bei angeschlagenen oder
-          gesperrten Spielern sucht ein Klick gezielt nach aktuellen Meldungen
-          zur Ausfallzeit.</li>
-      </ul>
+
+      <h3>Wie viel Geld kannst du danach wirklich ausgeben?</h3>
+      <p>
+        Verkaufst du einen Spieler für 30 Mio., hast du nicht automatisch
+        30 Mio. mehr zum Einkaufen.
+      </p>
+      <p>
+        Dein erlaubtes Minus ist ein Drittel deines Kaderwerts. Sinkt dein
+        Kaderwert durch den Verkauf um 30 Mio., sinkt auch dein erlaubtes Minus
+        um 10 Mio.
+      </p>
+      <p>
+        Von den 30 Mio. Verkaufserlös kannst du deshalb nur rund
+        <strong>20 Mio. neu investieren</strong>, ohne dein erlaubtes Minus zu
+        überschreiten. Der Kaderplaner rechnet diesen Betrag für dich aus.
+      </p>
+
+      <h3>Wie viele Punkte verlierst du?</h3>
+      <p>
+        Der Kaderplaner zeigt dir außerdem, wie viele Score-Punkte deine beste
+        Aufstellung verliert, wenn du den Spieler abgibst.
+      </p>
+
+      <h3>Letzte Spiele und nächste Gegner</h3>
+      <p>
+        Du siehst die Punkte des Spielers aus den vergangenen Spieltagen und
+        seine nächsten drei Gegner. Die Gegner sind zusätzlich nach ihrer
+        Schwierigkeit bewertet.
+      </p>
+
+      <h3>Aktuelle News</h3>
+      <p>
+        Bei verletzten, angeschlagenen oder gesperrten Spielern kannst du direkt
+        nach aktuellen Meldungen und möglichen Ausfallzeiten suchen.
+      </p>
       <figure class="shot shot--narrow">
         <img src="/images/player-dialog.webp" data-dark="/images/player-dialog-dark.webp" width="620" height="1034" loading="lazy" decoding="async"
              alt="Der Spielerdialog: Werte, Score als Balken, die Spieltage als Kacheln und die Folgen eines Verkaufs.">
@@ -149,12 +173,15 @@
         </figcaption>
       </figure>
 
-      <h2>Transferblock</h2>
+      <h2>Offene Gebote</h2>
       <p>
-        Unter dem Kader behältst du laufende Gebote aus der Kickbase-App im
-        Blick. Jedes Gebot wird direkt vom Kontostand abgezogen. Auch hier
-        kannst du Spieler per Haken versuchsweise abstoßen, die Differenz zum
-        gebotenen Betrag wird sofort transparent verrechnet.
+        Unter deinem Kader siehst du deine laufenden Gebote aus Kickbase. Jedes
+        Gebot wird direkt bei deinem verfügbaren Budget berücksichtigt.
+      </p>
+      <p>
+        Auch hier kannst du testweise Spieler zum Verkauf auswählen. Der
+        Kaderplaner zeigt dir sofort, wie sich Kauf und Verkauf zusammen auf
+        deinen Kontostand auswirken.
       </p>
       <figure class="shot">
         <img src="/images/functions-transfers.webp" data-dark="/images/functions-transfers-dark.webp" width="1024" height="115" loading="lazy" decoding="async"
@@ -165,21 +192,25 @@
         </figcaption>
       </figure>
 
-      <h2>Aufstellung bauen und übertragen</h2>
+      <h2>Aufstellung planen und übertragen</h2>
       <p>
-        Im virtuellen Spielfeld formierst du deine Elf für das Wochenende.
+        Auf dem Spielfeld stellst du deine Elf für den nächsten Spieltag
+        zusammen.
       </p>
       <ul>
-        <li><strong>Intelligente Formation:</strong> Ziehe Spieler aufs Feld,
-          das System erkennt automatisch die passende Taktik wie 4-3-3 oder
-          3-5-2.</li>
-        <li><strong>Mit einem Klick optimieren:</strong> Wähle zwischen
-          <strong>Aktuelle Elf</strong> und <strong>Beste Elf nach
-          Score</strong>.</li>
-        <li><strong>Sicherer Entwurf:</strong> Bis zum Klick auf
-          <strong>Aufstellen</strong> verbleibt alles lokal im Browser. Es ist
-          die einzige Aktion, die deine Daten zurück an Kickbase sendet.</li>
+        <li><strong>Formation automatisch erkennen:</strong> Ziehst du Spieler
+          auf das Feld, erkennt der Kaderplaner eine passende Formation wie
+          4-3-3 oder 3-5-2.</li>
+        <li><strong>Beste Elf:</strong> Du kannst zwischen deiner aktuellen
+          Aufstellung und der besten Aufstellung nach Score wechseln.</li>
+        <li><strong>Sicher ausprobieren:</strong> Solange du nicht auf
+          <strong>Aufstellen</strong> klickst, bleibt alles ein Entwurf auf
+          deinem Gerät.</li>
       </ul>
+      <p>
+        Erst mit <strong>Aufstellen</strong> wird deine neue Aufstellung an
+        Kickbase übertragen.
+      </p>
       <figure class="shot shot--narrow">
         <img src="/images/lineup.webp" data-dark="/images/lineup-dark.webp" width="528" height="818" loading="lazy" decoding="async"
              alt="Der Aufstellungsdialog: die Elf auf dem Spielfeld, je Spieler sein Score.">
@@ -188,33 +219,52 @@
         </figcaption>
       </figure>
 
-      <h2>Statistik: Du gegen deine Liga</h2>
+      <h2>So stehst du in deiner Liga</h2>
       <p>
-        Hinter dem Knopf <strong>Statistik</strong> steht die Manager-Rangliste
-        deiner Liga in drei Reitern.
+        Unter <strong>Statistik</strong> vergleichst du deine Leistung mit den
+        anderen Managern deiner Liga. Ein Spieltag, der noch läuft, ist überall
+        als vorläufig markiert. Er zählt erst für Siege und Saisonwerte, wenn er
+        beendet ist.
+      </p>
+
+      <h3>Ich</h3>
+      <p>
+        Hier siehst du deinen aktuellen Platz, deine Gesamtpunkte und deinen
+        Abstand zum Ersten.
+      </p>
+      <p>
+        Für jeden Spieltag kannst du deine Punkte mit denen des besten Managers
+        vergleichen. Spieltage, die du gewonnen hast, sind grün markiert. Tippst
+        du einen Spieltag an, siehst du die ersten drei.
+      </p>
+      <p>
+        Darunter stehen dein Punkteschnitt, deine Spieltagssiege und weitere
+        persönliche Werte.
+      </p>
+
+      <h3>Saison</h3>
+      <p>
+        Hier bekommst du einen Überblick über den bisherigen Saisonverlauf. Du
+        siehst unter anderem:
       </p>
       <ul>
-        <li><strong>Ich:</strong> Dein Platz, deine Punkte und der Abstand zum
-          Ersten. Je Spieltag dein Balken vor dem grauen Balken des Ligabesten,
-          grün, wenn du den Spieltag gewonnen hast. Ein Tipp auf einen Balken
-          zeigt die ersten drei des Spieltags. Darunter Schnitt, Spieltagssiege
-          und was dir insgesamt zum Tagesbesten fehlte.</li>
-        <li><strong>Saison:</strong> Das Podium, die Platzierungen (wie oft
-          jeder Manager an einem Spieltag Erster, Zweiter oder Dritter war)
-          und die Meilensteine der Saison: bester und schwächster Spieltag,
-          knappster Spieltag, deutlichster Sieg, längste Zeit vorn, größter
-          Sprung.</li>
-        <li><strong>Tabelle:</strong> Manager mal Spieltage als Kreuztabelle,
-          umschaltbar auf Hin- oder Rückrunde. Gesamt und Δ, der Rückstand auf
-          Platz 1, bleiben beim seitlichen Blättern stehen.</li>
+        <li>wie oft jeder Manager Erster, Zweiter oder Dritter wurde</li>
+        <li>den besten und den schwächsten Spieltag</li>
+        <li>den knappsten Spieltag</li>
+        <li>den deutlichsten Sieg</li>
+        <li>wer am längsten an der Spitze stand</li>
+        <li>den größten Sprung in der Tabelle</li>
       </ul>
+
+      <h3>Tabelle</h3>
       <p>
-        Ein Spieltag, der noch läuft, ist überall als vorläufig markiert und
-        zählt in Siege und Meilensteine erst, wenn er durch ist.
+        Die Tabelle zeigt die Punkte aller Manager für jeden einzelnen Spieltag.
+        Du kannst zwischen Hinrunde und Rückrunde wechseln. Gesamtpunkte und
+        Abstand zu Platz 1 bleiben auch beim seitlichen Scrollen sichtbar.
       </p>
       <figure class="shot shot--narrow">
         <img src="/images/stats.webp" data-dark="/images/stats-dark.webp" width="683" height="718" loading="lazy" decoding="async"
-             alt="Der Reiter Ich der Statistik: Platz und Punkte, je Spieltag der eigene Balken, darüber die ersten drei des angetippten Spieltags.">
+             alt="Der Tab Ich der Statistik: Platz und Punkte, je Spieltag der eigene Balken, darüber die ersten drei des angetippten Spieltags.">
         <figcaption>
           Der angetippte Spieltag zeigt, wer vorn lag. Die Namen der Mitspieler
           sind hier ausgetauscht.
@@ -222,57 +272,57 @@
       </figure>
       <figure class="shot shot--narrow">
         <img src="/images/stats-table.webp" data-dark="/images/stats-table-dark.webp" width="683" height="725" loading="lazy" decoding="async"
-             alt="Der Reiter Tabelle der Statistik: je Manager eine Zeile mit Gesamt, Rückstand und den Punkten je Spieltag.">
+             alt="Der Tab Tabelle der Statistik: je Manager eine Zeile mit Gesamt, Rückstand und den Punkten je Spieltag.">
         <figcaption>
           Gesamt und Δ stehen direkt neben dem Namen, die Spieltage folgen
           absteigend, der jüngste zuerst.
         </figcaption>
       </figure>
 
-      <h2>Was der Kaderplaner bewusst nicht macht</h2>
+      <h2>Keine unsicheren Budget-Schätzungen</h2>
       <p>
-        <strong>Keine Schätzungen zur Kaufkraft der Manager.</strong>
+        Der Kaderplaner schätzt nicht, wie viel Geld die anderen Manager zur
+        Verfügung haben. Solche Werte lassen sich nicht zuverlässig berechnen.
       </p>
       <p>
-        Eine Budget-Schätzung stiftet mehr Verwirrung als Nutzen. Bei 250 Mio.
-        Euro Kaderwert liegt das erlaubte Minus bei über 80 Mio. Euro. Da das
-        Konto erst am Freitag ausgeglichen sein muss, kann praktisch jeder
-        Manager unter der Woche jeden Star kaufen und durch spätere Verkäufe
-        gegenfinanzieren. Begrenzt wird das meist nur durch Kaderlimits, nicht
-        durch Geld.
+        Bei 250 Mio. Kaderwert liegt das erlaubte Minus bei über 80 Mio., und
+        das Konto muss erst zum Spieltag ausgeglichen sein. Ein Manager kann
+        also unter der Woche fast jeden Spieler kaufen und das Minus bis zum
+        Spieltag durch Verkäufe wieder ausgleichen. Der Kaderwert allein sagt
+        deshalb wenig darüber aus, wie viel jemand bieten kann.
       </p>
       <p>
-        Zudem sperrt sich die Kickbase-Schnittstelle gegen solche Rechnungen.
-        Weder Kontostände noch die Anzahl der Gebote auf einen
-        Transfermarkt-Spieler sind einsehbar. Der wichtigste Hebel für eine
-        verlässliche Saison-Hochrechnung, das lückenlose Mitschreiben der
-        Spieltags- und Platzierungsprämien aller Manager, lässt sich technisch
-        gar nicht auslesen.
+        Dazu kommt, dass Kickbase wichtige Angaben gar nicht herausgibt: die
+        Kontostände der anderen Manager, die Zahl der Gebote auf einen Spieler
+        und die Prämien für Spieltage und Platzierungen.
       </p>
       <p>
-        Statt mit ungenauen Schätzungen falsche Gewissheit vorzugaukeln,
-        rechnet der Kaderplaner ausschließlich mit belegten Fakten.
+        Der Kaderplaner zeigt deshalb nur Werte, die sich zuverlässig aus den
+        verfügbaren Daten berechnen lassen.
       </p>
 
-      <h2>Datenschutz und Architektur</h2>
+      <h2>Deine Daten bleiben bei dir</h2>
       <ul>
-        <li><strong>Kein Server, keine Datenbank:</strong> Die App spricht die
-          Kickbase-Schnittstelle direkt aus deinem Browser an. Deine
-          Zugangsdaten, Szenarien und Entwürfe bleiben vollständig im lokalen
-          Speicher deines Geräts.</li>
-        <li><strong>Schreibgeschützt:</strong> Außer dem Absenden deiner
-          Aufstellung liest die App dein Konto ausschließlich aus. Verkäufe
-          und Gebote tätigst du weiterhin selbst in Kickbase.</li>
+        <li><strong>Kein eigener Server, keine Datenbank:</strong> Der
+          Kaderplaner greift direkt aus deinem Browser auf Kickbase zu. Deine
+          Zugangsdaten, Szenarien und Entwürfe bleiben auf deinem Gerät.</li>
+        <li><strong>Keine automatischen Transfers:</strong> Der Kaderplaner
+          liest deine Daten nur aus. Verkäufe und Gebote führst du weiterhin
+          selbst in Kickbase aus.</li>
       </ul>
+      <p>
+        Nur wenn du auf <strong>Aufstellen</strong> klickst, wird deine neue
+        Aufstellung an Kickbase übertragen.
+      </p>
 
       <h2 id="als-app-ablegen">Als Web-App nutzen</h2>
       <p>
-        Du kannst den Kaderplaner ohne Installation direkt auf den Homescreen
-        deines Smartphones legen und im Vollbild ohne Adressleiste nutzen.
+        Du kannst den Kaderplaner auf dem Startbildschirm deines Smartphones
+        ablegen und ihn dann wie eine App im Vollbild nutzen.
       </p>
       <ul>
-        <li><strong>iOS (Safari):</strong> Teilen-Symbol antippen, dann „Zum
-          Home-Bildschirm“.</li>
+        <li><strong>iPhone und iPad (Safari):</strong> Teilen-Symbol antippen,
+          dann „Zum Home-Bildschirm“.</li>
         <li><strong>Android (Chrome):</strong> Drei-Punkte-Menü öffnen, dann
           „App installieren“ oder „Zum Startbildschirm hinzufügen“.</li>
       </ul>

@@ -25,8 +25,8 @@
 }
 
 /*
- * Derselbe Umschalter wie die App (`src/ui/theme.ts`), hier nur ohne
- * eigenen Knopf: die Rechtsseiten sind statisches HTML ohne Kopfzeile mit
+ * Derselbe Toggle wie die App (`src/ui/theme.ts`), hier nur ohne
+ * eigenen Button: die Rechtsseiten sind statisches HTML ohne Kopfzeile mit
  * Konto/Aufstellung, sie übernehmen nur den gespeicherten Stand. Das
  * Inline-Script in jeder Seite setzt `data-theme` vor dem ersten Bildaufbau,
  * genau wie in index.html.
@@ -154,7 +154,17 @@ h1 {
 
 h2 {
   margin: 26px 0 6px;
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+/* Gliedert einen Abschnitt weiter auf, ohne ihn zu trennen: auf Textgröße
+   und mit knapperem Abstand als h2, sonst liest sich jede Zwischenüberschrift
+   wie ein neues Kapitel. */
+h3 {
+  margin: 18px 0 4px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-strong);
 }

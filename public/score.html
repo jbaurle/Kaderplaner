@@ -38,9 +38,9 @@
         <span aria-hidden="true">→</span>
       </a>
       <p class="lead">
-        Der Score bewertet die aktuelle Verfassung eines Spielers für den
-        kommenden Spieltag auf einer Skala von 0 bis 100 %. Er dient vor
-        allem dem direkten Vergleich innerhalb deines Kaders.
+        Der Score sagt dir, wie gut ein Spieler für den kommenden Spieltag
+        dasteht, auf einer Skala von 0 bis 100 %. Gedacht ist er zum
+        Vergleichen innerhalb deines Kaders.
       </p>
 
       <p class="formula">
@@ -48,85 +48,87 @@
       </p>
 
       <p>
-        Im Spielerdialog werden diese Komponenten als Balken dargestellt. Der
-        Gegner fließt bewusst nicht in diese Prozentzahl ein: Ein schweres
-        Spiel verändert die Qualität des Spielers nicht. Die Ansetzung wird
-        stattdessen separat als Wappen mit Tendenzpfeil aufgeführt.
+        Im Spielerdialog siehst du die drei Teile als Balken. Der Gegner zählt
+        bewusst nicht mit: Ein schweres Spiel macht den Spieler nicht
+        schlechter. Er steht deshalb daneben, als Wappen mit einem Pfeil für
+        die Tendenz.
       </p>
 
       <h2>Startelf (55 %)</h2>
       <p>
-        Der wichtigste Faktor, denn nur wer spielt, punktet. Die
-        Kickbase-Einstufung (1 bis 5) wird in Prozentwerte übersetzt
-        (100, 85, 65, 40, 20 %). Um Scheinsicherheiten abzufedern, fließen
-        die tatsächlichen Einsätze der letzten Wochen zu 30 % als Korrektiv
-        ein: Gilt jemand auf dem Papier als gesetzt, saß aber zuletzt nur auf
-        der Bank, sinkt der Wert. Fehlt eine offizielle Prognose, zählen die
-        Einsätze allein.
+        Der wichtigste Teil, denn nur wer spielt, punktet. Kickbase stuft jeden
+        Spieler von 1 bis 5 ein, der Kaderplaner rechnet das in Prozent um:
+        100, 85, 65, 40 und 20 %.
+      </p>
+      <p>
+        Dazu zählen die tatsächlichen Einsätze der letzten Wochen zu 30 % mit.
+        Gilt jemand auf dem Papier als gesetzt, saß zuletzt aber auf der Bank,
+        sinkt der Wert. Fehlt eine Einstufung von Kickbase, zählen nur die
+        Einsätze.
       </p>
 
       <h2>Form (35 %)</h2>
       <p>
-        Bewertet die Punkte der jüngsten Spieltage mit abklingender
-        Gewichtung (letzter Spieltag 100 %, davor 70 %, 49 % usw.),
-        kombiniert mit dem Gesamtsaisonschnitt (Verhältnis 70 zu 30).
-        50 Punkte entsprechen 0 %, ab 170 Punkten werden 100 % erreicht.
-        Spiele ohne Einsatz bleiben unberücksichtigt.
+        Zählt die Punkte der letzten Spieltage, die jüngsten am stärksten:
+        letzter Spieltag 100 %, davor 70 %, dann 49 % und so weiter. Dazu kommt
+        der Schnitt der ganzen Saison, im Verhältnis 70 zu 30.
+      </p>
+      <p>
+        50 Punkte sind 0 %, ab 170 Punkten sind es 100 %. Spieltage ohne
+        Einsatz zählen nicht mit.
       </p>
 
       <h2>Sockel (10 %)</h2>
       <p>
-        Ein fester Grundwert, damit ein einsatzbereiter Spieler rechnerisch
-        nie bei null landet.
+        Ein fester Grundwert, damit ein Spieler, der spielen kann, nie bei 0 %
+        landet.
       </p>
 
       <h2>Verfügbarkeit (Multiplikator)</h2>
-      <p>Wirkt als Faktor auf das Gesamtergebnis:</p>
+      <p>Die Verfügbarkeit wirkt am Ende auf das ganze Ergebnis:</p>
       <ul>
-        <li><strong>Fit:</strong> Multiplikator 1,0 (voller Wert, mindestens
-          10 % durch den Sockel).</li>
-        <li><strong>Ausfall / Rot:</strong> Multiplikator 0 (der Score fällt
-          sofort auf 0 %).</li>
-        <li><strong>Angeschlagen / Fraglich:</strong> Reduziert den
-          Gesamtwert prozentual.</li>
+        <li><strong>Fit:</strong> mal 1,0. Der Score bleibt, wie er ist, also
+          mindestens 10 % durch den Sockel.</li>
+        <li><strong>Ausfall oder Rot:</strong> mal 0. Der Score fällt sofort
+          auf 0 %.</li>
+        <li><strong>Angeschlagen oder fraglich:</strong> Der Score sinkt
+          anteilig.</li>
       </ul>
 
       <h2>Gegner und die grün markierte Elf</h2>
       <p>
-        Die grün markierten Plätze zeigen nicht stur die elf Spieler mit den
-        höchsten Scores. Der Optimizer testet alle zehn Formationen und
-        berücksichtigt weitere Kriterien:
+        Grün markiert sind nicht einfach die elf Spieler mit dem höchsten
+        Score. Der Kaderplaner probiert alle zehn Formationen durch und achtet
+        dabei auf drei weitere Dinge:
       </p>
       <ul>
-        <li><strong>Gegner-Schwierigkeit:</strong> Bei nahezu gleichem Score
-          zieht der Spieler mit dem leichteren Gegner (gemessen am
-          umgekehrten Tabellenplatz) an Konkurrenten vorbei.</li>
-        <li><strong>Paar-Effekte:</strong> Mehrere Spieler aus demselben
-          Verein pushen sich leicht, während direkte Duelle gegeneinander im
-          eigenen Kader dämpfend wirken.</li>
-        <li><strong>Finanzielle Machbarkeit:</strong> Priorität hat die beste
-          Elf, bei der der Verkauf aller übrigen Akteure das Konto bis zum
-          Spieltag ins Plus bringt. Ist das rechnerisch unmöglich, wird die
-          sportlich stärkste Elf gezeigt und die Unterdeckung
-          ausgewiesen.</li>
+        <li><strong>Schwerer oder leichter Gegner:</strong> Bei fast gleichem
+          Score kommt der Spieler mit dem leichteren Gegner zum Zug. Wie schwer
+          ein Gegner ist, ergibt sich aus seinem Tabellenplatz.</li>
+        <li><strong>Spieler aus demselben Verein:</strong> Mehrere Spieler
+          eines Vereins heben sich leicht gegenseitig. Stehen sich zwei deiner
+          Spieler im selben Spiel gegenüber, zählt das leicht dagegen.</li>
+        <li><strong>Was du dir leisten kannst:</strong> Bevorzugt wird die
+          beste Elf, bei der der Verkauf aller übrigen Spieler dein Konto bis
+          zum Spieltag ins Plus bringt. Geht das rechnerisch nicht, zeigt der
+          Kaderplaner die sportlich beste Elf und schreibt dazu, wie viel
+          fehlt.</li>
       </ul>
 
       <h2>Was der Score nicht ist</h2>
       <ul>
-        <li>Keine absolute Punktprognose (72 % bedeutet nicht
-          72 Punkte).</li>
-        <li>Keine Bewertung von Marktwert, Kaufpreis oder Rendite.</li>
-        <li>Kein Ersatz für die Kaderstruktur (viele starke Verteidiger
-          helfen nicht bei Stürmermangel).</li>
+        <li>Keine Vorhersage von Punkten. 72 % heißen nicht 72 Punkte.</li>
+        <li>Keine Bewertung von Marktwert, Kaufpreis oder Gewinn.</li>
+        <li>Kein Blick auf deine Kaderstruktur. Fünf starke Verteidiger helfen
+          dir nicht, wenn dir ein Stürmer fehlt.</li>
       </ul>
 
-      <h2>Einschränkung in der Saisonpause</h2>
+      <h2>In der Saisonpause</h2>
       <p>
-        Vor dem ersten Spieltag steht die Tabelle bei null. Die Form speist
-        sich noch aus der Vorsaison, und die Startelf-Wahrscheinlichkeit
-        trägt fast das gesamte Gewicht. Sobald drei Spieltage absolviert
-        sind, greifen Gegnereinstufung und Tabellendaten wieder mit voller
-        Aussagekraft.
+        Vor dem ersten Spieltag steht die Tabelle auf null. Die Form kommt dann
+        noch aus der letzten Saison, und die Startelf-Prognose trägt fast das
+        ganze Gewicht. Sind drei Spieltage gespielt, zählen Gegner und Tabelle
+        wieder voll mit.
       </p>
 
     </div>
