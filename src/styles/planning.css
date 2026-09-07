@@ -1401,12 +1401,24 @@ body.is-dialog-open {
   outline-offset: 1px;
 }
 
+/*
+ * Der Platz der Bildlaufleiste bleibt reserviert, und das rechte Polster
+ * zieht ihn wieder ab: sichtbar bleibt links wie rechts derselbe Rand, ob die
+ * Leiste nun da ist oder nicht, und der Inhalt springt beim Umschalten der
+ * Saison nicht mehr um ihre Breite.
+ *
+ * `--sb` trägt die gemessene Breite, siehe `fitDialogScrollbar` in
+ * planning-page.ts. Ohne den Wert bleibt es beim vollen Polster; auf dem
+ * Handy ist er null, dort liegt die Leiste über dem Inhalt.
+ */
 .dialog-body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   padding: 16px 20px 20px;
+  padding-right: max(0px, calc(20px - var(--sb, 0px)));
   font-size: 13px;
   line-height: 1.55;
   color: var(--text);
@@ -2236,6 +2248,8 @@ body.is-dialog-open {
   /* Oben knapper: der graue Kopf trennt schon, ein zweiter Abstand
      darunter schiebt den Score unnötig weit nach unten. */
   padding: 8px 14px 14px;
+  /* Rechts abzüglich der Bildlaufleiste, siehe `.dialog-body`. */
+  padding-right: max(0px, calc(14px - var(--sb, 0px)));
 }
 
 .pd-section + .pd-section {
@@ -2996,7 +3010,11 @@ body.is-dialog-open {
 /* Ab Tablet hat der Dialog mehr Breite, dann darf der Kopf atmen. */
 @media (min-width: 620px) {
   .pd-head { padding: 18px 18px 14px; }
-  .pd-body { padding: 10px 18px 18px; }
+  .pd-body {
+    padding: 10px 18px 18px;
+    /* Rechts abzüglich der Bildlaufleiste, siehe `.dialog-body`. */
+    padding-right: max(0px, calc(18px - var(--sb, 0px)));
+  }
   .pd-portrait, .pd-photo { width: 64px; height: 64px; }
   .pd-name { font-size: 19px; }
 }

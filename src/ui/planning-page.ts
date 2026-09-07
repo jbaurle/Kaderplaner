@@ -136,7 +136,12 @@ export class PlanningPage {
   /** Hängt an der Tabelle und meldet jede Breitenänderung, siehe `watchWidth`. */
   private widthObserver: ResizeObserver | null = null;
   /** Als Felder, damit `dispose()` genau diese Listener wieder abhängt. */
-  private readonly onResize = (): void => this.fitAmounts();
+  private readonly onResize = (): void => {
+    this.fitAmounts();
+    // Ein anderes Eingabegerät oder ein anderer Bildschirm kann eine andere
+    // Leistenbreite bedeuten, etwa beim Andocken eines Fensters.
+    this.fitDialogScrollbar();
+  };
   private readonly onKeydown = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') this.closeModal();
   };
@@ -695,6 +700,23 @@ export class PlanningPage {
       const body = props.host.querySelector<HTMLElement>('.dialog-body');
       if (body) body.scrollTop = dialogScroll;
     }
+    this.fitDialogScrollbar();
+  }
+
+  /**
+   * Breite der Bildlaufleiste im Dialog messen und als `--sb` ablegen. Das
+   * rechte Polster zieht sie ab, damit der sichtbare Rand links und rechts
+   * gleich bleibt (siehe `.dialog-body` in planning.css).
+   *
+   * Der Wert hängt am Gerät, nicht am Inhalt: `scrollbar-gutter: stable` hält
+   * den Platz auch dann frei, wenn gerade nichts zu scrollen ist. Deshalb
+   * ändert sich die Messung nicht, während der Dialog offen ist, und es gibt
+   * kein Hin und Her zwischen mit und ohne Leiste.
+   */
+  private fitDialogScrollbar(): void {
+    const body = this.props.host.querySelector<HTMLElement>('.dialog-body');
+    if (!body) return;
+    body.style.setProperty('--sb', `${body.offsetWidth - body.clientWidth}px`);
   }
 
   /**
