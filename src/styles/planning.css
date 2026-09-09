@@ -2244,6 +2244,65 @@ body.is-dialog-open {
   outline-offset: 1px;
 }
 
+/* Der Aufstellungsstreifen: gleicher Schnitt wie der Marktstreifen, in Grün.
+   `--success` statt `--action`: das bleibt im Dark Mode hell genug für Text
+   auf dunklem Grund. Steht nur da, wenn der Dialog aus dem Aufstellungsblatt
+   geöffnet wurde. */
+.pd-lineup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 6px 8px;
+  border: 1px solid var(--success);
+  border-radius: var(--radius-sm);
+  background: var(--action-bg);
+  font-size: 11.5px;
+  color: var(--success);
+}
+
+.pd-lineup-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.pd-lineup-text {
+  flex: 1 1 11rem;
+  white-space: nowrap;
+}
+
+.pd-lineup-text b {
+  font-weight: 600;
+}
+
+.pd-lineup-toggle {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--success);
+  border-radius: 999px;
+  background: var(--card);
+  font: inherit;
+  font-weight: 600;
+  color: var(--success);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .pd-lineup-toggle:hover {
+    background: var(--success);
+    color: #fff;
+  }
+}
+
+.pd-lineup-toggle:focus-visible {
+  outline: 2px solid var(--success);
+  outline-offset: 1px;
+}
+
 .pd-body {
   /* Oben knapper: der graue Kopf trennt schon, ein zweiter Abstand
      darunter schiebt den Score unnötig weit nach unten. */

@@ -43,8 +43,9 @@ const PLAYERS: LineupPlayer[] = [
 /** Absteigender Score: `a` ist der beste, `c` der schlechteste. */
 const SCORES = { a: { score: 0.9 }, b: { score: 0.5 }, c: { score: 0.1 }, t: { score: 0.7 } };
 
-function open(initialIds: string[] = []): { saved: string[][]; layer: HTMLElement } {
+function open(initialIds: string[] = []): { saved: string[][]; layer: HTMLElement; page: LineupPage; shown: string[] } {
   const saved: string[][] = [];
+  const shown: string[] = [];
   const page = new LineupPage({
     players: PLAYERS,
     budget: 0,
@@ -53,13 +54,14 @@ function open(initialIds: string[] = []): { saved: string[][]; layer: HTMLElemen
     initialIds,
     onChange: (ids) => saved.push([...ids]),
     onSubmit: () => Promise.resolve(),
+    onShowPlayer: (id) => shown.push(id),
     onClose: () => {},
     onUnauthorized: () => {},
   });
   page.open();
   const layer = document.querySelector<HTMLElement>('.lineup-layer');
   if (!layer) throw new Error('Ebene fehlt');
-  return { saved, layer };
+  return { saved, layer, page, shown };
 }
 
 function click(layer: HTMLElement, selector: string): void {
@@ -78,19 +80,19 @@ afterEach(() => {
 });
 
 describe('LineupPage: Reihenfolge', () => {
-  it('stellt in der Folge auf, in der getippt wurde, nicht nach Score', () => {
-    const { saved, layer } = open();
-    click(layer, '.bench-card[data-player-id="c"]');
-    click(layer, '.bench-card[data-player-id="a"]');
-    click(layer, '.bench-card[data-player-id="b"]');
+  it('stellt in der Folge auf, in der aufgestellt wurde, nicht nach Score', () => {
+    const { saved, layer, page } = open();
+    page.toggle('c');
+    page.toggle('a');
+    page.toggle('b');
 
     expect(saved.at(-1)).toEqual(['c', 'a', 'b']);
     expect(rowNames(layer, 'ABW')).toEqual(['Conrad', 'Abele', 'Bauer']);
   });
 
   it('behaelt die Folge der uebrigen, wenn einer vom Feld geht', () => {
-    const { saved, layer } = open(['c', 'a', 'b']);
-    click(layer, '[data-row="ABW"] .tok[data-player-id="a"]');
+    const { saved, layer, page } = open(['c', 'a', 'b']);
+    page.toggle('a');
 
     expect(saved.at(-1)).toEqual(['c', 'b']);
     expect(rowNames(layer, 'ABW')).toEqual(['Conrad', 'Bauer']);
@@ -99,6 +101,43 @@ describe('LineupPage: Reihenfolge', () => {
   it('übernimmt die gespeicherte Folge beim Öffnen', () => {
     const { layer } = open(['b', 'c', 'a']);
     expect(rowNames(layer, 'ABW')).toEqual(['Bauer', 'Conrad', 'Abele']);
+  });
+});
+
+describe('LineupPage: Tipp auf den Spieler', () => {
+  it('öffnet den Spielerdialog, statt aufzustellen', () => {
+    const { saved, layer, shown } = open();
+    click(layer, '.bench-card[data-player-id="a"]');
+
+    expect(shown).toEqual(['a']);
+    expect(saved).toEqual([]);
+    expect(rowNames(layer, 'ABW')).toEqual([]);
+  });
+
+  it('öffnet den Dialog auch für einen Spieler auf dem Feld, ohne ihn runterzunehmen', () => {
+    const { saved, layer, shown } = open(['a']);
+    click(layer, '[data-row="ABW"] .tok[data-player-id="a"]');
+
+    expect(shown).toEqual(['a']);
+    expect(saved).toEqual([]);
+    expect(rowNames(layer, 'ABW')).toEqual(['Abele']);
+  });
+
+  it('meldet, ob er im Entwurf auf dem Feld steht', () => {
+    const { page } = open(['a']);
+    expect(page.isFielded('a')).toBe(true);
+    expect(page.isFielded('b')).toBe(false);
+  });
+
+  it('lässt Escape dem Dialog, solange einer offen ist', () => {
+    const { layer, page } = open();
+    document.body.classList.add('is-dialog-open');
+    layer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(page.isOpen()).toBe(true);
+
+    document.body.classList.remove('is-dialog-open');
+    layer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(page.isOpen()).toBe(false);
   });
 });
 
@@ -127,6 +166,7 @@ describe('Fehler beim Senden', () => {
       initialIds: ELEVEN.map((p) => p.id),
       onChange: () => {},
       onSubmit: () => Promise.reject(error),
+      onShowPlayer: () => {},
       onClose: () => {},
       onUnauthorized,
     });
@@ -189,6 +229,7 @@ describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
       initialIds,
       onChange: () => {},
       onSubmit: () => Promise.resolve(),
+      onShowPlayer: () => {},
       onClose: () => {},
       onUnauthorized: () => {},
     });
@@ -210,12 +251,12 @@ describe('Bereits aufgestellt: die Anordnung zählt mit', () => {
 
 describe('Bilder überleben den Neubau', () => {
   it('setzt das alte <img> wieder ein, auch wenn der Spieler die Seite wechselt', () => {
-    const { layer } = open();
+    const { layer, page } = open();
     const before = layer.querySelector<HTMLImageElement>('.bench-card[data-player-id="a"] img.card-photo');
     if (!before) throw new Error('Bild fehlt');
     before.classList.add('is-logo');
 
-    click(layer, '.bench-card[data-player-id="a"]');
+    page.toggle('a');
 
     const after = layer.querySelector<HTMLImageElement>('[data-row="ABW"] .tok img.tok-photo');
     expect(after).toBe(before);
@@ -238,6 +279,7 @@ describe('Bilder überleben den Neubau', () => {
       initialIds: ['a'],
       onChange: () => {},
       onSubmit: () => Promise.resolve(),
+      onShowPlayer: () => {},
       onClose: () => { closed++; },
       onUnauthorized: () => {},
     });

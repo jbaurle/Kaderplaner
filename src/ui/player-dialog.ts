@@ -78,6 +78,12 @@ export interface PlayerDialogInput {
    * er noch niemandem, ein Verkaufserlös wäre erfunden.
    */
   isOwned: boolean;
+  /**
+   * Nur aus dem Aufstellungsblatt heraus gesetzt: ob er im Entwurf auf dem
+   * Feld steht. Dann trägt der Kopf einen Streifen mit dem Button zum
+   * Aufstellen oder Runternehmen. Sonst `null`, und der Streifen bleibt weg.
+   */
+  lineup: { fielded: boolean } | null;
 }
 
 /*
@@ -229,8 +235,27 @@ function renderHead(input: PlayerDialogInput): string {
       ${renderTrend(input)}
       <p class="pd-unit">Alle Beträge in Mio. €</p>
       ${renderMarket(input)}
+      ${renderLineup(input)}
     </header>
   `;
+}
+
+/**
+ * Der Streifen zum Aufstellungsblatt, gebaut wie der Marktstreifen. Steht
+ * nur da, wenn der Dialog aus dem Blatt heraus geöffnet wurde: dort öffnet
+ * ein Tipp auf die Kachel den Dialog, und der Button hier ersetzt den Tipp
+ * zum Aufstellen. `wireModal` in `planning-page.ts` hängt sich an
+ * `data-lineup-toggle`.
+ */
+function renderLineup(input: PlayerDialogInput): string {
+  const lineup = input.lineup;
+  if (!lineup) return '';
+  return `
+      <div class="pd-lineup">
+        <span class="pd-lineup-dot" aria-hidden="true"></span>
+        <span class="pd-lineup-text"><b>Aufstellung</b> · ${lineup.fielded ? 'steht auf dem Feld' : 'sitzt auf der Bank'}</span>
+        <button type="button" class="pd-lineup-toggle" data-lineup-toggle="${escapeHtml(input.playerId)}">${lineup.fielded ? 'Auf die Bank' : 'Aufstellen'}</button>
+      </div>`;
 }
 
 /**

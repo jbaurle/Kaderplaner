@@ -89,6 +89,12 @@ export interface LineupPageProps {
    * Meldung unter der Bank an, der Entwurf bleibt stehen.
    */
   onSubmit: (formation: string, ids: PlayerId[]) => Promise<void>;
+  /**
+   * Tipp auf einen Spieler, auf dem Feld wie auf der Bank. Der Aufrufer
+   * öffnet den Spielerdialog; aufstellen und runternehmen läuft über Ziehen
+   * oder über `toggle`, das der Dialog aufruft.
+   */
+  onShowPlayer: (playerId: PlayerId) => void;
   onClose: () => void;
   /**
    * Kickbase hat das Token beim Senden verworfen. Das Blatt schließt sich
@@ -377,7 +383,27 @@ export class LineupPage {
     group?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
   }
 
-  private toggle(id: PlayerId): void {
+  /** Steht die Ebene gerade im Dokument? */
+  isOpen(): boolean {
+    return this.layer.isConnected;
+  }
+
+  /** Fokus zurück auf die Ebene, damit Escape wieder hier ankommt. */
+  focus(): void {
+    this.layer.focus();
+  }
+
+  /** Steht er im Entwurf auf dem Feld? */
+  isFielded(id: PlayerId): boolean {
+    return this.has(id);
+  }
+
+  /**
+   * Aufs Feld oder zurück auf die Bank, je nachdem, wo er steht. Kommt vom
+   * Button im Spielerdialog; ein Tipp auf die Kachel öffnet nur noch den
+   * Dialog, siehe `onShowPlayer`.
+   */
+  toggle(id: PlayerId): void {
     const player = this.byId.get(id);
     if (!player) return;
     if (this.has(id)) {
@@ -434,8 +460,10 @@ export class LineupPage {
     this.layer.addEventListener('pointermove', (event) => this.handlePointerMove(event));
     this.layer.addEventListener('pointerup', (event) => this.handlePointerUp(event));
     this.layer.addEventListener('pointercancel', () => this.cancelDrag());
+    // Liegt der Spielerdialog über dem Blatt, gehört Escape ihm. Der Fokus
+    // bleibt hier, die Taste käme sonst bei beiden an.
     this.layer.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') this.close();
+      if (event.key === 'Escape' && !document.body.classList.contains('is-dialog-open')) this.close();
     });
     // Langes Drücken auf einer Spieler-Kachel öffnet sonst das Kontextmenü
     // des Systems (Android; auf iOS erledigt das `-webkit-touch-callout` im
@@ -507,7 +535,7 @@ export class LineupPage {
 
     const token = target.closest<HTMLElement>('[data-player-id]');
     const id = token?.dataset['playerId'];
-    if (id) this.toggle(id);
+    if (id) this.props.onShowPlayer(id);
   }
 
   private runAction(action: string): void {

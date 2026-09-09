@@ -75,6 +75,7 @@ function dialogInput(overrides: Partial<PlayerDialogInput> = {}): PlayerDialogIn
     insight: overrides.insight ?? EMPTY_INSIGHT,
     performance: overrides.performance ?? EMPTY_PERFORMANCE,
     isOwned: overrides.isOwned ?? true,
+    lineup: overrides.lineup ?? null,
   };
 }
 
@@ -123,5 +124,25 @@ describe('renderPlayerDialog: Verkaufsfolgen nur im eigenen Kader', () => {
   it('blendet "Wenn du verkaufst" für einen Transferkandidaten aus', () => {
     const html = renderPlayerDialog(dialogInput({ isOwned: false }));
     expect(html).not.toContain('Wenn du verkaufst');
+  });
+});
+
+describe('renderPlayerDialog: Aufstellungsstreifen', () => {
+  it('bleibt weg, wenn der Dialog nicht aus dem Aufstellungsblatt kommt', () => {
+    const html = renderPlayerDialog(dialogInput({ lineup: null }));
+    expect(html).not.toContain('pd-lineup');
+  });
+
+  it('bietet "Aufstellen" für einen Spieler auf der Bank', () => {
+    const html = renderPlayerDialog(dialogInput({ lineup: { fielded: false } }));
+    expect(html).toContain('sitzt auf der Bank');
+    expect(html).toContain('data-lineup-toggle="p1"');
+    expect(html).toContain('>Aufstellen<');
+  });
+
+  it('bietet "Auf die Bank" für einen Spieler auf dem Feld', () => {
+    const html = renderPlayerDialog(dialogInput({ lineup: { fielded: true } }));
+    expect(html).toContain('steht auf dem Feld');
+    expect(html).toContain('>Auf die Bank<');
   });
 });

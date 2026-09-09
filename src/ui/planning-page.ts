@@ -766,6 +766,7 @@ export class PlanningPage {
         await this.props.client.setLineup(this.props.leagueId, formation, ids);
         await this.fetch();
       },
+      onShowPlayer: (playerId) => this.openModal({ kind: 'player', playerId }),
       onClose: () => {},
       onUnauthorized: () => this.props.onUnauthorized(),
     });
@@ -857,6 +858,15 @@ export class PlanningPage {
     if (!this.state.modal) return;
     this.state.modal = null;
     this.render();
+    // Kam der Dialog aus dem Aufstellungsblatt, bekommt das Blatt den Fokus
+    // zurück, sonst hört es Escape nicht mehr.
+    this.openLineupPage()?.focus();
+  }
+
+  /** Das Aufstellungsblatt, solange es über der Seite liegt. */
+  private openLineupPage(): LineupPage | null {
+    const page = this.lineup?.page;
+    return page?.isOpen() ? page : null;
   }
 
   private renderModal(view: PlanningView): string {
@@ -978,6 +988,10 @@ export class PlanningPage {
         selectedDay: this.state.performanceDay,
       },
       isOwned,
+      lineup: (() => {
+        const page = this.openLineupPage();
+        return page ? { fielded: page.isFielded(row.id) } : null;
+      })(),
     });
   }
 
@@ -1022,6 +1036,18 @@ export class PlanningPage {
       el.addEventListener('click', () => {
         const id = el.dataset['offers'];
         if (id) this.openModal({ kind: 'offers', playerId: id });
+      });
+    }
+
+    // Der Button im Aufstellungsstreifen des Spielerdialogs: stellt auf oder
+    // nimmt runter und schließt den Dialog, das Blatt darunter zeigt das Ergebnis.
+    for (const el of backdrop.querySelectorAll<HTMLElement>('[data-lineup-toggle]')) {
+      el.addEventListener('click', () => {
+        const id = el.dataset['lineupToggle'];
+        const page = this.openLineupPage();
+        if (!id || !page) return;
+        page.toggle(id);
+        this.closeModal();
       });
     }
 
