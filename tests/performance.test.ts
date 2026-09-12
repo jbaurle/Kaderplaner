@@ -49,6 +49,7 @@ function matchday(
     minutes: points === null ? 0 : 90,
     teamId: '2',
     opponentId: '9',
+    home: true,
     goalsFor: 1,
     goalsAgainst: 0,
     kickoff: '2025-08-03T11:30:00Z',
@@ -89,6 +90,7 @@ describe('getPlayerPerformance', () => {
       minutes: 28,
       teamId: '2',
       opponentId: '9',
+      home: true,
       goalsFor: 3,
       goalsAgainst: 1,
       kickoff: '2025-08-03T11:30:00Z',
@@ -100,6 +102,7 @@ describe('getPlayerPerformance', () => {
     const result = await new KickbaseClient('t').getPlayerPerformance('1', 'p1');
     expect(result.seasons[0]?.matchdays[0]).toMatchObject({
       opponentId: '2',
+      home: false,
       goalsFor: 1,
       goalsAgainst: 3,
     });

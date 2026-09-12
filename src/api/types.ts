@@ -317,6 +317,8 @@ export interface PerformanceMatchday {
   /** Der Verein des Spielers an diesem Spieltag. */
   teamId: string;
   opponentId: string;
+  /** Heimspiel des eigenen Vereins? */
+  home: boolean;
   /** Tore aus Sicht des Spielers. */
   goalsFor: number;
   goalsAgainst: number;

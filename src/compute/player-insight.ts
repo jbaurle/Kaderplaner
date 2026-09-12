@@ -153,8 +153,9 @@ export interface PlayerInsight {
  * Die Punkte kommen ohne Spieltagsnummer, jüngster zuerst. Die Nummer wird
  * vom Stand `mc` heruntergezählt. Das trifft nicht, wenn ein Spiel nachgeholt
  * wurde, deshalb steht bei day 0 in der Anzeige keine Nummer statt einer
- * falschen. Gegner und Ergebnis kommen aus `matchSummary`, das nur ein Fenster
- * von rund drei Spieltagen führt: was darüber hinausgeht, zeigt nur Punkte.
+ * falschen. Gegner, Ort und Ergebnis kommen aus `matchSummary`, das nur ein
+ * Fenster von rund drei Spieltagen führt. Was darüber hinausgeht, holt sie aus
+ * `/performance`, das die ganze Saison kennt.
  *
  * Die Punktzahl selbst kommt, wenn möglich, aus `/performance` statt aus
  * `weekly`: Kickbase trägt Punkte in `ph` teils tagelang nicht nach, während
@@ -178,12 +179,35 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         ? undefined
         : weekly.matchSummary.find((m) => m.day === day);
       const pending = match !== undefined && match.state !== 2;
-      const home = match ? match.team1Id === row.teamId : null;
-      const opponentId = match ? (home ? match.team2Id : match.team1Id) : null;
       const seasonDay = day > 0 ? currentSeason?.matchdays.find((d) => d.day === day) : undefined;
-      const reliablePoints = seasonDay && seasonDay.points !== null && !isMatchLive(seasonDay)
+      const live = seasonDay !== undefined && isMatchLive(seasonDay);
+      const reliablePoints = seasonDay && seasonDay.points !== null && !live
         ? seasonDay.points
         : null;
+
+      // Gegner und Ort: erst aus `matchSummary`, sonst aus `/performance`.
+      // Das Ergebnis nur, wenn das Spiel vorbei ist, sonst stünde der
+      // Zwischenstand als Endergebnis da.
+      let home: boolean | null = null;
+      let opponentId: string | null = null;
+      let goalsFor: number | null = null;
+      let goalsAgainst: number | null = null;
+      if (match) {
+        home = match.team1Id === row.teamId;
+        opponentId = home ? match.team2Id : match.team1Id;
+        if (!pending) {
+          goalsFor = home ? match.team1Goals : match.team2Goals;
+          goalsAgainst = home ? match.team2Goals : match.team1Goals;
+        }
+      } else if (seasonDay) {
+        home = seasonDay.home;
+        opponentId = seasonDay.opponentId;
+        if (!live) {
+          goalsFor = seasonDay.goalsFor;
+          goalsAgainst = seasonDay.goalsAgainst;
+        }
+      }
+
       played.push({
         day,
         ahead: false,
@@ -195,8 +219,8 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         opponentPosition: opponentId ? teams[opponentId]?.position ?? 0 : 0,
         trend: null,
         home,
-        goalsFor: match && !pending ? (home ? match.team1Goals : match.team2Goals) : null,
-        goalsAgainst: match && !pending ? (home ? match.team2Goals : match.team1Goals) : null,
+        goalsFor,
+        goalsAgainst,
         kickoff: kickoffs[day] ?? '',
       });
     }

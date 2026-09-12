@@ -33,6 +33,7 @@ function performanceWith(seasonId: string): PlayerPerformance {
             minutes: 90,
             teamId: '2',
             opponentId: '9',
+            home: true,
             goalsFor: 1,
             goalsAgainst: 0,
             kickoff: '2025-08-03T11:30:00Z',

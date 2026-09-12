@@ -461,6 +461,7 @@ function toPerformanceSeason(wire: WirePerformanceSeason): PerformanceSeason {
       minutes: parseInt(match.mp ?? '', 10) || 0,
       teamId,
       opponentId: isHome ? match.t2 : match.t1,
+      home: isHome,
       goalsFor: (isHome ? match.t1g : match.t2g) ?? 0,
       goalsAgainst: (isHome ? match.t2g : match.t1g) ?? 0,
       kickoff: match.md ?? '',

@@ -184,8 +184,8 @@ describe('buildMatchdays', () => {
         title: '2026/2027',
         competition: 'Bundesliga',
         matchdays: [
-          { day: 33, points: 12, minutes: 90, teamId: '2', opponentId: '9', goalsFor: 3, goalsAgainst: 0, kickoff: '' },
-          { day: 34, points: 17, minutes: 90, teamId: '2', opponentId: '10', goalsFor: 2, goalsAgainst: 1, kickoff: '' },
+          { day: 33, points: 12, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '' },
+          { day: 34, points: 17, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 2, goalsAgainst: 1, kickoff: '' },
         ],
       }],
     };
@@ -240,6 +240,40 @@ describe('buildMatchdays', () => {
     expect(away.opponentName).toBe('Bremen');
     expect(away.goalsFor).toBe(2);
     expect(away.goalsAgainst).toBe(1);
+  });
+
+  it('holt Gegner, Ort und Ergebnis aus /performance, wenn matchSummary den Spieltag nicht mehr führt', () => {
+    // `mdsum` deckt nur rund drei Spieltage ab. Spieltag 32 fehlt darin,
+    // steht aber in `/performance`.
+    const performance: PlayerPerformance = {
+      seasons: [{
+        id: '35',
+        title: '2026/2027',
+        competition: 'Bundesliga',
+        matchdays: [
+          { day: 32, points: 40, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 0, goalsAgainst: 2, kickoff: '2026-04-25T13:30:00Z' },
+          { day: 33, points: 94, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '' },
+        ],
+      }],
+    };
+    const days = buildMatchdays(input({
+      teams,
+      performance,
+      weekly: {
+        mc: 34,
+        lastMatchdayPoints: [128, 94, 40],
+        hasPlayedFlags: [true, true, true],
+        matchSummary,
+      },
+    }));
+
+    const older = days.find((day) => day.day === 32)!;
+    expect(older.home).toBe(false);
+    expect(older.opponentName).toBe('Bremen');
+    expect(older.goalsFor).toBe(0);
+    expect(older.goalsAgainst).toBe(2);
+    // Wo `matchSummary` etwas weiß, bleibt es dabei.
+    expect(days.find((day) => day.day === 33)!.opponentName).toBe('Stuttgart');
   });
 
   it('lässt weg, was sich nicht in der Saison verorten lässt', () => {
