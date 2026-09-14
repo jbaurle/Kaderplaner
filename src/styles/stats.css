@@ -955,11 +955,32 @@ body.is-stats-open {
   color: var(--text-muted);
 }
 
-/* Schmal: der Name wird beschnitten, sonst bleibt neben den drei festen
-   Spalten kein Platz für die Spieltage. */
+/* Schmal: der Name wird beschnitten und Δ blättert mit den Spieltagen,
+   sonst bleibt neben den festen Spalten kein Platz für die Spieltage. */
 @container (max-width: 479px) {
   .st-matrix .st-name {
     max-width: 84px;
+  }
+
+  .st-matrix .st-col-diff {
+    position: static;
+    border-right: 0;
+  }
+
+  .st-matrix .st-col-total {
+    border-right: 1px solid var(--border);
+  }
+}
+
+/* Ganz schmal: auch Gesamt blättert mit, nur der Name bleibt stehen. */
+@container (max-width: 339px) {
+  .st-matrix .st-col-total {
+    position: static;
+    border-right: 0;
+  }
+
+  .st-matrix .st-col-name {
+    border-right: 1px solid var(--border);
   }
 }
 
