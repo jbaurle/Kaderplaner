@@ -53,6 +53,9 @@ function matchday(
     goalsFor: 1,
     goalsAgainst: 0,
     kickoff: '2025-08-03T11:30:00Z',
+    goals: 0,
+    ownGoals: 0,
+    assists: 0,
     ...overrides,
   };
 }
@@ -94,7 +97,18 @@ describe('getPlayerPerformance', () => {
       goalsFor: 3,
       goalsAgainst: 1,
       kickoff: '2025-08-03T11:30:00Z',
+      goals: 0,
+      ownGoals: 0,
+      assists: 0,
     });
+  });
+
+  it('zählt Tore, Eigentore und Vorlagen aus den Ereigniscodes', async () => {
+    // 4 Gelb, 8 eingewechselt und 9 ausgewechselt zählen nicht mit.
+    stub({ it: [{ sid: '35', ph: [wireMatch(1, { p: 250, k: [1, 3, 1, 9, 4] }), wireMatch(2, { p: -24, k: [8, 2] })] }] });
+    const result = await new KickbaseClient('t').getPlayerPerformance('1', 'p1');
+    expect(result.seasons[0]?.matchdays[0]).toMatchObject({ goals: 2, ownGoals: 0, assists: 1 });
+    expect(result.seasons[0]?.matchdays[1]).toMatchObject({ goals: 0, ownGoals: 1, assists: 0 });
   });
 
   it('dreht Gegner und Tore, wenn der eigene Verein auswärts spielt', async () => {

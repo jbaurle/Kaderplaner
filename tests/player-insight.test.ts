@@ -184,8 +184,8 @@ describe('buildMatchdays', () => {
         title: '2026/2027',
         competition: 'Bundesliga',
         matchdays: [
-          { day: 33, points: 12, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '' },
-          { day: 34, points: 17, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 2, goalsAgainst: 1, kickoff: '' },
+          { day: 33, points: 12, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '', goals: 0, ownGoals: 0, assists: 0 },
+          { day: 34, points: 17, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 2, goalsAgainst: 1, kickoff: '', goals: 0, ownGoals: 0, assists: 0 },
         ],
       }],
     };
@@ -251,8 +251,8 @@ describe('buildMatchdays', () => {
         title: '2026/2027',
         competition: 'Bundesliga',
         matchdays: [
-          { day: 32, points: 40, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 0, goalsAgainst: 2, kickoff: '2026-04-25T13:30:00Z' },
-          { day: 33, points: 94, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '' },
+          { day: 32, points: 40, minutes: 90, teamId: '2', opponentId: '10', home: false, goalsFor: 0, goalsAgainst: 2, kickoff: '2026-04-25T13:30:00Z', goals: 0, ownGoals: 0, assists: 0 },
+          { day: 33, points: 94, minutes: 90, teamId: '2', opponentId: '9', home: true, goalsFor: 3, goalsAgainst: 0, kickoff: '', goals: 0, ownGoals: 0, assists: 0 },
         ],
       }],
     };

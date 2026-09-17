@@ -2840,6 +2840,8 @@ body.is-dialog-open {
  * höchste Balken (siehe PERF_BAR in player-dialog.ts).
  */
 .pd-perf-bars {
+  /* Anker der Symbole für Tore und Vorlagen. */
+  position: relative;
   display: flex;
   align-items: flex-end;
   height: 44px;
@@ -2850,6 +2852,56 @@ body.is-dialog-open {
   width: 100%;
   border-radius: 2px 2px 0 0;
   background: var(--grade-mid);
+}
+
+/*
+ * Tore, Eigentore und Vorlagen: ein Symbol je Ereignis, von der Grundlinie
+ * nach oben gestapelt, weiß auf dem Balken. 9 px plus 1 px Fuge, siehe
+ * PERF_MARK_STEP in player-dialog.ts.
+ */
+.pd-perf-marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 1px;
+  color: #fff;
+  pointer-events: none;
+}
+
+/* Was nicht mehr in den Balken passt, steht auf ihm. `bottom` setzt das Markup. */
+.pd-perf-marks--top {
+  color: var(--text-strong);
+}
+
+.pd-perf-mark {
+  display: block;
+  width: 9px;
+  height: 9px;
+}
+
+/* In Sprechblase und Legende im Textfluss, etwas größer und in Textfarbe. */
+.pd-perf-callout .pd-perf-mark,
+.pd-perf-legend .pd-perf-mark {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  vertical-align: -1.5px;
+  color: var(--text-strong);
+}
+
+.pd-perf-key {
+  white-space: nowrap;
+}
+
+.pd-perf-events {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-style: normal;
 }
 
 .pd-perf-crest {

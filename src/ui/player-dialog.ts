@@ -585,6 +585,28 @@ export interface PerformanceView {
  */
 const PERF_BAR = 42;
 
+/** Ein Symbol samt Fuge in px, passend zu `.pd-perf-mark` in `planning.css`. */
+const PERF_MARK_STEP = 10;
+
+const perfMark = (body: string): string =>
+  `<svg class="pd-perf-mark" viewBox="0 0 10 10" aria-hidden="true">${body}</svg>`;
+
+const GOAL_MARK = perfMark(
+  '<path fill="currentColor" fill-rule="evenodd" d="M5 .3a4.7 4.7 0 1 0 0 9.4a4.7 4.7 0 1 0 0-9.4z'
+  + 'M5 2.6 7.3 4.27 6.42 6.95H3.58L2.7 4.27z"/>',
+);
+
+const ASSIST_MARK = perfMark(
+  '<path fill="currentColor" d="M1.2.8h3.9v3.5l3 1.2c.9.36 1.5 1.1 1.5 2v1.7H1.2z"/>',
+);
+
+/* Das Eigentor trägt seine Farbe selbst: rot mit weißem Kreuz liest sich auf
+   jedem Balken und auf der Karte. */
+const OWN_GOAL_MARK = perfMark(
+  '<circle cx="5" cy="5" r="4.7" fill="#dc2626"/>'
+  + '<path d="M3.2 3.2l3.6 3.6M6.8 3.2 3.2 6.8" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>',
+);
+
 /**
  * Die Saison als zwei Reihen zu 17 Spieltagen. Zwei Reihen, weil eine Spalte
  * damit 18 statt 8 px breit wird: erst so ist Platz für das Wappen des
@@ -651,9 +673,23 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
     </div>
     <p class="pd-legend pd-perf-legend">
       Ein Tipp auf einen Spieltag zeigt Ergebnis und Minuten. Graue Stummel
-      sind Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}
+      sind Spieltage ohne Einsatz, rote Minuspunkte.${switchNote(season)}${marksNote(season)}
     </p>
   `;
+}
+
+/** Die Symbole im Balken, aber nur die, die in dieser Saison vorkommen. */
+function marksNote(season: PerformanceSeason): string {
+  const has = (count: (day: PerformanceMatchday) => number): boolean =>
+    season.matchdays.some((day) => !isMatchLive(day) && count(day) > 0);
+  // Symbol und Wort bleiben beim Umbruch zusammen.
+  const key = (mark: string, label: string): string => `<span class="pd-perf-key">${mark} ${label}</span>`;
+  const parts = [
+    has((day) => day.goals) ? key(GOAL_MARK, 'Tor') : '',
+    has((day) => day.assists) ? key(ASSIST_MARK, 'Vorlage') : '',
+    has((day) => day.ownGoals) ? key(OWN_GOAL_MARK, 'Eigentor') : '',
+  ].filter(Boolean);
+  return parts.length > 0 ? ` ${parts.join(', ')}.` : '';
 }
 
 /**
@@ -730,7 +766,7 @@ function renderPerfColumn(
     .filter(Boolean)
     .join(' ');
   const body = `
-      <span class="pd-perf-bars"><span class="pd-perf-bar" style="height:${height}px"></span></span>
+      <span class="pd-perf-bars"><span class="pd-perf-bar" style="height:${height}px"></span>${renderPerfMarks(day, height)}</span>
       ${crest}
       ${points}
   `;
@@ -756,6 +792,24 @@ function renderPerfColumn(
 }
 
 /**
+ * Ein Symbol je Ereignis: Tore unten, dann Eigentore, Vorlagen obenauf. Der
+ * Stapel beginnt an der Grundlinie. In den Balken kommt, was ganz hineinpasst,
+ * der Rest steht auf dem Balken und nimmt die Textfarbe: ein weißes Symbol
+ * ginge im Hell-Modus auf der Karte unter.
+ */
+function renderPerfMarks(day: PerformanceMatchday | null, height: number): string {
+  if (day === null) return '';
+  const marks = perfEvents(day).flatMap((event) => Array<string>(event.count).fill(event.mark));
+  if (marks.length === 0) return '';
+  const inside = Math.min(marks.length, Math.floor((height - 1) / PERF_MARK_STEP));
+  const stack = (part: string[], extraClass: string, style: string): string => part.length === 0
+    ? ''
+    : `<span class="pd-perf-marks${extraClass}"${style}>${part.join('')}</span>`;
+  return stack(marks.slice(0, inside), '', '')
+    + stack(marks.slice(inside), ' pd-perf-marks--top', ` style="bottom:${height + 1}px"`);
+}
+
+/**
  * Ein Spieltag ohne Einsatz bekommt einen Stummel, Minuspunkte auch: ohne ihn
  * wäre die Spalte leer und sähe aus wie ein Spieltag, den es nicht gab.
  */
@@ -769,7 +823,30 @@ function perfBarHeight(day: PerformanceMatchday | null, stats: SeasonStats): num
 function perfTitle(day: PerformanceMatchday | null): string {
   if (day === null) return 'Kein Spieltag';
   const points = isMatchLive(day) ? 'läuft noch' : day.points === null ? 'nicht gespielt' : `${day.points} Punkte`;
-  return `Spieltag ${day.day}, ${points}`;
+  const events = perfEventsText(day);
+  return `Spieltag ${day.day}, ${points}${events ? `, ${events}` : ''}`;
+}
+
+/** Tore, Eigentore und Vorlagen mit Symbol, Anzahl und Wort. Im Live-Fenster leer. */
+function perfEvents(day: PerformanceMatchday): { mark: string; count: number; label: string }[] {
+  if (isMatchLive(day)) return [];
+  return [
+    { mark: GOAL_MARK, count: day.goals, label: day.goals === 1 ? 'Tor' : 'Tore' },
+    { mark: OWN_GOAL_MARK, count: day.ownGoals, label: day.ownGoals === 1 ? 'Eigentor' : 'Eigentore' },
+    { mark: ASSIST_MARK, count: day.assists, label: day.assists === 1 ? 'Vorlage' : 'Vorlagen' },
+  ].filter((event) => event.count > 0);
+}
+
+function perfEventsText(day: PerformanceMatchday): string {
+  return perfEvents(day).map((event) => `${event.count} ${event.label}`).join(', ');
+}
+
+/* Ein <i> und kein <span>: die spans der Sprechblase sind die Trennpunkte. */
+function renderPerfEvents(day: PerformanceMatchday): string {
+  const events = perfEvents(day);
+  if (events.length === 0) return '';
+  const marks = events.map((event) => `${event.mark}<b>${event.count}</b>`).join(' ');
+  return `<span>·</span> <i class="pd-perf-events" role="img" aria-label="${perfEventsText(day)}">${marks}</i>`;
 }
 
 function renderPerfCallout(day: PerformanceMatchday): string {
@@ -785,6 +862,7 @@ function renderPerfCallout(day: PerformanceMatchday): string {
     <b>${result}</b>
     <img src="${escapeHtml(teamLogoUrl(day.opponentId))}" alt="" width="16" height="16">
     ${tail}
+    ${renderPerfEvents(day)}
   `;
 }
 

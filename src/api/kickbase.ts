@@ -438,6 +438,11 @@ function toPlayerDetails(wire: WirePlayerDetails): PlayerDetails {
   };
 }
 
+/** Die Codes aus `k`, die gezählt werden. Die übrigen stehen bei `WirePerformanceMatch`. */
+const EVENT_GOAL = 1;
+const EVENT_OWN_GOAL = 2;
+const EVENT_ASSIST = 3;
+
 /**
  * Eine Saison der Spielerhistorie. Spieltage ohne Nummer oder ohne beide
  * Vereine fallen weg: ohne sie lässt sich weder einordnen noch anzeigen.
@@ -453,6 +458,8 @@ function toPerformanceSeason(wire: WirePerformanceSeason): PerformanceSeason {
     const teamId = match.pt ?? '';
     if (day <= 0 || !match.t1 || !match.t2) continue;
     const isHome = match.t1 === teamId;
+    const events = match.k ?? [];
+    const countOf = (code: number): number => events.filter((event) => event === code).length;
     matchdays.push({
       day,
       // `p` fehlt ganz, wenn der Spieler nicht im Kader stand. 0 waere falsch:
@@ -465,6 +472,9 @@ function toPerformanceSeason(wire: WirePerformanceSeason): PerformanceSeason {
       goalsFor: (isHome ? match.t1g : match.t2g) ?? 0,
       goalsAgainst: (isHome ? match.t2g : match.t1g) ?? 0,
       kickoff: match.md ?? '',
+      goals: countOf(EVENT_GOAL),
+      ownGoals: countOf(EVENT_OWN_GOAL),
+      assists: countOf(EVENT_ASSIST),
     });
   }
   return {

@@ -11,7 +11,8 @@ import type { LeagueId, PlayerId, PlayerPerformance } from '../api/types.js';
 import * as storage from '../storage/local.js';
 
 // v1: erste Fassung.
-export const PERFORMANCE_SCHEMA_VERSION = 1;
+// v2: Tore, Eigentore und Vorlagen je Spieltag.
+export const PERFORMANCE_SCHEMA_VERSION = 2;
 
 /**
  * Wie lange ein Eintrag gilt. Sechs Stunden: neue Punkte gibt es nur nach

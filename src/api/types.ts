@@ -324,6 +324,10 @@ export interface PerformanceMatchday {
   goalsAgainst: number;
   /** Anstoß, ISO 8601. Leer, wenn Kickbase keinen führt. */
   kickoff: string;
+  /** Eigene Tore des Spielers, Elfmeter eingeschlossen. */
+  goals: number;
+  ownGoals: number;
+  assists: number;
 }
 
 export interface PerformanceSeason {
@@ -446,6 +450,13 @@ export interface WirePerformanceMatch {
   t2g?: number;
   /** Der Verein des Spielers an diesem Spieltag. */
   pt?: string;
+  /**
+   * Ereignisse des Spielers, ein Code je Ereignis. Fehlt ganz, wenn es keins
+   * gab. Gegen die echte API geprüft (17.09.2026): 1 Tor, 2 Eigentor,
+   * 3 Vorlage, 4 Gelb, 5 Gelb-Rot, 6 Rot, 7 gehaltener Elfmeter,
+   * 8 eingewechselt, 9 ausgewechselt, 25 zu Null.
+   */
+  k?: number[];
 }
 
 export interface WireMatchSummary {

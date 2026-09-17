@@ -146,3 +146,63 @@ describe('renderPlayerDialog: Aufstellungsstreifen', () => {
     expect(html).toContain('>Auf die Bank<');
   });
 });
+
+describe('renderPlayerDialog: Tore und Vorlagen je Spieltag', () => {
+  // Ein Anstoß weit in der Vergangenheit, damit kein Spieltag als live gilt.
+  function performanceWith(days: { points: number; goals?: number; ownGoals?: number; assists?: number }[]): PerformanceView {
+    return {
+      performance: {
+        seasons: [{
+          id: '35',
+          title: '2025/2026',
+          competition: 'Bundesliga',
+          matchdays: days.map((day, index) => ({
+            day: index + 1,
+            points: day.points,
+            minutes: 90,
+            teamId: '2',
+            opponentId: '9',
+            home: true,
+            goalsFor: 1,
+            goalsAgainst: 0,
+            kickoff: '2025-08-03T11:30:00Z',
+            goals: day.goals ?? 0,
+            ownGoals: day.ownGoals ?? 0,
+            assists: day.assists ?? 0,
+          })),
+        }],
+      },
+      seasonId: '35',
+      isLoading: false,
+      selectedDay: null,
+    };
+  }
+
+  const markCount = (html: string): number => html.split('class="pd-perf-mark"').length - 1;
+
+  it('stapelt ein Symbol je Ereignis in den Balken', () => {
+    const html = renderPlayerDialog(dialogInput({
+      performance: performanceWith([{ points: 400, goals: 2, assists: 1 }, { points: 100 }]),
+    }));
+    // Drei im Balken, dazu Tor und Vorlage in der Legende.
+    expect(markCount(html)).toBe(5);
+    expect(html).not.toContain('pd-perf-marks--top');
+    expect(html).toContain('Spieltag 1, 400 Punkte, 2 Tore, 1 Vorlage');
+  });
+
+  it('stellt auf den Balken, was nicht hineinpasst', () => {
+    const html = renderPlayerDialog(dialogInput({
+      performance: performanceWith([{ points: 400 }, { points: -24, ownGoals: 1 }]),
+    }));
+    // Der Stummel für Minuspunkte ist 4 px hoch, das Symbol steht 1 px darüber.
+    expect(html).toContain('class="pd-perf-marks pd-perf-marks--top" style="bottom:5px"');
+    expect(html).toContain('Spieltag 2, -24 Punkte, 1 Eigentor');
+  });
+
+  it('nennt in der Legende nur Symbole, die vorkommen', () => {
+    const html = renderPlayerDialog(dialogInput({
+      performance: performanceWith([{ points: 100 }]),
+    }));
+    expect(markCount(html)).toBe(0);
+  });
+});
