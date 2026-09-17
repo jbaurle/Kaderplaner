@@ -12,7 +12,8 @@ import * as storage from '../storage/local.js';
 
 // v1: erste Fassung.
 // v2: Tore, Eigentore und Vorlagen je Spieltag.
-export const PERFORMANCE_SCHEMA_VERSION = 2;
+// v3: Verein kommender Spieltage aus den Paarungen abgeleitet statt leer.
+export const PERFORMANCE_SCHEMA_VERSION = 3;
 
 /**
  * Wie lange ein Eintrag gilt. Sechs Stunden: neue Punkte gibt es nur nach

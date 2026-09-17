@@ -103,6 +103,45 @@ describe('getPlayerPerformance', () => {
     });
   });
 
+  it('leitet den Verein kommender Spieltage aus den Paarungen ab', async () => {
+    // Kommende Spieltage tragen kein `pt`. Der eigene Verein steht in jeder Paarung.
+    stub({
+      it: [{
+        sid: '36',
+        ph: [
+          wireMatch(1, { p: 50 }),
+          wireMatch(2, { t1: '2', t2: '5', pt: undefined }),
+          wireMatch(3, { t1: '7', t2: '2', pt: undefined }),
+        ],
+      }],
+    });
+    const result = await new KickbaseClient('t').getPlayerPerformance('1', 'p1');
+    expect(result.seasons[0]?.matchdays[1]).toMatchObject({ teamId: '2', opponentId: '5', home: true });
+    expect(result.seasons[0]?.matchdays[2]).toMatchObject({ teamId: '2', opponentId: '7', home: false });
+  });
+
+  it('nimmt nach einem Wechsel den neuen Verein für die kommenden Spieltage', async () => {
+    stub({
+      it: [{
+        sid: '36',
+        ph: [
+          wireMatch(1, { p: 50 }),
+          wireMatch(2, { t1: '9', t2: '5', pt: undefined }),
+          wireMatch(3, { t1: '7', t2: '9', pt: undefined }),
+        ],
+      }],
+    });
+    const result = await new KickbaseClient('t').getPlayerPerformance('1', 'p1');
+    expect(result.seasons[0]?.matchdays[0]?.teamId).toBe('2');
+    expect(result.seasons[0]?.matchdays[1]).toMatchObject({ teamId: '9', opponentId: '5', home: true });
+  });
+
+  it('entscheidet bei einer einzigen offenen Paarung nach dem letzten bekannten Verein', async () => {
+    stub({ it: [{ sid: '36', ph: [wireMatch(33, { p: 50 }), wireMatch(34, { t1: '7', t2: '2', pt: undefined })] }] });
+    const result = await new KickbaseClient('t').getPlayerPerformance('1', 'p1');
+    expect(result.seasons[0]?.matchdays[1]).toMatchObject({ teamId: '2', opponentId: '7', home: false });
+  });
+
   it('zählt Tore, Eigentore und Vorlagen aus den Ereigniscodes', async () => {
     // 4 Gelb, 8 eingewechselt und 9 ausgewechselt zählen nicht mit.
     stub({ it: [{ sid: '35', ph: [wireMatch(1, { p: 250, k: [1, 3, 1, 9, 4] }), wireMatch(2, { p: -24, k: [8, 2] })] }] });

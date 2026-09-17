@@ -47,6 +47,7 @@ import type {
   WireMarketPlayer,
   WireMarketResponse,
   WireMatchSummary,
+  WirePerformanceMatch,
   WirePerformanceResponse,
   WirePerformanceSeason,
   WirePlayerDetails,
@@ -444,6 +445,25 @@ const EVENT_OWN_GOAL = 2;
 const EVENT_ASSIST = 3;
 
 /**
+ * Der Verein für Spieltage ohne `pt`. Kickbase führt `pt` nur an gespielten
+ * Spieltagen, die kommenden tragen nur die Paarung (gegen die echte API
+ * geprüft, 17.09.2026). Der eigene Verein ist der, der in allen diesen
+ * Paarungen vorkommt. Bei einer einzigen Paarung bleiben zwei übrig, dann
+ * entscheidet der zuletzt bekannte `pt`.
+ */
+function inferTeamId(matches: WirePerformanceMatch[]): string {
+  const open = matches.filter((match) => !match.pt && match.t1 && match.t2);
+  const first = open[0];
+  if (!first) return '';
+  const candidates = [first.t1 ?? '', first.t2 ?? ''].filter((id) =>
+    open.every((match) => match.t1 === id || match.t2 === id),
+  );
+  if (candidates.length === 1) return candidates[0] ?? '';
+  const lastKnown = [...matches].reverse().find((match) => match.pt)?.pt ?? '';
+  return candidates.includes(lastKnown) ? lastKnown : '';
+}
+
+/**
  * Eine Saison der Spielerhistorie. Spieltage ohne Nummer oder ohne beide
  * Vereine fallen weg: ohne sie lässt sich weder einordnen noch anzeigen.
  *
@@ -453,9 +473,10 @@ const EVENT_ASSIST = 3;
  */
 function toPerformanceSeason(wire: WirePerformanceSeason): PerformanceSeason {
   const matchdays: PerformanceMatchday[] = [];
+  const upcomingTeamId = inferTeamId(wire.ph ?? []);
   for (const match of wire.ph ?? []) {
     const day = match.day ?? 0;
-    const teamId = match.pt ?? '';
+    const teamId = match.pt || upcomingTeamId;
     if (day <= 0 || !match.t1 || !match.t2) continue;
     const isHome = match.t1 === teamId;
     const events = match.k ?? [];
