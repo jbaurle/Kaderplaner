@@ -986,6 +986,7 @@ export class PlanningPage {
         seasonId: this.state.performanceSeason,
         isLoading: this.state.performanceLoading === row.id,
         selectedDay: this.state.performanceDay,
+        teams: scores?.opponents.teams ?? {},
       },
       isOwned,
       lineup: (() => {

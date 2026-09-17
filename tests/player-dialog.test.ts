@@ -50,6 +50,7 @@ const EMPTY_PERFORMANCE: PerformanceView = {
   seasonId: null,
   isLoading: false,
   selectedDay: null,
+  teams: {},
 };
 
 function dialogInput(overrides: Partial<PlayerDialogInput> = {}): PlayerDialogInput {
@@ -175,6 +176,7 @@ describe('renderPlayerDialog: Tore und Vorlagen je Spieltag', () => {
       seasonId: '35',
       isLoading: false,
       selectedDay: null,
+      teams: {},
     };
   }
 
@@ -197,6 +199,16 @@ describe('renderPlayerDialog: Tore und Vorlagen je Spieltag', () => {
     // Der Stummel für Minuspunkte ist 4 px hoch, das Symbol steht 1 px darüber.
     expect(html).toContain('class="pd-perf-marks pd-perf-marks--top" style="bottom:5px"');
     expect(html).toContain('Spieltag 2, -24 Punkte, 1 Eigentor');
+  });
+
+  it('nennt den Verein am Wappen der Reihe, sobald die Tabelle da ist', () => {
+    const view = performanceWith([{ points: 100 }]);
+    const crest = '<img src="https://kickbase.b-cdn.net/pool/teams/2.png" alt=""';
+
+    expect(renderPlayerDialog(dialogInput({ performance: view }))).toContain(`${crest} width="16"`);
+
+    const named = { ...view, teams: { '2': { name: 'Bayern', position: 1 } } };
+    expect(renderPlayerDialog(dialogInput({ performance: named }))).toContain(`${crest} title="Bayern" width="16"`);
   });
 
   it('nennt in der Legende nur Symbole, die vorkommen', () => {

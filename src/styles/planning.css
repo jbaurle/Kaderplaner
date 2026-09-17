@@ -2760,7 +2760,7 @@ body.is-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 289px;
+  min-height: 293px;
   text-align: center;
 }
 
@@ -2808,8 +2808,8 @@ body.is-dialog-open {
 }
 
 .pd-perf-half-label img {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
 }
 

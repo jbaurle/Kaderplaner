@@ -28,6 +28,7 @@ import {
 } from '../compute/performance.js';
 import type { MarketListing, PositionLabel } from '../compute/planning.js';
 import type { MatchdayEntry, PlayerInsight } from '../compute/player-insight.js';
+import type { TeamInfo } from '../compute/score.js';
 import {
   escapeHtml,
   formatMio,
@@ -577,6 +578,8 @@ export interface PerformanceView {
   isLoading: boolean;
   /** Angetippter Spieltag, null wenn keiner. */
   selectedDay: number | null;
+  /** Vereine aus der Wettbewerbstabelle, für die Namen zu den Wappen. Leer vor dem Score-Lauf. */
+  teams: Record<string, TeamInfo>;
 }
 
 /**
@@ -620,7 +623,7 @@ function renderPerformance(view: PerformanceView): string {
     <section class="pd-section">
       <h3 class="pd-section-title">Punkte je Spieltag</h3>
       ${renderSeasonTabs(view)}
-      ${season ? renderSeason(season, view.selectedDay) : renderPerformanceEmpty(view)}
+      ${season ? renderSeason(season, view) : renderPerformanceEmpty(view)}
     </section>
   `;
 }
@@ -653,7 +656,7 @@ function perfPlaceholder(text: string): string {
   return `<p class="pd-empty pd-perf-empty">${text}</p>`;
 }
 
-function renderSeason(season: PerformanceSeason, selectedDay: number | null): string {
+function renderSeason(season: PerformanceSeason, view: PerformanceView): string {
   const stats = seasonStats(season);
   if (stats.played === 0) {
     // Ohne den Punkt am Ende: "28. Aug." trägt schon einen.
@@ -668,8 +671,8 @@ function renderSeason(season: PerformanceSeason, selectedDay: number | null): st
   return `
     ${renderSeasonStats(stats)}
     <div class="pd-perf-halves">
-      ${renderHalf(slots, 0, half, stats, selectedDay)}
-      ${renderHalf(slots, half, slots.length, stats, selectedDay)}
+      ${renderHalf(slots, 0, half, stats, view)}
+      ${renderHalf(slots, half, slots.length, stats, view)}
     </div>
     <p class="pd-legend pd-perf-legend">
       Ein Tipp auf einen Spieltag zeigt Ergebnis und Minuten. Graue Stummel
@@ -722,7 +725,7 @@ function renderHalf(
   from: number,
   to: number,
   stats: SeasonStats,
-  selectedDay: number | null,
+  view: PerformanceView,
 ): string {
   const part = slots.slice(from, to);
   const clubs = [
@@ -732,11 +735,16 @@ function renderHalf(
         .map((day) => day.teamId),
     ),
   ];
+  // Nur der Name, kein Tabellenplatz: der gälte für heute, nicht für die Saison der Reihe.
   const crests = clubs
-    .map((id) => `<img src="${escapeHtml(teamLogoUrl(id))}" alt="" width="12" height="12">`)
+    .map((id) => {
+      const name = view.teams[id]?.name;
+      const title = name ? ` title="${escapeHtml(name)}"` : '';
+      return `<img src="${escapeHtml(teamLogoUrl(id))}" alt=""${title} width="16" height="16">`;
+    })
     .join('');
   const columns = part
-    .map((day, index) => renderPerfColumn(day, slots[from + index - 1] ?? null, stats, selectedDay))
+    .map((day, index) => renderPerfColumn(day, slots[from + index - 1] ?? null, stats, view.selectedDay))
     .join('');
   return `
     <div>
