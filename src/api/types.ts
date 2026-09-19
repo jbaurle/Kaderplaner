@@ -531,8 +531,37 @@ export interface ManagerPerformance {
   seasons: ManagerSeason[];
 }
 
+/**
+ * Punkte, die ein Liga-Admin einem Manager abgezogen oder gutgeschrieben hat,
+ * aus `leagues/{id}/activitiesFeed`. Die Spieltagspunkte enthalten sie nicht,
+ * die Saisonsumme `tp` schon.
+ */
+export interface PointAdjustment {
+  managerId: string;
+  /** Mit Vorzeichen: negativ ist ein Abzug, positiv ein Bonus. */
+  amount: number;
+  /** Buchungszeit, ISO 8601. */
+  date: string;
+}
+
 export interface WireUserMeResponse {
   u?: { id?: string; name?: string };
+}
+
+export interface WireActivitiesResponse {
+  af?: WireActivity[];
+}
+
+/**
+ * Ein Eintrag im Liga-Feed. Gegen die echte API geprüft (19.09.2026): `t` 29
+ * ist eine Korrektur durch den Admin, darin `data.t` 2 für Punkte und 1 für
+ * Budget, `data.amt` der Betrag mit Vorzeichen, `data.i` der Manager.
+ */
+export interface WireActivity {
+  t?: number;
+  /** Buchungszeit, ISO 8601. */
+  dt?: string;
+  data?: { t?: number; amt?: number; i?: string };
 }
 
 export interface WireRankingResponse {

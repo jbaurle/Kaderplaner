@@ -24,8 +24,17 @@ function rank(id: string, name: string, points: number): ManagerRank {
   };
 }
 
-/** Eine Saison mit 34 Spieltagen, Punkte nur für die ersten Einträge. */
-function performance(id: string, points: number[], won: boolean[], withKickoff = true): ManagerPerformance {
+/**
+ * Eine Saison mit 34 Spieltagen, Punkte nur für die ersten Einträge. Die
+ * Saisonsumme enthält wie bei Kickbase die Korrekturen, die Spieltage nicht.
+ */
+function performance(
+  id: string,
+  points: number[],
+  won: boolean[],
+  withKickoff = true,
+  adjustment = 0,
+): ManagerPerformance {
   const matchdays = Array.from({ length: 34 }, (_, i) => ({
     day: i + 1,
     points: points[i] ?? 0,
@@ -37,7 +46,10 @@ function performance(id: string, points: number[], won: boolean[], withKickoff =
     managerName: id,
     seasons: [
       { id: '1', title: '2025/2026', place: 0, averagePoints: 0, totalPoints: 0, wins: 0, matchdays: [] },
-      { id: '2', title: '2026/2027', place: 0, averagePoints: 0, totalPoints: 0, wins: 0, matchdays },
+      {
+        id: '2', title: '2026/2027', place: 0, averagePoints: 0, wins: 0, matchdays,
+        totalPoints: points.reduce((sum, p) => sum + p, 0) + adjustment,
+      },
     ],
   };
 }
@@ -67,6 +79,7 @@ function input(overrides: Partial<BuildInput> = {}): BuildInput {
       c: performance('c', C, [false, false, false, true]),
     },
     userId: 'a',
+    adjustments: [],
     kickoffs: null,
     // Fünf Tage nach dem Anstoß von Spieltag 4: der ist durch.
     now: START + 3 * 7 * DAY_MS + 5 * DAY_MS,
@@ -258,6 +271,88 @@ describe('standingsBetween und rangesOf', () => {
       ['rueck', 18, 34],
     ]);
     expect(ranges.map((r) => r.played.length)).toEqual([4, 4, 0]);
+  });
+});
+
+describe('Punktkorrekturen', () => {
+  /** Einen Tag nach dem Anstoß von Spieltag `day`. */
+  const during = (day: number): string => new Date(START + (day - 1) * 7 * DAY_MS + DAY_MS).toISOString();
+
+  it('rechnet Gesamt aus den Spieltagen und der Korrektur, datiert aus dem Feed', () => {
+    const base = input();
+    const season = buildLeagueSeason({
+      ...base,
+      performances: { ...base.performances, c: performance('c', C, [], true, -100) },
+      adjustments: [{ managerId: 'c', amount: -100, date: during(3) }],
+    })!;
+    const cem = season.managers.find((m) => m.id === 'c')!;
+    expect(cem.adjustments).toEqual([{ amount: -100, date: during(3), day: 3 }]);
+    // Die Spieltage bleiben, wie Kickbase sie führt.
+    expect(cem.points).toEqual(C);
+
+    const rows = standings(season);
+    expect(rows.map((r) => [r.manager.id, r.total, r.adjustment])).toEqual([
+      ['b', 355, 0], ['a', 340, 0], ['c', 160, -100],
+    ]);
+    // Der Abzug zählt im Bereich seines Buchungstags, nicht davor.
+    expect(standingsBetween(season, 1, 2).find((r) => r.manager.id === 'c')).toMatchObject({ total: 130, adjustment: 0 });
+    expect(standingsBetween(season, 3, 4).find((r) => r.manager.id === 'c')).toMatchObject({ total: 30, adjustment: -100 });
+  });
+
+  it('summiert mehrere Buchungen, älteste zuerst', () => {
+    const base = input();
+    const season = buildLeagueSeason({
+      ...base,
+      performances: { ...base.performances, c: performance('c', C, [], true, -350) },
+      adjustments: [
+        { managerId: 'c', amount: 50, date: during(4) },
+        { managerId: 'c', amount: -100, date: during(2) },
+        { managerId: 'c', amount: -300, date: during(1) },
+      ],
+    })!;
+    const cem = season.managers.find((m) => m.id === 'c')!;
+    expect(cem.adjustments.map((a) => [a.amount, a.day])).toEqual([[-300, 1], [-100, 2], [50, 4]]);
+    expect(standings(season).find((r) => r.manager.id === 'c')).toMatchObject({ total: -90, adjustment: -350 });
+  });
+
+  it('führt, was der Feed nicht kennt, als Rest ohne Datum auf Spieltag 1', () => {
+    const base = input();
+    const season = buildLeagueSeason({
+      ...base,
+      performances: { ...base.performances, c: performance('c', C, [], true, -100) },
+    })!;
+    expect(season.managers.find((m) => m.id === 'c')!.adjustments).toEqual([{ amount: -100, date: '', day: 1 }]);
+  });
+
+  it('lässt Feed-Einträge der Vorsaison weg', () => {
+    const base = input();
+    const cem = performance('c', C, [], true, -100);
+    cem.seasons[0] = {
+      ...cem.seasons[0]!,
+      matchdays: [{ day: 34, points: 0, kickoff: new Date(START - 90 * DAY_MS).toISOString(), won: false }],
+    };
+    const season = buildLeagueSeason({
+      ...base,
+      performances: { ...base.performances, c: cem },
+      adjustments: [
+        { managerId: 'c', amount: -100, date: during(2) },
+        { managerId: 'c', amount: -50, date: new Date(START - 120 * DAY_MS).toISOString() },
+      ],
+    })!;
+    expect(season.managers.find((m) => m.id === 'c')!.adjustments).toEqual([{ amount: -100, date: during(2), day: 2 }]);
+  });
+
+  it('zählt in den Meilensteinen ab dem Buchungstag', () => {
+    // Ohne Abzug lag B nach ST 2, 3 und 4 vorn. Mit -100 an ST 2 bleibt A vorn.
+    const base = input();
+    const season = buildLeagueSeason({
+      ...base,
+      performances: { ...base.performances, b: performance('b', B, [], true, -100) },
+      adjustments: [{ managerId: 'b', amount: -100, date: during(2) }],
+    })!;
+    const stones = milestones(season)!;
+    expect(stones.longestOnTop.manager.id).toBe('a');
+    expect(stones.longestOnTop.days).toBe(4);
   });
 });
 

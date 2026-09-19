@@ -10,12 +10,13 @@
  * Die Ebene liegt wie die Aufstellung über dem Kaderplaner und hängt an
  * `document.body`. Anders als die Aufstellung holt sie ihre Daten selbst:
  * erst `ranking`, damit stehen Platz und Gesamttabelle sofort; dann je
- * Manager die Punkte je Spieltag, bis dahin steht ein Platzhalter. Beides
- * liegt danach eine Stunde im Cache, siehe `state/stats.ts`.
+ * Manager die Punkte je Spieltag und dazu die Punktkorrekturen der Admins,
+ * bis dahin steht ein Platzhalter. Alles liegt danach eine Stunde im Cache,
+ * siehe `state/stats.ts`.
  */
 
 import { KickbaseClient, KickbaseError } from '../api/kickbase.js';
-import type { LeagueId, LeagueRanking, ManagerPerformance } from '../api/types.js';
+import type { LeagueId, LeagueRanking, ManagerPerformance, PointAdjustment } from '../api/types.js';
 import {
   buildLeagueSeason,
   dayStandings,
@@ -30,7 +31,9 @@ import {
   type DayRange,
   type LeagueSeason,
   type RangeKey,
+  type SeasonAdjustment,
   type SeasonManager,
+  type StandingRow,
 } from '../compute/stats.js';
 import { isFresh, loadStats, saveStats } from '../state/stats.js';
 import { escapeHtml, managerImageUrl } from './format.js';
@@ -55,6 +58,10 @@ const TABS: readonly { key: StatsTab; label: string }[] = [
 
 const NUMBER = new Intl.NumberFormat('de-DE');
 const num = (value: number): string => NUMBER.format(value);
+const signed = (value: number): string => (value > 0 ? '+' : '-') + num(Math.abs(value));
+const DATE = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Berlin',
+});
 
 export class StatsPage {
   private readonly props: StatsPageProps;
@@ -76,6 +83,7 @@ export class StatsPage {
   private userId = '';
   private ranking: LeagueRanking | null = null;
   private performances: Record<string, ManagerPerformance> = {};
+  private adjustments: PointAdjustment[] = [];
   private season: LeagueSeason | null = null;
   private loading = false;
   private error: string | null = null;
@@ -114,6 +122,7 @@ export class StatsPage {
     this.userId = entry.userId;
     this.ranking = entry.ranking;
     this.performances = entry.performances;
+    this.adjustments = entry.adjustments;
     this.rebuild();
     return isFresh(entry);
   }
@@ -124,6 +133,7 @@ export class StatsPage {
           ranking: this.ranking,
           performances: this.performances,
           userId: this.userId,
+          adjustments: this.adjustments,
           kickoffs: this.props.kickoffs,
           now: Date.now(),
         })
@@ -146,9 +156,12 @@ export class StatsPage {
       this.ranking = ranking;
       this.render();
 
-      const list = await Promise.all(
-        ranking.managers.map((m) => client.getManagerPerformance(leagueId, m.id)),
-      );
+      // Ohne Feed stehen die Korrekturen trotzdem in Gesamt, nur ohne Datum;
+      // deshalb hält ein Fehler dort die Statistik nicht auf.
+      const [list, adjustments] = await Promise.all([
+        Promise.all(ranking.managers.map((m) => client.getManagerPerformance(leagueId, m.id))),
+        client.getPointAdjustments(leagueId).catch((): PointAdjustment[] => []),
+      ]);
       if (this.closed) return;
       const performances: Record<string, ManagerPerformance> = {};
       ranking.managers.forEach((m, i) => {
@@ -156,7 +169,8 @@ export class StatsPage {
         if (performance) performances[m.id] = performance;
       });
       this.performances = performances;
-      saveStats(leagueId, { userId, ranking, performances });
+      this.adjustments = adjustments;
+      saveStats(leagueId, { userId, ranking, performances, adjustments });
       this.rebuild();
     } catch (cause) {
       if (cause instanceof KickbaseError && cause.isUnauthorized) {
@@ -361,6 +375,7 @@ export class StatsPage {
       ${renderRangeTabs(ranges, current.key)}
       ${sectionHead(title, `Saison ${escapeHtml(season.title)}`)}
       ${matrix(season, current)}
+      ${adjustmentNotes(standingsBetween(season, current.from, current.to), current)}
       ${note}
     `;
   }
@@ -428,8 +443,57 @@ function avatar(manager: { name: string; imagePath: string }, extra = ''): strin
                data-name="${escapeHtml(manager.name)}" alt="" loading="lazy" decoding="async">`;
 }
 
-function managerCell(manager: { name: string; imagePath: string }): string {
-  return `<span class="st-manager">${avatar(manager)}<span class="st-name">${escapeHtml(manager.name)}</span></span>`;
+function managerCell(manager: { name: string; imagePath: string }, adjustment = 0): string {
+  const badge = adjustment
+    ? adjustBadge(adjustment, ' title="Korrektur durch den Liga-Admin, in Gesamt enthalten"')
+    : '';
+  return `<span class="st-manager">${avatar(manager)}<span class="st-name">${escapeHtml(manager.name)}</span>${badge}</span>`;
+}
+
+/** Rote Marke für einen Abzug, grüne für einen Bonus. */
+function adjustBadge(amount: number, attrs = ''): string {
+  return `<span class="st-adjust st-adjust--${amount < 0 ? 'minus' : 'plus'}"${attrs}>${signed(amount)}</span>`;
+}
+
+/**
+ * Je Manager mit Korrektur im Bereich eine Zeile unter der Tabelle: die
+ * Summe als Marke, dann die Buchungen mit Datum. Sie erklärt, warum Gesamt
+ * nicht die Summe der Spieltage ist. Heben sich Abzug und Bonus auf, fehlt
+ * die Marke, die Buchungen stehen trotzdem da.
+ */
+function adjustmentNotes(rows: StandingRow[], range: DayRange): string {
+  const entries: SeasonAdjustment[] = [];
+  const lines = rows.flatMap((row) => {
+    const booked = row.manager.adjustments.filter((a) => a.day >= range.from && a.day <= range.to);
+    if (booked.length === 0) return [];
+    entries.push(...booked);
+    const badge = row.adjustment ? `${adjustBadge(row.adjustment)} ` : '';
+    return [`${badge}${escapeHtml(row.manager.name)}: ${describeAdjustments(booked)}.`];
+  });
+  if (lines.length === 0) return '';
+  const minus = entries.filter((a) => a.amount < 0).length;
+  const plus = entries.length - minus;
+  const what = plus === 0
+    ? minus === 1 ? 'den Abzug' : 'die Abzüge'
+    : minus === 0
+      ? plus === 1 ? 'den Bonus' : 'die Boni'
+      : 'Abzüge und Boni';
+  lines[lines.length - 1] += ` Gesamt enthält ${what}, die Spieltage nicht.`;
+  return lines.map((line) => `<p class="st-note">${line}</p>`).join('');
+}
+
+/** "300 Punkte abgezogen am 19.09.2026", bei mehreren "-300 am 19.09.2026, +50 am …". */
+function describeAdjustments(booked: SeasonAdjustment[]): string {
+  const when = (a: SeasonAdjustment): string => (a.date ? ` am ${DATE.format(new Date(a.date))}` : '');
+  const only = booked.length === 1 ? booked[0] : undefined;
+  if (only) {
+    const size = Math.abs(only.amount);
+    const text = only.amount < 0
+      ? `${num(size)} ${size === 1 ? 'Punkt' : 'Punkte'} abgezogen`
+      : `${num(size)} ${size === 1 ? 'Bonuspunkt' : 'Bonuspunkte'}`;
+    return text + when(only);
+  }
+  return booked.map((a) => `${signed(a.amount)}${a.date ? when(a) : ' ohne Datum'}`).join(', ');
 }
 
 function hero(
@@ -722,7 +786,7 @@ function matrix(season: LeagueSeason, range: DayRange): string {
       : '';
     return `
       <tr class="${row.manager.isMe ? 'is-me' : ''}">
-        <td class="st-col-name">${managerCell(row.manager)}</td>
+        <td class="st-col-name">${managerCell(row.manager, row.adjustment)}</td>
         <td class="st-col-total${withDiff ? '' : ' st-col-fixed-end'}">${num(row.total)}</td>
         ${diff}
         ${cells}

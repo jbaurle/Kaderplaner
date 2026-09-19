@@ -32,11 +32,14 @@ import type {
   PlayerDetails,
   PlayerPerformance,
   PlayerId,
+  PointAdjustment,
   PositionCode,
   SquadPlayer,
   SquadResult,
   TeamRow,
   UserInfo,
+  WireActivitiesResponse,
+  WireActivity,
   WireBudgetResponse,
   WireCompetitionMatchdays,
   WireCompetitionTable,
@@ -295,6 +298,18 @@ export class KickbaseClient {
     };
   }
 
+  /**
+   * Punktabzüge und Boni, die ein Liga-Admin gebucht hat, neueste zuerst.
+   * Gegen die echte API geprüft (19.09.2026): `filter=29` liefert nur diese
+   * Einträge. Korrekturen am Budget fallen hier weg.
+   */
+  async getPointAdjustments(leagueId: LeagueId): Promise<PointAdjustment[]> {
+    const wire = await this.request<WireActivitiesResponse>(
+      `leagues/${leagueId}/activitiesFeed?max=${ADJUSTMENT_MAX}&filter=${ACTIVITY_ADJUSTMENT}`,
+    );
+    return (wire.af ?? []).flatMap(toPointAdjustment);
+  }
+
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, authenticated = true } = options;
     const headers: Record<string, string> = { Accept: 'application/json' };
@@ -528,6 +543,19 @@ function toManagerRank(wire: WireRankingUser): ManagerRank {
     dayPlace: wire.mdpl ?? 0,
     teamValue: wire.tv ?? 0,
   };
+}
+
+/** Feed-Eintrag für eine Korrektur durch den Admin; `data.t` 2 heißt Punkte. */
+const ACTIVITY_ADJUSTMENT = 29;
+const ADJUSTMENT_POINTS = 2;
+/** Mehr Korrekturen in einer Saison sind nicht zu erwarten. */
+const ADJUSTMENT_MAX = 100;
+
+function toPointAdjustment(wire: WireActivity): PointAdjustment[] {
+  const data = wire.data;
+  if (wire.t !== ACTIVITY_ADJUSTMENT || data?.t !== ADJUSTMENT_POINTS) return [];
+  if (!data.i || !data.amt) return [];
+  return [{ managerId: data.i, amount: data.amt, date: wire.dt ?? '' }];
 }
 
 /** Spieltage ohne Nummer fallen weg, ohne sie lässt sich nichts einordnen. */

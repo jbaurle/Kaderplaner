@@ -148,6 +148,32 @@ body.is-stats-open {
   font-weight: 700;
 }
 
+/*
+ * Punktkorrektur der Admins, am Namen in der Tabelle und in der Zeile
+ * darunter. Dieselbe Pille wie `.st-flag`: rot für einen Abzug, grün für
+ * einen Bonus.
+ */
+.st-adjust {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-adjust--minus {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.st-adjust--plus {
+  background: var(--action-bg);
+  color: var(--success);
+}
+
 .st-placeholder {
   margin: 0;
   padding: 22px 12px;

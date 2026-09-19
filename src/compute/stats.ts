@@ -6,7 +6,7 @@
  * Kein DOM, kein Netz. Alles kommt als Eingabe herein.
  */
 
-import type { LeagueRanking, ManagerPerformance, ManagerSeason } from '../api/types.js';
+import type { LeagueRanking, ManagerPerformance, ManagerSeason, PointAdjustment } from '../api/types.js';
 import { LIVE_BUFFER_MS } from './performance.js';
 
 /** Wie viele Spieltage eine Saison hat, solange die Daten nichts anderes sagen. */
@@ -32,6 +32,20 @@ export interface SeasonManager {
   points: number[];
   /** Spieltagssieg laut Kickbase, gleiche Länge wie `points`. */
   won: boolean[];
+  /**
+   * Punktabzüge und Boni der Admins, älteste zuerst. Die Spieltagspunkte
+   * enthalten sie nicht, die Tabellenstände schon.
+   */
+  adjustments: SeasonAdjustment[];
+}
+
+export interface SeasonAdjustment {
+  /** Mit Vorzeichen: negativ ist ein Abzug, positiv ein Bonus. */
+  amount: number;
+  /** Buchungszeit, ISO 8601. Leer, wenn der Feed den Eintrag nicht führt. */
+  date: string;
+  /** Der Spieltag, in den die Buchung fiel. Ohne Datum Spieltag 1, wie bei Kickbase. */
+  day: number;
 }
 
 export interface LeagueSeason {
@@ -53,6 +67,8 @@ export interface BuildInput {
   performances: Record<string, ManagerPerformance>;
   /** Eigene Nutzer-Id, markiert `isMe`. */
   userId: string;
+  /** Punktkorrekturen aller Manager aus dem Liga-Feed. */
+  adjustments: PointAdjustment[];
   /** Anstoß je Verein und Spieltag aus dem Spielplan, null ohne Score-Lauf. */
   kickoffs: Record<string, Record<number, string>> | null;
   now: number;
@@ -78,12 +94,16 @@ function timestamp(iso: string): number {
  */
 export function buildLeagueSeason(input: BuildInput): LeagueSeason | null {
   const { ranking, performances, userId, kickoffs, now } = input;
-  const seasons: { rank: LeagueRanking['managers'][number]; season: ManagerSeason }[] = [];
+  const seasons: {
+    rank: LeagueRanking['managers'][number];
+    season: ManagerSeason;
+    previous: ManagerSeason | null;
+  }[] = [];
   for (const rank of ranking.managers) {
     const performance = performances[rank.id];
     const season = performance ? currentSeason(performance) : null;
-    if (!season) return null;
-    seasons.push({ rank, season });
+    if (!performance || !season) return null;
+    seasons.push({ rank, season, previous: performance.seasons[performance.seasons.length - 2] ?? null });
   }
   if (seasons.length === 0) return null;
 
@@ -116,7 +136,17 @@ export function buildLeagueSeason(input: BuildInput): LeagueSeason | null {
     }
   }
 
-  const managers: SeasonManager[] = seasons.map(({ rank, season }) => {
+  // Der Spieltag, der zu einem Zeitpunkt lief: der letzte mit Anstoß davor.
+  const dayAt = (time: number): number => {
+    let found = 1;
+    for (let day = 1; day <= dayCount; day++) {
+      const kickoff = firstKickoff(day);
+      if (!Number.isNaN(kickoff) && kickoff <= time) found = day;
+    }
+    return found;
+  };
+
+  const managers: SeasonManager[] = seasons.map(({ rank, season, previous }) => {
     const points: number[] = [];
     const won: boolean[] = [];
     for (let day = 1; day <= playedDays; day++) {
@@ -131,10 +161,49 @@ export function buildLeagueSeason(input: BuildInput): LeagueSeason | null {
       isMe: rank.id === userId,
       points,
       won,
+      adjustments: adjustmentsOf(
+        season,
+        previous,
+        input.adjustments.filter((a) => a.managerId === rank.id),
+        dayAt,
+      ),
     };
   });
 
   return { title: first.title, dayCount, playedDays, openDay, managers };
+}
+
+/**
+ * Die Korrekturen eines Managers in dieser Saison. Die Summe steht in der
+ * Historie: `totalPoints` enthält sie, die Spieltage nicht (gegen die echte
+ * API geprüft, 19.09.2026). Der Feed liefert Datum und Einzelbeträge. Was er
+ * nicht führt, bleibt als Rest ohne Datum stehen. Einträge bis zum letzten
+ * Anstoß der Vorsaison gehören noch zu der.
+ */
+function adjustmentsOf(
+  season: ManagerSeason,
+  previous: ManagerSeason | null,
+  booked: PointAdjustment[],
+  dayAt: (time: number) => number,
+): SeasonAdjustment[] {
+  const net = season.totalPoints - season.matchdays.reduce((sum, d) => sum + d.points, 0);
+  const since = Math.max(
+    Number.NEGATIVE_INFINITY,
+    ...(previous?.matchdays ?? []).map((d) => timestamp(d.kickoff)).filter((t) => !Number.isNaN(t)),
+  );
+  const list = booked
+    .map((a) => ({ ...a, time: timestamp(a.date) }))
+    .filter((a) => !Number.isNaN(a.time) && a.time > since)
+    .sort((a, b) => a.time - b.time)
+    .map((a) => ({ amount: a.amount, date: a.date, day: dayAt(a.time) }));
+  const rest = net - list.reduce((sum, a) => sum + a.amount, 0);
+  if (rest !== 0) list.unshift({ amount: rest, date: '', day: 1 });
+  return list;
+}
+
+/** Summe der Korrekturen, die in die Spieltage `from` bis `to` fielen. */
+function adjustmentBetween(manager: SeasonManager, from: number, to: number): number {
+  return manager.adjustments.reduce((sum, a) => (a.day >= from && a.day <= to ? sum + a.amount : sum), 0);
 }
 
 /** Der späteste Anstoß eines Spieltags über alle Vereine, null ohne Spielplan. */
@@ -156,7 +225,10 @@ function lastKickoff(
 
 export interface StandingRow {
   manager: SeasonManager;
+  /** Mit den Korrekturen des Bereichs. */
   total: number;
+  /** Summe der Korrekturen im Bereich, in `total` schon enthalten. */
+  adjustment: number;
   /** Spieltagssiege, der offene Spieltag zählt noch nicht. */
   wins: number;
   /** Punkte je Spieltag, gerundet. */
@@ -171,7 +243,8 @@ export function standings(season: LeagueSeason, upTo = season.playedDays): Stand
 /**
  * Stand über die Spieltage `from` bis `to` (1-basiert, beide dabei), soweit
  * sie gespielt sind. Führender zuerst. Damit rechnet die Tabelle Gesamt,
- * Hinrunde und Rückrunde mit einer Funktion.
+ * Hinrunde und Rückrunde mit einer Funktion. Korrekturen zählen in dem
+ * Bereich, in den ihr Buchungstag fällt.
  */
 export function standingsBetween(season: LeagueSeason, from: number, to: number): StandingRow[] {
   const first = Math.max(1, from);
@@ -194,9 +267,11 @@ export function standingsBetween(season: LeagueSeason, from: number, to: number)
       settledDays++;
       if (manager.won[day - 1]) wins++;
     }
+    const adjustment = adjustmentBetween(manager, first, last);
     return {
       manager,
-      total,
+      total: total + adjustment,
+      adjustment,
       wins,
       average: settledDays > 0 ? Math.round(settledTotal / settledDays) : 0,
     };
@@ -359,7 +434,9 @@ export function milestones(season: LeagueSeason): Milestones | null {
   const daysOnTop = season.managers.map(() => 0);
   const places = season.managers.map(() => [] as number[]);
   for (const i of counted) {
-    season.managers.forEach((m, index) => { running[index] = (running[index] ?? 0) + (m.points[i] ?? 0); });
+    season.managers.forEach((m, index) => {
+      running[index] = (running[index] ?? 0) + (m.points[i] ?? 0) + adjustmentBetween(m, i + 1, i + 1);
+    });
     const order = running.map((total, index) => ({ index, total })).sort((a, b) => b.total - a.total);
     daysOnTop[order[0]!.index] = (daysOnTop[order[0]!.index] ?? 0) + 1;
     order.forEach((entry, place) => places[entry.index]!.push(place + 1));

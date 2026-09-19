@@ -1,6 +1,7 @@
 /**
  * Cache der Manager-Rangliste, je Liga ein Eintrag: die Liste aus `ranking`,
- * die Punkte je Spieltag aller Manager und die eigene Nutzer-Id.
+ * die Punkte je Spieltag aller Manager, die Punktkorrekturen der Admins und
+ * die eigene Nutzer-Id.
  *
  * Ohne Cache gingen bei jedem Öffnen der Statistik eine Anfrage für die Liste
  * und eine je Manager raus. Eine Stunde reicht: Punkte ändern sich nur
@@ -8,11 +9,12 @@
  * hinterher sein; wer es genau wissen will, lädt neu.
  */
 
-import type { LeagueId, LeagueRanking, ManagerPerformance } from '../api/types.js';
+import type { LeagueId, LeagueRanking, ManagerPerformance, PointAdjustment } from '../api/types.js';
 import * as storage from '../storage/local.js';
 
 // v1: erste Fassung.
-export const STATS_SCHEMA_VERSION = 1;
+// v2: Punktkorrekturen aus dem Liga-Feed.
+export const STATS_SCHEMA_VERSION = 2;
 
 export const MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -25,6 +27,8 @@ export interface StatsCacheEntry {
   ranking: LeagueRanking;
   /** Je Manager-Id die Punkte je Spieltag. */
   performances: Record<string, ManagerPerformance>;
+  /** Punktabzüge und Boni der Liga-Admins, neueste zuerst. */
+  adjustments: PointAdjustment[];
 }
 
 function key(leagueId: LeagueId): string {
@@ -38,6 +42,7 @@ export function loadStats(leagueId: LeagueId): StatsCacheEntry | null {
   if (typeof raw.savedAt !== 'number' || typeof raw.userId !== 'string') return null;
   if (!raw.ranking || !Array.isArray(raw.ranking.managers)) return null;
   if (!raw.performances || typeof raw.performances !== 'object') return null;
+  if (!Array.isArray(raw.adjustments)) return null;
   return raw;
 }
 

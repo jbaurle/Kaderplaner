@@ -6,7 +6,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { KickbaseError, type KickbaseClient } from '../src/api/kickbase.js';
-import type { LeagueRanking, ManagerPerformance } from '../src/api/types.js';
+import type { LeagueRanking, ManagerPerformance, PointAdjustment } from '../src/api/types.js';
 import { loadStats, saveStats } from '../src/state/stats.js';
 import { StatsPage } from '../src/ui/stats-page.js';
 
@@ -33,7 +33,8 @@ function performance(id: string, points: number[], start = START): ManagerPerfor
     managerId: id,
     managerName: id,
     seasons: [{
-      id: '2', title: '2026/2027', place: 0, averagePoints: 0, totalPoints: 0, wins: 0,
+      id: '2', title: '2026/2027', place: 0, averagePoints: 0, wins: 0,
+      totalPoints: points.reduce((sum, p) => sum + p, 0),
       matchdays: Array.from({ length: 34 }, (_, i) => ({
         day: i + 1, points: points[i] ?? 0, kickoff: kickoffOf(i + 1, start), won: false,
       })),
@@ -51,6 +52,7 @@ function fakeClient() {
     getMe: vi.fn().mockResolvedValue({ id: 'a', name: 'Anna' }),
     getLeagueRanking: vi.fn().mockResolvedValue(RANKING),
     getManagerPerformance: vi.fn((_league: string, id: string) => Promise.resolve(PERFORMANCES[id])),
+    getPointAdjustments: vi.fn((): Promise<PointAdjustment[]> => Promise.resolve([])),
   };
 }
 
@@ -99,16 +101,18 @@ describe('StatsPage: Daten', () => {
     expect(client.getMe).toHaveBeenCalledTimes(1);
     expect(client.getLeagueRanking).toHaveBeenCalledWith('L1');
     expect(client.getManagerPerformance).toHaveBeenCalledTimes(2);
+    expect(client.getPointAdjustments).toHaveBeenCalledWith('L1');
     expect(layer.querySelector('.st-place')?.textContent).toContain('2.');
     expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
 
     const cached = loadStats('L1');
     expect(cached?.userId).toBe('a');
     expect(Object.keys(cached?.performances ?? {})).toEqual(['a', 'b']);
+    expect(cached?.adjustments).toEqual([]);
   });
 
   it('zeigt einen frischen Cache ohne eine einzige Anfrage', async () => {
-    saveStats('L1', { userId: 'a', ranking: RANKING, performances: PERFORMANCES });
+    saveStats('L1', { userId: 'a', ranking: RANKING, performances: PERFORMANCES, adjustments: [] });
     const { layer, client } = open();
     await settle();
     expect(client.getLeagueRanking).not.toHaveBeenCalled();
@@ -116,7 +120,11 @@ describe('StatsPage: Daten', () => {
   });
 
   it('holt einen alten Cache neu, zeigt ihn aber solange', async () => {
-    saveStats('L1', { userId: 'a', ranking: RANKING, performances: PERFORMANCES }, Date.now() - 2 * 60 * 60 * 1000);
+    saveStats(
+      'L1',
+      { userId: 'a', ranking: RANKING, performances: PERFORMANCES, adjustments: [] },
+      Date.now() - 2 * 60 * 60 * 1000,
+    );
     const { layer, client } = open();
     expect(layer.querySelectorAll('.st-mine')).toHaveLength(4);
     await settle();
@@ -417,6 +425,72 @@ describe('StatsPage: angetippter Spieltag', () => {
     click(layer, '.st-day--live');
     expect(layer.querySelector('.st-co-head')?.textContent?.replace(/\s+/g, ' ')).toContain('läuft noch');
     expect(layer.querySelector('.st-co-place--first')).toBeNull();
+  });
+});
+
+describe('StatsPage: Punktkorrekturen', () => {
+  const DATE = new Intl.DateTimeFormat('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Berlin',
+  });
+  /** Einen Tag nach dem Anstoß von Spieltag `day`. */
+  const during = (day: number): string => new Date(Date.parse(kickoffOf(day)) + DAY_MS).toISOString();
+  const squash = (text: string | null | undefined): string => (text ?? '').replace(/\s+/g, ' ').trim();
+
+  /** Anna mit Saisonsumme `net` neben der Summe ihrer Spieltage, dazu der Feed. */
+  function withAdjustments(net: number, feed: PointAdjustment[]) {
+    const client = fakeClient();
+    const anna = performance('a', [100, 50, 120, 70]);
+    anna.seasons[0]!.totalPoints += net;
+    const all: Record<string, ManagerPerformance> = { ...PERFORMANCES, a: anna };
+    client.getManagerPerformance.mockImplementation((_l: string, id: string) => Promise.resolve(all[id]));
+    client.getPointAdjustments.mockResolvedValue(feed);
+    return client;
+  }
+
+  it('zieht den Abzug von Gesamt ab, markiert den Namen und nennt die Buchung', async () => {
+    const date = during(3);
+    const { layer } = open(withAdjustments(-300, [{ managerId: 'a', amount: -300, date }]));
+    await settle();
+    // Der Kopf im Tab Ich rechnet schon mit dem Abzug: 340 - 300.
+    expect(layer.querySelector('.st-hero-main b')?.textContent).toBe('40 Punkte');
+
+    click(layer, '[data-tab="tabelle"]');
+    expect(texts(layer, '.st-matrix tbody tr:last-child .st-col-total')).toEqual(['40']);
+    expect(texts(layer, '.st-matrix tbody tr:last-child .st-adjust--minus')).toEqual(['-300']);
+    expect(layer.querySelectorAll('.st-matrix .st-adjust')).toHaveLength(1);
+    const note = layer.querySelector('.st-matrix-scroll + .st-note');
+    expect(squash(note?.textContent)).toBe(
+      `-300 Anna: 300 Punkte abgezogen am ${DATE.format(new Date(date))}. Gesamt enthält den Abzug, die Spieltage nicht.`,
+    );
+  });
+
+  it('heben sich Abzug und Bonus auf, fehlt die Marke, die Buchungen stehen da', async () => {
+    const minus = during(1);
+    const plus = during(2);
+    const { layer } = open(withAdjustments(0, [
+      { managerId: 'a', amount: 100, date: plus },
+      { managerId: 'a', amount: -100, date: minus },
+    ]));
+    await settle();
+    click(layer, '[data-tab="tabelle"]');
+    expect(layer.querySelector('.st-matrix .st-adjust')).toBeNull();
+    expect(texts(layer, '.st-matrix tbody tr:last-child .st-col-total')).toEqual(['340']);
+    expect(squash(layer.querySelector('.st-matrix-scroll + .st-note')?.textContent)).toBe(
+      `Anna: -100 am ${DATE.format(new Date(minus))}, +100 am ${DATE.format(new Date(plus))}.` +
+        ' Gesamt enthält Abzüge und Boni, die Spieltage nicht.',
+    );
+  });
+
+  it('ohne Feed steht der Abzug trotzdem in Gesamt, nur ohne Datum', async () => {
+    const client = withAdjustments(-300, []);
+    client.getPointAdjustments.mockRejectedValue(new KickbaseError(500, 'kaputt'));
+    const { layer } = open(client);
+    await settle();
+    click(layer, '[data-tab="tabelle"]');
+    expect(texts(layer, '.st-matrix tbody tr:last-child .st-col-total')).toEqual(['40']);
+    expect(squash(layer.querySelector('.st-matrix-scroll + .st-note')?.textContent)).toBe(
+      '-300 Anna: 300 Punkte abgezogen. Gesamt enthält den Abzug, die Spieltage nicht.',
+    );
   });
 });
 

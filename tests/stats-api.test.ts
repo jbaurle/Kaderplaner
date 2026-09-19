@@ -1,7 +1,8 @@
 /**
- * Die drei Endpunkte der Statistik, gegen die Feldnamen der echten API
+ * Die Endpunkte der Statistik, gegen die Feldnamen der echten API
  * (Stand 03.09.2026): `user/me`, `leagues/{id}/ranking` und
- * `leagues/{id}/managers/{uid}/performance`.
+ * `leagues/{id}/managers/{uid}/performance`; dazu seit 19.09.2026
+ * `leagues/{id}/activitiesFeed` für die Punktkorrekturen.
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -85,5 +86,18 @@ describe('KickbaseClient: Statistik', () => {
       { day: 1, points: 1473, kickoff: '2026-08-28T18:30:00Z', won: true },
       { day: 2, points: 0, kickoff: '2026-09-04T18:30:00Z', won: false },
     ]);
+  });
+
+  it('getPointAdjustments liest nur Punktkorrekturen aus dem Feed', async () => {
+    const { urls } = stubFetch({
+      af: [
+        { t: 29, dt: '2026-09-19T06:11:07Z', data: { t: 1, adt: 2, amt: -10000000, i: '3614536', n: 'LunaFc1909' } },
+        { t: 29, dt: '2026-09-19T06:10:34Z', data: { t: 2, adt: 2, amt: -300, i: '3614536', n: 'LunaFc1909' } },
+        { t: 15, dt: '2026-09-18T10:00:00Z', data: { t: 2, amt: 5, i: 'x' } },
+      ],
+    });
+    const adjustments = await new KickbaseClient('tok').getPointAdjustments('1909854');
+    expect(urls[0]).toBe('https://api.kickbase.com/v4/leagues/1909854/activitiesFeed?max=100&filter=29');
+    expect(adjustments).toEqual([{ managerId: '3614536', amount: -300, date: '2026-09-19T06:10:34Z' }]);
   });
 });
