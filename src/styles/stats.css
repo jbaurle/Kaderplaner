@@ -1020,6 +1020,11 @@ body.is-stats-open {
   color: var(--success);
 }
 
+/* Die Ich-Zeile setzt ihre Schriftfarbe für alle Zellen, der eigene Sieg bleibt grün. */
+.st-matrix tbody tr.is-me td.st-cell-win {
+  color: var(--success);
+}
+
 .st-cell-open {
   color: var(--warning-text);
   font-style: italic;
