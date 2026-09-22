@@ -207,7 +207,7 @@ describe('renderPlayerDialog: Tore und Vorlagen je Spieltag', () => {
 
     expect(renderPlayerDialog(dialogInput({ performance: view }))).toContain(`${crest} width="16"`);
 
-    const named = { ...view, teams: { '2': { name: 'Bayern', position: 1 } } };
+    const named = { ...view, teams: { '2': { name: 'Bayern', position: 1, points: 10 } } };
     expect(renderPlayerDialog(dialogInput({ performance: named }))).toContain(`${crest} title="Bayern" width="16"`);
   });
 

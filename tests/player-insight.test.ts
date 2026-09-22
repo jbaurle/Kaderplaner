@@ -149,8 +149,8 @@ describe('computeLineupEffect', () => {
 
 describe('buildMatchdays', () => {
   const teams = {
-    '9': { name: 'Stuttgart', position: 17 },
-    '10': { name: 'Bremen', position: 3 },
+    '9': { name: 'Stuttgart', position: 17, points: 10 },
+    '10': { name: 'Bremen', position: 3, points: 50 },
   };
 
   const matchSummary: MatchSummary[] = [
@@ -359,7 +359,7 @@ describe('buildMatchdays', () => {
 
   it('hängt die kommenden Ansetzungen mit Einschätzung hinten an', () => {
     const days = buildMatchdays(input({
-      teams,
+      teams: { ...teams, '2': { name: 'Mainz', position: 9, points: 30 } },
       teamCount: 18,
       fixtures: [
         { opponentId: '9', home: true, day: 1, kickoff: '2026-08-28T18:30:00Z' },
@@ -369,7 +369,7 @@ describe('buildMatchdays', () => {
 
     expect(days).toHaveLength(2);
     expect(days.every((day) => day.ahead)).toBe(true);
-    // Platz 17 von 18 ist ein schwacher Gegner, Platz 3 ein starker.
+    // Vom 9. aus ist der 17. ein schwächerer Gegner, der 3. ein stärkerer.
     expect(days[0]!.trend).toBe('up');
     expect(days[1]!.trend).toBe('down');
     expect(days[0]!.points).toBeNull();

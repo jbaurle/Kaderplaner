@@ -176,8 +176,9 @@ function gradeClass(value: number): string {
 
 /**
  * Dasselbe Zeichen wie in der Gegner-Spalte der Tabelle: hoch heißt
- * schwacher Gegner, runter heißt starker. Das Mittelfeld bekommt nichts:
- * ein Zeichen für "unentschieden zu bewerten" wäre nur ein Fleck am Wappen.
+ * schwächerer Gegner, runter heißt stärkerer. Ein Gegner auf Augenhöhe
+ * bekommt nichts: ein Zeichen für "unentschieden zu bewerten" wäre nur ein
+ * Fleck am Wappen.
  */
 function trendGlyph(entry: MatchdayEntry): string {
   if (entry.trend === 'up') return '&uarr;';
@@ -187,9 +188,9 @@ function trendGlyph(entry: MatchdayEntry): string {
 
 /** Für den Tooltip, dort steht der Klartext. */
 function trendLabel(entry: MatchdayEntry): string {
-  if (entry.trend === 'up') return 'schwacher Gegner';
-  if (entry.trend === 'down') return 'starker Gegner';
-  return 'Gegner im Mittelfeld';
+  if (entry.trend === 'up') return 'schwächerer Gegner';
+  if (entry.trend === 'down') return 'stärkerer Gegner';
+  return 'Gegner auf Augenhöhe';
 }
 
 function trendClass(entry: MatchdayEntry): string {
@@ -523,7 +524,7 @@ function renderMatchdays(insight: PlayerInsight): string {
         <span class="pd-half pd-half--ahead">${aheadCells}</span>
       </div>
       <p class="pd-legend">
-        H Heim, A auswärts.${ranked ? ' Pfeil hoch heißt schwacher Gegner, runter starker.' : ''}
+        H Heim, A auswärts.${ranked ? ' Pfeil hoch heißt schwächerer Gegner, runter stärkerer.' : ''}
       </p>
     </section>
   `;

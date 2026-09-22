@@ -8,7 +8,7 @@ import {
   buildFixtures,
   buildOpponents,
   buildTeamInfo,
-  trendOfPosition,
+  trendOfMatchup,
 } from '../src/compute/score.js';
 
 function match(overrides: Partial<CompetitionMatch> & { day: number }): CompetitionMatch {
@@ -81,7 +81,7 @@ describe('buildOpponents', () => {
     const view = buildOpponents(plan, table);
     expect(view.columns).toBe(2);
     expect(view.teamCount).toBe(18);
-    expect(view.teams['T1']).toEqual({ name: 'Verein 1', position: 1 });
+    expect(view.teams['T1']).toEqual({ name: 'Verein 1', position: 1, points: 50 });
   });
 
   it('bleibt ohne Ansetzung bei null Feldern', () => {
@@ -99,29 +99,43 @@ describe('buildOpponents', () => {
   });
 });
 
-describe('trendOfPosition', () => {
-  it('oben in der Tabelle heißt starker Gegner', () => {
-    expect(trendOfPosition(1, 18)).toBe('down');
-    expect(trendOfPosition(6, 18)).toBe('down');
+describe('trendOfMatchup', () => {
+  const team = (position: number, points: number) => ({ name: '', position, points });
+
+  it('ab 5 Plätzen und 3 Punkten besser heißt stärkerer Gegner', () => {
+    expect(trendOfMatchup(team(10, 20), team(5, 23), 18)).toBe('down');
+    expect(trendOfMatchup(team(18, 5), team(1, 40), 18)).toBe('down');
   });
 
-  it('unten in der Tabelle heißt schwacher Gegner', () => {
-    expect(trendOfPosition(13, 18)).toBe('up');
-    expect(trendOfPosition(18, 18)).toBe('up');
+  it('ab 5 Plätzen und 3 Punkten schlechter heißt schwächerer Gegner', () => {
+    expect(trendOfMatchup(team(5, 23), team(10, 20), 18)).toBe('up');
+    expect(trendOfMatchup(team(1, 40), team(18, 5), 18)).toBe('up');
   });
 
-  it('Mittelfeld bekommt keinen Pfeil', () => {
-    expect(trendOfPosition(9, 18)).toBe('flat');
+  it('unter 5 Plätzen Abstand bekommt keinen Pfeil, auch bei vielen Punkten', () => {
+    expect(trendOfMatchup(team(10, 20), team(6, 30), 18)).toBe('flat');
+    expect(trendOfMatchup(team(6, 30), team(10, 20), 18)).toBe('flat');
+  });
+
+  it('unter 3 Punkten Abstand bekommt keinen Pfeil, auch bei vielen Plätzen', () => {
+    expect(trendOfMatchup(team(10, 5), team(4, 7), 18)).toBe('flat');
+    expect(trendOfMatchup(team(4, 7), team(10, 5), 18)).toBe('flat');
+  });
+
+  it('zwei Vereine oben zeigen nicht beide nach unten', () => {
+    expect(trendOfMatchup(team(5, 7), team(6, 7), 18)).toBe('flat');
+    expect(trendOfMatchup(team(6, 7), team(5, 7), 18)).toBe('flat');
   });
 
   it('ohne Tabelle bleibt es neutral', () => {
-    expect(trendOfPosition(0, 18)).toBe('flat');
-    expect(trendOfPosition(5, 0)).toBe('flat');
+    expect(trendOfMatchup(undefined, team(5, 20), 18)).toBe('flat');
+    expect(trendOfMatchup(team(5, 20), team(0, 0), 18)).toBe('flat');
+    expect(trendOfMatchup(team(5, 20), team(10, 10), 0)).toBe('flat');
   });
 });
 
 describe('buildTeamInfo', () => {
-  it('bildet Verein auf Name und Platz ab', () => {
-    expect(buildTeamInfo(table)['T18']).toEqual({ name: 'Verein 18', position: 18 });
+  it('bildet Verein auf Name, Platz und Punkte ab', () => {
+    expect(buildTeamInfo(table)['T18']).toEqual({ name: 'Verein 18', position: 18, points: 33 });
   });
 });

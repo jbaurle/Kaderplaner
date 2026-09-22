@@ -36,9 +36,14 @@ import {
 
 // ---------- Gegner-Spalte ----------
 
-/** Grenzen für die Pfeile: obere und untere Drittel der Tabelle. */
-const ARROW_UP = 0.67;
-const ARROW_DOWN = 0.33;
+/** Ab diesem Abstand, als Anteil der Tabelle, gibt es einen Pfeil. Bei 18 Vereinen 5 Plätze. */
+const ARROW_GAP = 0.25;
+
+/**
+ * Dazu mindestens ein Sieg Abstand. Früh in der Saison liegen fünf Plätze oft
+ * nur einen Punkt auseinander, dann sagt der Platz nichts über das Duell.
+ */
+const ARROW_MIN_POINTS = 3;
 
 export type Trend = 'up' | 'flat' | 'down';
 
@@ -57,6 +62,7 @@ export interface TeamInfo {
   name: string;
   /** Tabellenplatz 1 bis 18. */
   position: number;
+  points: number;
 }
 
 /** Alles, was die Gegner-Spalte braucht. */
@@ -152,22 +158,24 @@ export function buildKickoffs(schedule: CompetitionMatchdays): Record<string, Re
   return out;
 }
 
-/** Tabellenplatz und Name je Verein, aus der Wettbewerbstabelle. */
+/** Name, Tabellenplatz und Punkte je Verein, aus der Wettbewerbstabelle. */
 export function buildTeamInfo(table: CompetitionTable): Record<string, TeamInfo> {
   const out: Record<string, TeamInfo> = {};
-  for (const t of table.teams) out[t.id] = { name: t.name, position: t.position };
+  for (const t of table.teams) out[t.id] = { name: t.name, position: t.position, points: t.points };
   return out;
 }
 
 /**
- * Tendenz allein aus dem Tabellenplatz. Dieselbe Rechnung wie im Optimizer
- * (`computeMatchup`), damit Pfeil und Score nicht auseinanderlaufen.
+ * Tendenz aus dem Abstand beider Vereine in der Tabelle, nach Plätzen und
+ * Punkten. Der Pfeil sagt, wer im Duell der Stärkere ist, deshalb zeigen nie
+ * beide Seiten nach unten.
  */
-export function trendOfPosition(position: number, teamCount: number): Trend {
-  if (!position || teamCount < 2) return 'flat';
-  const matchup = (position - 1) / (teamCount - 1);
-  if (matchup >= ARROW_UP) return 'up';
-  if (matchup <= ARROW_DOWN) return 'down';
+export function trendOfMatchup(own: TeamInfo | undefined, opponent: TeamInfo | undefined, teamCount: number): Trend {
+  if (!own?.position || !opponent?.position || teamCount < 2) return 'flat';
+  const gap = (opponent.position - own.position) / (teamCount - 1);
+  const points = own.points - opponent.points;
+  if (gap >= ARROW_GAP && points >= ARROW_MIN_POINTS) return 'up';
+  if (gap <= -ARROW_GAP && points <= -ARROW_MIN_POINTS) return 'down';
   return 'flat';
 }
 

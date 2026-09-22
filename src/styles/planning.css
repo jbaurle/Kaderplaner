@@ -1229,16 +1229,6 @@
   color: var(--error);
 }
 
-/* Mittelfeld: ein grauer Strich über den ganzen Pfeilplatz. */
-.opp-trend--flat {
-  display: block;
-  width: 9px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--text-muted);
-  opacity: 0.55;
-}
-
 /* ---------- Help entry points (footline + banner) ---------- */
 
 .help-dot {

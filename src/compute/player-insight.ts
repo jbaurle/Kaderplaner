@@ -13,7 +13,7 @@ import { countPositions } from './lineup.js';
 import { VALID_FORMATIONS } from './optimizer.js';
 import { isMatchLive, pickSeasons } from './performance.js';
 import type { PlanningRow, PositionLabel } from './planning.js';
-import { bestElevenWithout, trendOfPosition, type Fixture, type LineupInput, type TeamInfo, type Trend } from './score.js';
+import { bestElevenWithout, trendOfMatchup, type Fixture, type LineupInput, type TeamInfo, type Trend } from './score.js';
 import type { ScoreDetail } from './optimizer.js';
 
 /**
@@ -247,7 +247,7 @@ export function buildMatchdays(input: PlayerInsightInput): MatchdayEntry[] {
         opponentId: fixture.opponentId,
         opponentName: info?.name ?? null,
         opponentPosition: info?.position ?? 0,
-        trend: trendOfPosition(info?.position ?? 0, teamCount),
+        trend: trendOfMatchup(teams[row.teamId], info, teamCount),
         home: fixture.home,
         goalsFor: null,
         goalsAgainst: null,

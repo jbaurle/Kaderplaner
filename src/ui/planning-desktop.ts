@@ -31,7 +31,7 @@ import type { ScenarioFlags, ScenarioSlot } from '../state/planning.js';
 import type { OppLayout } from '../state/opponents.js';
 import {
   EMPTY_OPPONENTS,
-  trendOfPosition,
+  trendOfMatchup,
   type OpponentsView,
   type TeamInfo,
   type Trend,
@@ -864,9 +864,10 @@ function renderOpponentsHeader(opp: OpponentsView): string {
  * einem Verein eine Ansetzung fehlt, sonst wandern die Wappen von Zeile zu
  * Zeile.
  *
- * Der Pfeil steht bei starkem oder schwachem Gegner, im Mittelfeld steht ein
- * grauer Strich. Heim oder auswärts steht nur im Tooltip: als Farbe oder
- * Deckkraft wäre es eine zweite Bedeutung neben der Tendenz und dafür zu leise.
+ * Der Pfeil steht, wenn der Gegner deutlich besser oder schlechter platziert
+ * ist als der eigene Verein, sonst bleibt sein Platz leer. Heim oder auswärts
+ * steht nur im Tooltip: als Farbe oder Deckkraft wäre es eine zweite
+ * Bedeutung neben der Tendenz und dafür zu leise.
  *
  * Unter 796 px zeigt CSS nur die nächste Ansetzung, siehe `--opp-cols`.
  */
@@ -884,7 +885,7 @@ function renderOpponents(teamId: string, opp: OpponentsView): string {
       continue;
     }
     const info = opp.teams[fixture.opponentId];
-    const trend = trendOfPosition(info?.position ?? 0, opp.teamCount);
+    const trend = trendOfMatchup(opp.teams[teamId], info, opp.teamCount);
     const title = [
       info?.name ?? 'Gegner unbekannt',
       info ? ` (${info.position}.)` : '',
@@ -904,18 +905,17 @@ function renderOpponents(teamId: string, opp: OpponentsView): string {
 }
 
 /**
- * Hoch und runter bekommen einen Pfeil, das Mittelfeld einen grauen Strich.
- * Der Strich füllt denselben Platz wie ein Pfeil: leer sah die Zeile aus, als
- * fehlte die Angabe, statt zu sagen, dass der Gegner mittelmäßig steht.
+ * Hoch und runter bekommen einen Pfeil, ein Gegner auf Augenhöhe nichts. Die
+ * Breite hält `.opp-arrow`, so stehen die Wappen trotzdem in einer Linie.
  */
 function trendGlyph(trend: Trend): string {
   if (trend === 'up') {
-    return '<span class="opp-trend opp-trend--up" aria-label="schwacher Gegner">↑</span>';
+    return '<span class="opp-trend opp-trend--up" aria-label="schwächerer Gegner">↑</span>';
   }
   if (trend === 'down') {
-    return '<span class="opp-trend opp-trend--down" aria-label="starker Gegner">↓</span>';
+    return '<span class="opp-trend opp-trend--down" aria-label="stärkerer Gegner">↓</span>';
   }
-  return '<span class="opp-trend opp-trend--flat" aria-label="Gegner im Mittelfeld"></span>';
+  return '';
 }
 
 /**
