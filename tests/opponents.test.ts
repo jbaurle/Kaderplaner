@@ -127,6 +127,17 @@ describe('trendOfMatchup', () => {
     expect(trendOfMatchup(team(6, 7), team(5, 7), 18)).toBe('flat');
   });
 
+  it('zeigt für beide Seiten einer Partie nie denselben Pfeil', () => {
+    const mirror = { up: 'down', down: 'up', flat: 'flat' } as const;
+    const teams = Object.values(buildTeamInfo(table));
+    for (const a of teams) {
+      for (const b of teams) {
+        if (a === b) continue;
+        expect(trendOfMatchup(b, a, 18)).toBe(mirror[trendOfMatchup(a, b, 18)]);
+      }
+    }
+  });
+
   it('ohne Tabelle bleibt es neutral', () => {
     expect(trendOfMatchup(undefined, team(5, 20), 18)).toBe('flat');
     expect(trendOfMatchup(team(5, 20), team(0, 0), 18)).toBe('flat');
