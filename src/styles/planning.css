@@ -2916,8 +2916,10 @@ body.is-dialog-open {
   font-variant-numeric: tabular-nums;
 }
 
-.pd-perf-col--good .pd-perf-bar { background: var(--grade-good); }
-.pd-perf-col--weak .pd-perf-bar { background: var(--grade-weak); }
+.pd-perf-col--top .pd-perf-bar { background: var(--points-top); }
+.pd-perf-col--high .pd-perf-bar { background: var(--points-high); }
+.pd-perf-col--good .pd-perf-bar { background: var(--points-good); }
+.pd-perf-col--low .pd-perf-bar { background: var(--points-low); }
 .pd-perf-col--neg .pd-perf-bar { background: var(--error); }
 .pd-perf-col--neg .pd-perf-num { color: var(--error); }
 .pd-perf-col--none .pd-perf-bar { background: transparent; }

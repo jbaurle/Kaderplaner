@@ -86,6 +86,12 @@
   --grade-mid: #d2a04c;
   --grade-weak: #c07373;
 
+  /* Punktebalken je Spieltag, Farben aus der Kickbase-App, in beiden Modi gleich. */
+  --points-top: #e1bc37;
+  --points-high: #24dc84;
+  --points-good: #9ddd49;
+  --points-low: #ee8728;
+
   /*
    * Prognose-Badges in der Aufstellung (wird er wohl spielen?) sind
    * absichtlich KEIN Token: sie sind immer weiße Schrift auf voller

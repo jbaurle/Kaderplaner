@@ -211,18 +211,20 @@ describe('matchdaysBySlot', () => {
 });
 
 describe('gradeOf', () => {
-  const average = 100;
-
-  it('stuft am eigenen Schnitt ein', () => {
-    expect(gradeOf(matchday(1, 130), average)).toBe('good');
-    expect(gradeOf(matchday(1, 80), average)).toBe('mid');
-    expect(gradeOf(matchday(1, 40), average)).toBe('weak');
+  it('stuft an festen Grenzen ein wie Kickbase', () => {
+    expect(gradeOf(matchday(1, 400))).toBe('top');
+    expect(gradeOf(matchday(1, 399))).toBe('high');
+    expect(gradeOf(matchday(1, 200))).toBe('high');
+    expect(gradeOf(matchday(1, 199))).toBe('good');
+    expect(gradeOf(matchday(1, 100))).toBe('good');
+    expect(gradeOf(matchday(1, 99))).toBe('low');
+    expect(gradeOf(matchday(1, 0))).toBe('low');
   });
 
   it('trennt Minuspunkte, fehlenden Einsatz und fehlenden Spieltag', () => {
-    expect(gradeOf(matchday(1, -12), average)).toBe('neg');
-    expect(gradeOf(matchday(1, null), average)).toBe('out');
-    expect(gradeOf(null, average)).toBe('none');
+    expect(gradeOf(matchday(1, -12))).toBe('neg');
+    expect(gradeOf(matchday(1, null))).toBe('out');
+    expect(gradeOf(null)).toBe('none');
   });
 });
 

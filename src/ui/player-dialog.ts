@@ -761,7 +761,7 @@ function renderPerfColumn(
   stats: SeasonStats,
   selectedDay: number | null,
 ): string {
-  const grade = gradeOf(day, stats.average);
+  const grade = gradeOf(day);
   const height = perfBarHeight(day, stats);
   // Der Wechsel gehört an den ersten Spieltag beim neuen Verein.
   const switched = day !== null && previous !== null && previous.teamId !== day.teamId;

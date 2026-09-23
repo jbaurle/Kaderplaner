@@ -25,7 +25,7 @@ export interface SeasonStats {
 }
 
 /** Einstufung eines Spieltags für Farbe und Balken. */
-export type MatchdayGrade = 'good' | 'mid' | 'weak' | 'neg' | 'out' | 'none';
+export type MatchdayGrade = 'top' | 'high' | 'good' | 'low' | 'neg' | 'out' | 'none';
 
 export function seasonStats(season: PerformanceSeason, now = Date.now()): SeasonStats {
   const played = season.matchdays.filter((day) => finalPoints(day, now) !== null);
@@ -85,18 +85,16 @@ export function matchdaysBySlot(season: PerformanceSeason): (PerformanceMatchday
   return slots;
 }
 
-/**
- * Einstufung am eigenen Schnitt, nicht an einer festen Grenze: 50 Punkte sind
- * für einen Torwart gut und für einen Stürmer mager.
- */
-export function gradeOf(day: PerformanceMatchday | null, average: number, now = Date.now()): MatchdayGrade {
+/** Feste Grenzen wie in der Kickbase-App: ab 400 Gold, ab 200 Grün, ab 100 Hellgrün, darunter Orange. */
+export function gradeOf(day: PerformanceMatchday | null, now = Date.now()): MatchdayGrade {
   if (day === null) return 'none';
   const points = finalPoints(day, now);
   if (points === null) return 'out';
   if (points < 0) return 'neg';
-  if (points >= average * 1.25) return 'good';
-  if (points >= average * 0.6) return 'mid';
-  return 'weak';
+  if (points >= 400) return 'top';
+  if (points >= 200) return 'high';
+  if (points >= 100) return 'good';
+  return 'low';
 }
 
 /**
