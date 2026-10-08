@@ -711,7 +711,9 @@
   border-collapse: collapse;
   background: var(--card);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  /* Die Zellen haben eigene Hintergründe und decken die Rundung zu. Der Clip
+     folgt der Tabelle selbst, beim seitlichen Scrollen fehlt keine Spalte. */
+  clip-path: inset(0 round var(--radius));
   font-size: 13px;
   line-height: 1.25;
   table-layout: auto;
