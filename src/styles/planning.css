@@ -344,6 +344,14 @@
  */
 .planning-table-host {
   overflow-x: auto;
+  /*
+   * Platz für die Rahmenlinie der Tabelle: sie liegt außerhalb der Tabelle,
+   * und der Überlauf schnitte sie ab. Auch oben: ab 796 px fällt die
+   * Szenario-Leiste weg, dann beginnt die Tabelle an der Oberkante. Der
+   * negative Rand nimmt das Polster wieder aus dem Layout.
+   */
+  padding: var(--table-edge);
+  margin: calc(-1 * var(--table-edge));
 }
 
 .planning-shell .planning-table {
@@ -756,8 +764,13 @@
   background: var(--card);
   border-radius: var(--radius);
   /* Die Zellen haben eigene Hintergründe und decken die Rundung zu. Der Clip
-     folgt der Tabelle selbst, beim seitlichen Scrollen fehlt keine Spalte. */
-  clip-path: inset(0 round var(--radius));
+     folgt der Tabelle selbst, beim seitlichen Scrollen fehlt keine Spalte. Er
+     reicht um die Breite der Rahmenlinie nach außen, sonst schnitte er sie ab. */
+  clip-path: inset(calc(-1 * var(--table-edge)) round calc(var(--radius) + var(--table-edge)));
+  /* Rahmenlinie im Hell-Modus, siehe `--table-edge`. Als `outline`, weil der
+     über den Zellen liegt: ein `box-shadow` verschwindet in den Ecken unter
+     ihren eckigen Flächen. */
+  outline: var(--table-edge) solid var(--border);
   font-size: 13px;
   line-height: 1.25;
   table-layout: auto;
@@ -800,8 +813,12 @@
   text-align: left;
 }
 
-/* Anker für das Vereinswappen. */
-.planning-table td.col-name {
+/*
+ * Anker für das Vereinswappen. Nur in Zeilen mit Spieler: eine positionierte
+ * Zelle malt über die Rahmenlinie der Tabelle, und die Summenzeile im Fuß
+ * sitzt in der Ecke unten links, wo die Linie durch die Zelle läuft.
+ */
+.planning-table td.col-name[data-player] {
   position: relative;
 }
 
