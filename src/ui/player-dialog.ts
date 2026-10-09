@@ -21,6 +21,7 @@ import type {
 import type { ScoreDetail } from '../compute/optimizer.js';
 import {
   gradeOf,
+  inSecondHalf,
   isMatchLive,
   matchdaysBySlot,
   pickSeasons,
@@ -669,12 +670,19 @@ function renderSeason(season: PerformanceSeason, view: PerformanceView): string 
 
   const slots = matchdaysBySlot(season);
   const half = Math.ceil(slots.length / 2);
+  const halves = [
+    renderHalf(slots, 0, half, stats, view),
+    renderHalf(slots, half, slots.length, stats, view),
+  ];
+  // In der Rückrunde steht sie oben, auch in der vorigen Saison: so liegt
+  // die laufende Runde in beiden Reitern an derselben Stelle.
+  const current = pickSeasons(view.performance).current;
+  if (current !== null && inSecondHalf(current)) halves.reverse();
 
   return `
     ${renderSeasonStats(stats)}
     <div class="pd-perf-halves">
-      ${renderHalf(slots, 0, half, stats, view)}
-      ${renderHalf(slots, half, slots.length, stats, view)}
+      ${halves.join('')}
     </div>
     <p class="pd-legend pd-perf-legend">
       Ein Tipp auf einen Spieltag zeigt Ergebnis und Minuten. Graue Stummel

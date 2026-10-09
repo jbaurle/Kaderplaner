@@ -148,6 +148,42 @@ describe('renderPlayerDialog: Aufstellungsstreifen', () => {
   });
 });
 
+describe('renderPlayerDialog: Reihenfolge der Halbserien', () => {
+  function matchday(day: number, points: number | null, kickoff = '2025-08-03T11:30:00Z') {
+    return {
+      day, points, minutes: points === null ? 0 : 90, teamId: '2', opponentId: '9', home: true,
+      goalsFor: 1, goalsAgainst: 0, kickoff, goals: 0, ownGoals: 0, assists: 0,
+    };
+  }
+  function viewWith(current: ReturnType<typeof matchday>[], seasonId: string): PerformanceView {
+    return {
+      performance: {
+        seasons: [
+          { id: '35', title: '2025/2026', competition: 'Bundesliga', matchdays: [matchday(1, 80), matchday(34, 90)] },
+          { id: '42', title: '2026/2027', competition: 'Bundesliga', matchdays: current },
+        ],
+      },
+      seasonId, isLoading: false, selectedDay: null, teams: {},
+    };
+  }
+  const order = (html: string): number => html.indexOf('Spieltag 18 bis 34') - html.indexOf('Spieltag 1 bis 17');
+
+  it('zeigt in der Hinrunde Spieltag 1 bis 17 zuerst', () => {
+    const html = renderPlayerDialog(dialogInput({ performance: viewWith([matchday(17, 100)], '42') }));
+    expect(order(html)).toBeGreaterThan(0);
+  });
+
+  it('zeigt in der Rückrunde Spieltag 18 bis 34 zuerst', () => {
+    const html = renderPlayerDialog(dialogInput({ performance: viewWith([matchday(17, 100), matchday(18, null)], '42') }));
+    expect(order(html)).toBeLessThan(0);
+  });
+
+  it('dreht die vorige Saison mit, damit beide Reiter gleich liegen', () => {
+    const html = renderPlayerDialog(dialogInput({ performance: viewWith([matchday(18, null)], '35') }));
+    expect(order(html)).toBeLessThan(0);
+  });
+});
+
 describe('renderPlayerDialog: Tore und Vorlagen je Spieltag', () => {
   // Ein Anstoß weit in der Vergangenheit, damit kein Spieltag als live gilt.
   function performanceWith(days: { points: number; goals?: number; ownGoals?: number; assists?: number }[]): PerformanceView {

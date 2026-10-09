@@ -124,9 +124,22 @@ export function defaultSeasonId(performance: PlayerPerformance | null, now = Dat
   return previous?.id ?? current?.id ?? null;
 }
 
-/* Punkte zählen auch ohne Anstoßzeit: Kickbase führt sie nicht immer. */
 function seasonStarted(season: PerformanceSeason, now: number): boolean {
-  return season.matchdays.some((day) =>
-    day.points !== null
-    || (day.kickoff !== '' && new Date(day.kickoff).getTime() <= now));
+  return season.matchdays.some((day) => dayStarted(day, now));
+}
+
+/**
+ * Läuft die Rückrunde? Ja, sobald ein Spieltag jenseits der Hälfte
+ * angepfiffen wurde oder Punkte trägt. Vor dem ersten Spieltag und in der
+ * Hinrunde: nein.
+ */
+export function inSecondHalf(season: PerformanceSeason, now = Date.now()): boolean {
+  const half = Math.ceil(matchdayCount(season) / 2);
+  return season.matchdays.some((day) => day.day > half && dayStarted(day, now));
+}
+
+/* Punkte zählen auch ohne Anstoßzeit: Kickbase führt sie nicht immer. */
+function dayStarted(day: PerformanceMatchday, now: number): boolean {
+  return day.points !== null
+    || (day.kickoff !== '' && new Date(day.kickoff).getTime() <= now);
 }

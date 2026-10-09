@@ -4,6 +4,7 @@ import type { PerformanceSeason, PlayerPerformance } from '../src/api/types.js';
 import {
   defaultSeasonId,
   gradeOf,
+  inSecondHalf,
   matchdayCount,
   matchdaysBySlot,
   pickSeasons,
@@ -225,6 +226,26 @@ describe('gradeOf', () => {
     expect(gradeOf(matchday(1, -12))).toBe('neg');
     expect(gradeOf(matchday(1, null))).toBe('out');
     expect(gradeOf(null)).toBe('none');
+  });
+});
+
+describe('inSecondHalf', () => {
+  it('ist falsch vor dem ersten Spieltag und in der Hinrunde', () => {
+    expect(inSecondHalf(season('42', []))).toBe(false);
+    expect(inSecondHalf(season('42', [matchday(17, 100)]))).toBe(false);
+  });
+
+  it('ist wahr, sobald Spieltag 18 angepfiffen ist, auch ohne Einsatz', () => {
+    expect(inSecondHalf(season('42', [matchday(17, 100), matchday(18, null)]))).toBe(true);
+  });
+
+  it('ist wahr, sobald Spieltag 18 Punkte trägt, auch ohne Anstoßzeit', () => {
+    expect(inSecondHalf(season('42', [matchday(18, 55, { kickoff: '' })]))).toBe(true);
+  });
+
+  it('wartet auf den Anstoß von Spieltag 18', () => {
+    const ahead = season('42', [matchday(17, 100), matchday(18, null, { kickoff: '2099-01-10T14:30:00Z' })]);
+    expect(inSecondHalf(ahead)).toBe(false);
   });
 });
 
