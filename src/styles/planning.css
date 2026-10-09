@@ -699,11 +699,14 @@
  * Die Schiene läuft über die volle Breite, bündig mit der Tabellenkarte
  * darunter. Sie ist selbst die Fläche, deshalb fällt das seitliche Polster
  * von 14 px weg, das den Block vorher in der Kopfkarte ausgerichtet hat.
+ *
+ * Seitlich 8 px Polster: das erste Segment beginnt und das letzte endet auf
+ * der Linie, auf der Titel und Tabellenspalten stehen.
  */
 .scen-switch {
   display: flex;
   gap: 2px;
-  padding: 3px;
+  padding: 3px 8px;
   margin-bottom: 8px;
   background: var(--scen-switch-bg);
   border-radius: var(--radius);

@@ -232,6 +232,15 @@ html[data-theme='dark'] .st-half {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
+/*
+ * Die Szenario-Leiste behält seitlich 8 px, damit ihre Segmente mit Titel und
+ * Tabellenspalten in einer Flucht stehen, siehe `.scen-switch` in
+ * planning.css. Oben und unten bleibt es bei null.
+ */
+html[data-theme='dark'] .scen-switch {
+  padding: 0 8px;
+}
+
 html[data-theme='dark'] .scen-switch button,
 html[data-theme='dark'] .st-half button,
 html[data-theme='dark'] .pd-tabs button {
