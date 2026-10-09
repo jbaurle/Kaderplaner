@@ -2,7 +2,8 @@
  * Der Spielerdialog. Geht auf, wenn man in der Tabelle auf einen Namen tippt.
  *
  * Aufbau von oben nach unten: wer er ist, was er wert ist, was er bringt,
- * wann er spielt, was ein Verkauf auslöst, und ganz unten der Satz dazu.
+ * wann er spielt, was er je Spieltag geholt hat, und ganz unten, was ein
+ * Verkauf auslöst.
  * Kickbase zeigt einen Spieler für sich, hier steht daneben, was er für den
  * eigenen Kader bedeutet.
  *
@@ -71,7 +72,7 @@ export interface PlayerDialogInput {
   /** Das höchste fremde Gebot, 0 wenn keins vorliegt. */
   bestOffer: number;
   insight: PlayerInsight;
-  /** Punkte je Spieltag, ganz unten im Dialog. */
+  /** Punkte je Spieltag, zwischen den Spieltagen und dem Verkauf. */
   performance: PerformanceView;
   /**
    * Steht er im eigenen Kader? Nur dann ergibt "Wenn du verkaufst" einen
@@ -898,8 +899,8 @@ export function renderPlayerDialog(input: PlayerDialogInput): string {
         <div class="dialog-body pd-body">
           ${renderScore(input)}
           ${renderMatchdays(input.insight)}
-          ${input.isOwned ? renderSale(input.insight) : ''}
           ${renderPerformance(input.performance)}
+          ${input.isOwned ? renderSale(input.insight) : ''}
         </div>
       </section>
     </div>
