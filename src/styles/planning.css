@@ -27,7 +27,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 12px;
-  padding: 10px 14px;
+  /* Seitlich wie die Außenkante der Tabelle, siehe Breitenleiter. */
+  padding: 10px 8px;
   margin-bottom: 10px;
   background: var(--card);
   border-radius: var(--radius);
@@ -359,6 +360,29 @@
   padding: 6px 3px;
 }
 
+/*
+ * Außenkante der Tabelle: 8 px vor der ersten und hinter der letzten Spalte,
+ * dasselbe über der ersten und unter der letzten Zeile. Die Kopfkarte hat
+ * seitlich dasselbe Maß, damit Titel und Spaltenanfang in einer Flucht stehen.
+ * Die Selektoren schlagen die Kurzform `padding` der Stufen weiter unten,
+ * deshalb setzen 720 und 900 den Wert ausdrücklich neu.
+ */
+.planning-shell .planning-table tr > :first-child {
+  padding-left: 8px;
+}
+
+.planning-shell .planning-table tr > :last-child {
+  padding-right: 8px;
+}
+
+.planning-shell .planning-table thead tr:first-child > * {
+  padding-top: 8px;
+}
+
+.planning-shell .planning-table tfoot tr:last-child > * {
+  padding-bottom: 8px;
+}
+
 .planning-shell .chip {
   padding: 1px 4px;
   font-size: 10px;
@@ -533,7 +557,7 @@
   /*
    * Ab hier ist Platz: G/V steht in derselben Größe wie der Rest, und Chip
    * und Zellpolster gehen auf ihr normales Maß zurück. Bleibt danach noch
-   * 22 px Reserve.
+   * 14 px Reserve.
    */
   .planning-shell .planning-table .col-pl {
     font-size: inherit;
@@ -600,6 +624,13 @@
   .planning-shell .planning-table td {
     padding: 4px 8px;
   }
+  /* Die Zeilen sind hier enger, oben und unten gilt wieder ihr Maß. */
+  .planning-shell .planning-table thead tr:first-child > * {
+    padding-top: 4px;
+  }
+  .planning-shell .planning-table tfoot tr:last-child > * {
+    padding-bottom: 4px;
+  }
 }
 
 @container (min-width: 796px) {
@@ -630,6 +661,16 @@
   .planning-shell .planning-table th,
   .planning-shell .planning-table td {
     padding: 4px 10px;
+  }
+  /* Außenkante und Kopfkarte gehen mit, sonst stehen sie nicht mehr bündig. */
+  .planning-shell .planning-table tr > :first-child {
+    padding-left: 10px;
+  }
+  .planning-shell .planning-table tr > :last-child {
+    padding-right: 10px;
+  }
+  .planning-shell .planning-header {
+    padding: 10px;
   }
 }
 
