@@ -33,8 +33,8 @@
     </div>
     <div class="box">
       <h1>Datenschutzerklärung</h1>
-      <p class="lead">Kurz vorweg: Der Kaderplaner läuft vollständig in deinem Browser. Es gibt
-        keinen Server von uns, der deine Daten entgegennimmt, und kein Tracking.</p>
+      <p class="lead">Kurz vorweg: Der Kaderplaner läuft in deinem Browser. Unser Server reicht
+        deine Anfragen nur an Kickbase weiter und speichert nichts. Kein Tracking.</p>
 
       <h2>1. Verantwortlicher</h2>
       <p>Jürgen Bäurle<br>
@@ -51,10 +51,12 @@
       </script>
 
       <h2>2. Wie die Anwendung arbeitet</h2>
-      <p>Der Kaderplaner besteht nur aus statischen Dateien (HTML, JavaScript, CSS), die dein
-        Browser lädt und dort ausführt. Alle Abfragen an Kickbase stellt dein Browser selbst.
-        Es gibt keine Datenbank und keinen Anwendungsserver auf unserer Seite, der deine
-        Zugangsdaten, deinen Kader oder deine Planungen speichern oder mitlesen könnte.</p>
+      <p>Der Kaderplaner besteht aus statischen Dateien (HTML, JavaScript, CSS), die dein
+        Browser lädt und dort ausführt, und einer Weiterleitung unter <code>kaderplaner.de/api</code>.
+        Sie reicht die Abfragen deines Browsers unverändert an Kickbase weiter. Das ist nötig, weil
+        Kickbase direkte Abfragen aus dem Browser nicht mehr zulässt. Es gibt keine Datenbank.
+        Deine Zugangsdaten, deinen Kader und deine Planungen speichern oder protokollieren wir
+        nicht.</p>
 
       <h2>3. Hosting und Server-Logfiles</h2>
       <p>Die Dateien werden von Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, USA
@@ -67,10 +69,11 @@
 
       <h2>4. Anmeldung bei Kickbase</h2>
       <p>Zum Anmelden gibst du E-Mail-Adresse und Passwort deines Kickbase-Kontos ein. Beides
-        schickt dein Browser direkt an die Kickbase-Schnittstelle
-        (<code>api.kickbase.com</code>). Die Daten laufen nicht über uns und werden von uns weder
-        gespeichert noch verarbeitet. Für diese Verarbeitung ist die Kickbase GmbH eigenständig
-        verantwortlich; es gelten deren Datenschutzhinweise. Dasselbe gilt für alle weiteren
+        schickt dein Browser an die Weiterleitung unter <code>kaderplaner.de/api</code>, die es an
+        die Kickbase-Schnittstelle (<code>api.kickbase.com</code>) weitergibt. Die Weiterleitung
+        läuft bei Cloudflare (siehe Abschnitt 3) und hält die Daten nur für die Dauer der Anfrage
+        im Speicher. Wir speichern sie nicht und werten sie nicht aus. Für die Verarbeitung bei
+        Kickbase ist die Kickbase GmbH eigenständig verantwortlich; es gelten deren Datenschutzhinweise. Dasselbe gilt für alle weiteren
         Abfragen der App (u.&nbsp;a. Kader, Budget, Transfermarkt mit deinen offenen Geboten,
         Ligatabelle, Spieltage und Spielerdaten) und für das Setzen der Aufstellung.</p>
       <p>Dein Passwort wird zu keinem Zeitpunkt gespeichert. Es wird einmal zum Anmelden verwendet
@@ -129,7 +132,7 @@
         Kickbase machst du bitte direkt bei der Kickbase GmbH geltend.</p>
 
       <h2>9. Stand</h2>
-      <p>August 2026</p>
+      <p>Oktober 2026</p>
     </div>
     <footer>
       <a href="/legal-notice">Impressum</a><span aria-hidden="true">·</span>

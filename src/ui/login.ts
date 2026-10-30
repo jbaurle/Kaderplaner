@@ -114,7 +114,7 @@ export function renderLogin(host: HTMLElement, props: LoginViewProps): void {
             <ul class="auth-proof">
               <li>
                 <span class="tick" aria-hidden="true">✓</span>
-                <span>Dein Passwort geht direkt an Kickbase. Kein Server dazwischen, der mitliest.</span>
+                <span>Dein Passwort wird nur an Kickbase weitergereicht und nirgends gespeichert.</span>
               </li>
               <li>
                 <span class="tick" aria-hidden="true">✓</span>

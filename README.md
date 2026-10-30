@@ -7,8 +7,8 @@ Browser läuft. Sie zeigt deinen Kader mit einem Score je Spieler, dem nächsten
 Gegner und deinen offenen Geboten, und lässt dich in vier Spalten durchspielen,
 wen du verkaufst und was danach auf dem Konto steht.
 
-Kein Server, keine Datenbank. Die App spricht die Kickbase-API direkt aus dem
-Browser an und legt nichts ab außer in deinem `localStorage`.
+Keine Datenbank. Ein kleiner Worker reicht die Abfragen an die Kickbase-API
+weiter, die App legt nichts ab außer in deinem `localStorage`.
 
 ![Die Startseite am Desktop](docs/shot-start.png)
 
