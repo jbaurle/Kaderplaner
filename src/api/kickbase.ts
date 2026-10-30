@@ -5,10 +5,10 @@
  * (login, budget, squad, Aufstellung setzen). Optimizer-only endpoints from
  * the original Apps Script are deliberately omitted.
  *
- * CORS: api.kickbase.com echoes Origin and allows credentialed requests, so
- * the browser can call it directly. Verified 2026-04-28 against the
- * Cloudflare-Frankfurt edge. Geprüft wurde damals nur Lesen; ob der Preflight
- * auch für den POST auf `lineup` durchgeht, zeigt erst der erste Versuch.
+ * Alle Aufrufe gehen an `/api/` auf der eigenen Domain. Dort reicht sie der
+ * Worker (`src/worker.ts`), im Dev-Server der Vite-Proxy, an
+ * api.kickbase.com/v4 weiter. Direkt aus dem Browser geht es nicht mehr: seit
+ * Ende Oktober 2026 erlaubt Kickbase CORS nur noch für die eigenen Domains.
  */
 
 import type {
@@ -62,7 +62,7 @@ import type {
   WireUserMeResponse,
 } from './types.js';
 
-const BASE_URL = 'https://api.kickbase.com/v4/';
+const BASE_URL = '/api/';
 
 export class KickbaseError extends Error {
   constructor(

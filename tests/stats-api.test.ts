@@ -44,7 +44,7 @@ describe('KickbaseClient: Statistik', () => {
       ],
     });
     const ranking = await new KickbaseClient('tok').getLeagueRanking('1909854');
-    expect(urls[0]).toBe('https://api.kickbase.com/v4/leagues/1909854/ranking');
+    expect(urls[0]).toBe('/api/leagues/1909854/ranking');
     expect(ranking.leagueName).toBe('Stuggi League');
     expect(ranking.managers).toEqual([
       {
@@ -75,7 +75,7 @@ describe('KickbaseClient: Statistik', () => {
       ],
     });
     const performance = await new KickbaseClient('tok').getManagerPerformance('1909854', '1893023');
-    expect(urls[0]).toBe('https://api.kickbase.com/v4/leagues/1909854/managers/1893023/performance');
+    expect(urls[0]).toBe('/api/leagues/1909854/managers/1893023/performance');
     expect(performance.managerId).toBe('1893023');
     expect(performance.managerName).toBe('Jelrab_');
     expect(performance.seasons).toHaveLength(2);
@@ -97,7 +97,7 @@ describe('KickbaseClient: Statistik', () => {
       ],
     });
     const adjustments = await new KickbaseClient('tok').getPointAdjustments('1909854');
-    expect(urls[0]).toBe('https://api.kickbase.com/v4/leagues/1909854/activitiesFeed?max=100&filter=29');
+    expect(urls[0]).toBe('/api/leagues/1909854/activitiesFeed?max=100&filter=29');
     expect(adjustments).toEqual([{ managerId: '3614536', amount: -300, date: '2026-09-19T06:10:34Z' }]);
   });
 });

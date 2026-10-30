@@ -54,6 +54,21 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    // Dasselbe wie der Worker in Produktion: `/api/*` geht an Kickbase, ohne
+    // Origin und Cookies. `vite preview` übernimmt den Proxy von hier.
+    proxy: {
+      '/api/': {
+        target: 'https://api.kickbase.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\//, '/v4/'),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (req) => {
+            req.removeHeader('origin');
+            req.removeHeader('cookie');
+          });
+        },
+      },
+    },
   },
   test: {
     environment: 'jsdom',

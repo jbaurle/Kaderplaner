@@ -63,7 +63,7 @@ describe('KickbaseClient', () => {
       const result = await client.login('a@b.de', 'pw');
 
       expect(calls).toHaveLength(1);
-      expect(calls[0]?.url).toBe('https://api.kickbase.com/v4/user/login');
+      expect(calls[0]?.url).toBe('/api/user/login');
       expect(calls[0]?.method).toBe('POST');
       expect(calls[0]?.headers.get('Content-Type')).toBe('application/json');
       expect(JSON.parse(calls[0]?.body ?? 'null')).toEqual({
@@ -144,7 +144,7 @@ describe('KickbaseClient', () => {
 
       expect(calls).toHaveLength(2);
       expect(calls[1]?.headers.get('Authorization')).toBe('Bearer TOKEN_X');
-      expect(calls[1]?.url).toBe('https://api.kickbase.com/v4/leagues/l/me/budget');
+      expect(calls[1]?.url).toBe('/api/leagues/l/me/budget');
     });
 
     it('returns the budget balance', async () => {
@@ -238,7 +238,7 @@ describe('KickbaseClient', () => {
       const table = await client.getCompetitionTable(1);
 
       expect(calls).toHaveLength(1);
-      expect(calls[0]?.url).toBe('https://api.kickbase.com/v4/competitions/1/table');
+      expect(calls[0]?.url).toBe('/api/competitions/1/table');
       expect(calls[0]?.method).toBe('GET');
       expect(calls[0]?.headers.get('Authorization')).toBe('Bearer tok');
       expect(table.teams).toEqual([
@@ -284,7 +284,7 @@ describe('KickbaseClient', () => {
       const client = new KickbaseClient('tok');
       const details = await client.getPlayerDetails('league-1', 'player-1');
 
-      expect(calls[0]?.url).toBe('https://api.kickbase.com/v4/leagues/league-1/players/player-1');
+      expect(calls[0]?.url).toBe('/api/leagues/league-1/players/player-1');
       expect(calls[0]?.headers.get('Authorization')).toBe('Bearer tok');
       expect(details).toEqual({
         firstName: 'Dayot',
@@ -340,9 +340,9 @@ describe('KickbaseClient', () => {
 
       expect(calls).toHaveLength(3);
       const urls = calls.map((c) => c.url);
-      expect(urls).toContain('https://api.kickbase.com/v4/leagues/league-1/players/a');
-      expect(urls).toContain('https://api.kickbase.com/v4/leagues/league-1/players/b');
-      expect(urls).toContain('https://api.kickbase.com/v4/leagues/league-1/players/c');
+      expect(urls).toContain('/api/leagues/league-1/players/a');
+      expect(urls).toContain('/api/leagues/league-1/players/b');
+      expect(urls).toContain('/api/leagues/league-1/players/c');
       expect(results).toHaveLength(3);
       expect(results.map((r) => r.teamId)).toEqual(['t1', 't2', 't3']);
     });
