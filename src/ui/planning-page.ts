@@ -37,7 +37,7 @@ import {
   type ScenarioSlot,
   type ScenarioState,
 } from '../state/planning.js';
-import { loadLineup, saveLineup } from '../state/lineup.js';
+import { clearLineup, loadLineup, saveLineup } from '../state/lineup.js';
 import { isFresh, loadPerformance, savePerformance } from '../state/performance.js';
 import { defaultSeasonId } from '../compute/performance.js';
 import { loadOppLayout, saveOppLayout } from '../state/opponents.js';
@@ -203,6 +203,16 @@ export class PlanningPage {
     document.removeEventListener('keydown', this.onKeydown);
     this.widthObserver?.disconnect();
     this.widthObserver = null;
+  }
+
+  /**
+   * "Laden": Stand von Kickbase, auch für die Aufstellung. Ein nicht
+   * gesendeter Entwurf fällt weg, sonst zeigt die Aufstellung danach wieder
+   * ihn statt der Elf, die Kickbase meldet.
+   */
+  private reload(): void {
+    clearLineup(this.props.leagueId);
+    void this.fetch();
   }
 
   /** Fetch budget + squad, danach laufen die Scores automatisch hinterher. */
@@ -665,7 +675,7 @@ export class PlanningPage {
       .querySelector('#lineup-btn')
       ?.addEventListener('click', () => this.openLineup(view));
     props.host.querySelector('#stats-btn')?.addEventListener('click', () => this.openStats());
-    props.host.querySelector('#laden-btn')?.addEventListener('click', () => void this.fetch());
+    props.host.querySelector('#laden-btn')?.addEventListener('click', () => this.reload());
     props.host.querySelector('#logout-btn')?.addEventListener('click', () => props.onLogout());
     // Reine CSS-Umschaltung (data-theme auf <html>), kein Re-Render der
     // Seite nötig — nur der Button selbst zeigt danach das andere Icon.

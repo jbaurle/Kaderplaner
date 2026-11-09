@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { KickbaseClient } from '../src/api/kickbase.js';
 import type { PlayerId, PlayerPerformance } from '../src/api/types.js';
 import { PlanningPage } from '../src/ui/planning-page.js';
+import { loadLineup, saveLineup } from '../src/state/lineup.js';
 import { savePerformance } from '../src/state/performance.js';
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
@@ -178,5 +179,29 @@ describe('PlanningPage, Punkte je Spieltag', () => {
     pending.get('A')!.resolve(performanceWith('35'));
     await settle();
     expect(p.state.performance['A']?.seasons[0]?.id).toBe('35');
+  });
+});
+
+describe('PlanningPage, Laden', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('verwirft den Aufstellungsentwurf, damit die Elf von Kickbase gilt', () => {
+    saveLineup('l1', ['A', 'B']);
+    const { page } = makePage();
+
+    (page as unknown as { reload(): void }).reload();
+
+    expect(loadLineup('l1', new Set(['A', 'B']))).toBeNull();
+  });
+
+  it('lässt den Entwurf anderer Ligen stehen', () => {
+    saveLineup('l2', ['A']);
+    const { page } = makePage();
+
+    (page as unknown as { reload(): void }).reload();
+
+    expect(loadLineup('l2', new Set(['A']))).toEqual(['A']);
   });
 });

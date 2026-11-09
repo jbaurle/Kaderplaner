@@ -34,3 +34,8 @@ export function loadLineup(
 export function saveLineup(leagueId: LeagueId, ids: readonly PlayerId[]): void {
   storage.save<StoredLineup>(`lineup.${leagueId}`, { ids: [...ids] });
 }
+
+/** Entwurf verwerfen, die Aufstellung startet danach mit der Elf von Kickbase. */
+export function clearLineup(leagueId: LeagueId): void {
+  storage.remove(`lineup.${leagueId}`);
+}
