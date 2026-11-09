@@ -183,7 +183,7 @@ export class PlanningPage {
 
   start(): void {
     this.render();
-    void this.fetch();
+    this.reload();
     // Drehen ändert die Breite, ohne dass neu gerendert wird.
     window.addEventListener('resize', this.onResize);
     // Escape hängt am Dokument, nicht am Overlay: das Overlay hat beim Öffnen
@@ -206,9 +206,9 @@ export class PlanningPage {
   }
 
   /**
-   * "Laden": Stand von Kickbase, auch für die Aufstellung. Ein nicht
-   * gesendeter Entwurf fällt weg, sonst zeigt die Aufstellung danach wieder
-   * ihn statt der Elf, die Kickbase meldet.
+   * Start der Seite und "Laden": Stand von Kickbase, auch für die
+   * Aufstellung. Ein nicht gesendeter Entwurf fällt weg, sonst zeigt die
+   * Aufstellung danach wieder ihn statt der Elf, die Kickbase meldet.
    */
   private reload(): void {
     clearLineup(this.props.leagueId);

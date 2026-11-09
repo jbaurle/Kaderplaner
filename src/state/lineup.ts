@@ -1,6 +1,8 @@
 /**
- * Der Aufstellungsentwurf je Liga, damit ein halbfertiger Stand den Reload
- * überlebt.
+ * Der Aufstellungsentwurf je Liga, solange die Seite offen ist. Er übersteht
+ * den Neubau der Aufstellung nach einem Score-Lauf oder nach dem Senden.
+ * Beim Start der Seite und bei "Laden" fällt er weg, dann gilt wieder die
+ * Elf von Kickbase.
  *
  * Bewusst getrennt von `kb.scenarios.<leagueId>`: die Szenarien sagen "diesen
  * Spieler verkaufe ich", der Entwurf sagt "dieser Spieler spielt". Beides in

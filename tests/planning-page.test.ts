@@ -196,6 +196,16 @@ describe('PlanningPage, Laden', () => {
     expect(loadLineup('l1', new Set(['A', 'B']))).toBeNull();
   });
 
+  it('verwirft den Entwurf auch beim Start der Seite', () => {
+    saveLineup('l1', ['A', 'B']);
+    const { page } = makePage();
+
+    page.start();
+    page.dispose();
+
+    expect(loadLineup('l1', new Set(['A', 'B']))).toBeNull();
+  });
+
   it('lässt den Entwurf anderer Ligen stehen', () => {
     saveLineup('l2', ['A']);
     const { page } = makePage();

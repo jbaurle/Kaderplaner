@@ -125,13 +125,12 @@ Im `localStorage` liegen:
 | `kb.scenarios.<leagueId>` | deine Häkchen in S1 bis S3 |
 | `kb.optimizer.<leagueId>` | Spielerdetails und Tabelle, damit nicht jeder Klick neu abruft |
 | `kb.oppview.<leagueId>` | Spaltenzahl und Spieltag der Gegner-Spalte, damit sie beim Laden nicht springt |
-| `kb.lineup.<leagueId>` | dein Aufstellungsentwurf, bis du ihn abschickst |
+| `kb.lineup.<leagueId>` | dein Aufstellungsentwurf, bis die Seite neu startet oder du auf „Laden“ klickst |
 | `kb.stats.<leagueId>` | Rangliste und Punkte je Spieltag aller Manager, eine Stunde gültig |
 | `kb.performance.<leagueId>.<playerId>` | Punkte je Spieltag eines Spielers, sechs Stunden gültig |
 | `kb.theme` | die Wahl zwischen hellem und dunklem Design |
 
-Abmelden löscht Sitzung und Ligaauswahl. Szenarien, Aufstellungsentwurf und
-Cache bleiben.
+Abmelden löscht Sitzung und Ligaauswahl. Szenarien und Cache bleiben.
 
 ## Lizenz
 
